@@ -1,0 +1,22 @@
+﻿<Window x:Class="D4DataParser.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:D4DataParser.Views"
+        mc:Ignorable="d"
+        Title="D4DataParser" Height="450" Width="800">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" HorizontalAlignment="Left" Orientation="Horizontal" Margin="5">
+            <Border BorderBrush="Black" BorderThickness="1">
+                <TextBlock TextTrimming="CharacterEllipsis" Width="200" Text="{Binding CoreTOCPath}"/>
+            </Border>
+            
+            <Button Content="Select" Width="50"/>
+            <Button Content="Go" Width="50" Command="{Binding ParseDataCommand}"/>
+            <Button Content="Test" Width="50" Command="{Binding TestCommand}"/>
+        </StackPanel>
+        <StackPanel>          
+        </StackPanel>
+    </DockPanel>
+</Window>

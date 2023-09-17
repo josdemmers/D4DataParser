@@ -1,0 +1,15 @@
+{
+  "1234156": "INHERENT_Damage_to_Near",
+  "1234158": "INHERENT_CritDamage",
+  "1234164": "INHERENT_Damage_to_HighLife",
+  "1234166": "INHERENT_OverpowerDamage",
+  "1234168": "INHERENT_Damage_to_LowLife",
+  "1234170": "INHERENT_Luck",
+  "1234172": "INHERENT_Damage_to_CCd",
+  "1234177": "INHERENT_Damage_to_Far",
+  "1234179": "INHERENT_Damage_to_Vulnerable",
+  "1234181": "INHERENT_On_Kill_Health",
+  "1234184": "INHERENT_Thorns",
+  "1234186": "INHERENT_Resource_Cost_Reduction_Druid",
+  "1234188": "INHERENT_CD_Reduction"
+ }
