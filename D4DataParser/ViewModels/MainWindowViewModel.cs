@@ -1,5 +1,7 @@
 ﻿using D4DataParser.Entities;
+using D4DataParser.Entities.D4Data;
 using D4DataParser.Helpers;
+using D4DataParser.Parsers;
 using ImTools;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -22,6 +24,12 @@ namespace D4DataParser.ViewModels
 {
     public class MainWindowViewModel : BindableBase
     {
+        private SigilParser _sigilParser = new SigilParser();
+
+
+
+        // Todo: Move to separate parser.
+
         private string _coreTOCPath = @"D:\Games\DiabloIV\d4data\json\base\CoreTOC.dat.json";
 
         private List<AffixMeta> _affixMetaJsonList = new List<AffixMeta>();
@@ -48,6 +56,7 @@ namespace D4DataParser.ViewModels
         {
             // Init View commands
             ParseDataCommand = new DelegateCommand(ParseDataExecute);
+            ParseSigilDataCommand = new DelegateCommand(ParseSigilDataExecute);
             TestCommand = new DelegateCommand(TestExecute);
 
             // Init mapping
@@ -70,6 +79,7 @@ namespace D4DataParser.ViewModels
         #region Properties
 
         public DelegateCommand ParseDataCommand { get; }
+        public DelegateCommand ParseSigilDataCommand { get; }
         public DelegateCommand TestCommand { get; }
 
         public string CoreTOCPath
@@ -93,6 +103,15 @@ namespace D4DataParser.ViewModels
             Task.Factory.StartNew(() =>
             {
                 ParseAffixes();
+            });
+        }
+
+        private void ParseSigilDataExecute()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                _sigilParser.D4datePath = "D:\\Games\\DiabloIV\\d4data\\";
+                _sigilParser.ParseSigils();
             });
         }
 

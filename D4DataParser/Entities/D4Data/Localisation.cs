@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace D4DataParser.Entities
+namespace D4DataParser.Entities.D4Data
 {
     public class Localisation
     {
