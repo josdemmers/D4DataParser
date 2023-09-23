@@ -525,6 +525,12 @@ namespace D4DataParser.ViewModels
             // Remove all affixes with no description
             _affixInfoList.RemoveAll(a => string.IsNullOrWhiteSpace(a.Description));
 
+            // Sort
+            _affixInfoList.Sort((x, y) =>
+            {
+                return string.Compare(x.Description, y.Description, StringComparison.Ordinal);
+            });
+
             // Save affixes
             SaveAffixes();
 
@@ -597,7 +603,13 @@ namespace D4DataParser.ViewModels
             // Remove all affixes with no description
             _aspectInfoList.RemoveAll(a => string.IsNullOrWhiteSpace(a.Description));
 
-            // Save affixes
+            // Sort
+            _aspectInfoList.Sort((x, y) =>
+            {
+                return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
+            });
+
+            // Save
             SaveAspects();
 
             watch.Stop();

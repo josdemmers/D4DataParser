@@ -80,10 +80,11 @@ namespace D4DataParser.Parsers
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var elapsedMs = watch.ElapsedMilliseconds;
 
-            _sigilInfoList.Clear();
             foreach (var language in _languages)
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
+
+                _sigilInfoList.Clear();
                 ParseSigilsByLanguage(language);
             }
 
@@ -189,12 +190,28 @@ namespace D4DataParser.Parsers
                 _sigilInfoList.Add(GetSigilInfoFromAffixLocalisation(affix));
             }
 
+            // Add IdName info
+            int coreTOCIndex = 42;
+            jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\CoreTOC.dat.json");
+            var coreTOCDictionary = JsonSerializer.Deserialize<Dictionary<int, Dictionary<int, string>>>(jsonAsText);
+            var sigilDictionary = coreTOCDictionary[coreTOCIndex];
+            foreach (var sigilInfo in _sigilInfoList)
+            {
+                sigilInfo.IdName = sigilDictionary[sigilInfo.IdSno];
+            }
+
             // Beautify names and descriptions
-            foreach(var sigilInfo in _sigilInfoList)
+            foreach (var sigilInfo in _sigilInfoList)
             {
                 sigilInfo.Name = sigilInfo.Name.Replace("{c_bonus}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{/c}", string.Empty);
             }
+
+            // Sort
+            _sigilInfoList.Sort((x, y) =>
+            {
+                return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
+            });
 
             // Save
             SaveSigils(language);
