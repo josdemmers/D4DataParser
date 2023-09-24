@@ -719,6 +719,12 @@ namespace D4DataParser.ViewModels
             _affixInfoList.RemoveAll(a => a.IdName.Equals("GemPower1Socket"));
             _affixInfoList.RemoveAll(a => a.IdName.Equals("GemPower2Socket"));
 
+            // Remove all _Always1 affixes - Used by Rank(s) of affixes
+            // PassiveRankBonus_Druid_Shapeshifting_T4_N1_Quickshift_Always1
+            // PassiveRankBonus_Necro_Summoning_T3_N2_Always1
+            // PassiveRankBonus_Sorc_Elemental_T2_N2_Always1
+            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_Always1"));
+
             // Remove some duplicates
             _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStats_All_Weapon")); // "# All Stats", using "CoreStats_All" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("ElementalDamageReduction")); // "#% Resistance to All Elements", using "Resistance_All" instead.
@@ -729,8 +735,8 @@ namespace D4DataParser.ViewModels
             _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_Strength_Weapon")); // "# Strength", using "CoreStat_Strength" instead.      
             _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_Willpower_Weapon")); // "# Willpower", using "CoreStat_Willpower" instead.      
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Thorns_Shields")); // "+# Thorns", using "Thorns" instead.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Attack_Reset_Random")); // "Attacks Reduce Evade's Cooldown by # Seconds", using "Evade_Attack_Reset" instead.   
-
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Attack_Reset_Random")); // "Attacks Reduce Evade's Cooldown by # Seconds", using "Evade_Attack_Reset" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Charges_Random")); // "+# Max Evade Charges", using "Evade_Max_Charges" instead.
         }
 
         private void ReplaceNumericValuePlaceholders()
