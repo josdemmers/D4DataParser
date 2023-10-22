@@ -42,7 +42,7 @@ namespace D4DataParser.Parsers
 
         #region Properties
 
-        public string D4datePath { get => _d4datePath; set => _d4datePath = value; }
+        public string D4dataPath { get => _d4datePath; set => _d4datePath = value; }
 
         #endregion
 

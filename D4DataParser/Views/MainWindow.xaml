@@ -9,15 +9,13 @@
     <DockPanel>
         <StackPanel DockPanel.Dock="Top" HorizontalAlignment="Left" Orientation="Horizontal" Margin="5">
             <Border BorderBrush="Black" BorderThickness="1">
-                <TextBlock TextTrimming="CharacterEllipsis" Width="200" Text="{Binding CoreTOCPath}"/>
+                <TextBlock TextTrimming="CharacterEllipsis" MinWidth="200" Width="Auto" Text="{Binding D4dataPath}" IsEnabled="False"/>
             </Border>
-            
-            <Button Content="Select" Width="50"/>
-            <Button Content="Affixes + Aspects" Width="50" Command="{Binding ParseDataCommand}"/>
-            <Button Content="Sigils" Width="50" Command="{Binding ParseSigilDataCommand}"/>
-            <Button Content="Test" Width="50" Command="{Binding TestCommand}"/>
         </StackPanel>
-        <StackPanel>          
+        <StackPanel HorizontalAlignment="Left">
+            <Button Content="Affixes + Aspects" Width="Auto" Command="{Binding ParseDataCommand}"/>
+            <Button Content="Sigils" Width="Auto" Command="{Binding ParseSigilDataCommand}"/>
+            <Button Content="Test" Width="Auto" Command="{Binding TestCommand}" IsEnabled="False"/>
         </StackPanel>
     </DockPanel>
 </Window>

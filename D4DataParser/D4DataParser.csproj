@@ -19,12 +19,7 @@
 
   <ItemGroup>
     <Folder Include="Config\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Data\Blacklist.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Folder Include="Data\" />
   </ItemGroup>
 
 </Project>
