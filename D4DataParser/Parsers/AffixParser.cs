@@ -82,6 +82,7 @@ namespace D4DataParser.Parsers
         private void InitLocalisations()
         {
             _languages.Clear();
+
             _languages.Add("deDE");
             _languages.Add("enUS");
             _languages.Add("esES");
@@ -356,10 +357,40 @@ namespace D4DataParser.Parsers
 
                 foreach (var itemAffixAttribute in itemAffixAttributes)
                 {
+                    // On_Hit_Vulnerable_Proc_Chance --> DISABLED
+                    // On_Hit_Vulnerable_Proc_Duration_Seconds --> DISABLED
+                    // Movement_Bonus_On_Elite_Kill --> IGNORE
+                    // Movement_Bonus_On_Elite_Kill_Duration --> Movement_Speed_Bonus_On_Elite_Kill
+                    // Weapon_On_Hit_Percent_Bleed_Proc_Chance
+                    // Weapon_On_Hit_Percent_Bleed_Proc_Damage
+                    // Weapon_On_Hit_Percent_Bleed_Proc_Duration
+                    // Mount_Fear_Reduction_Pct
+                    // Item_Find
+                    // Evade_Movement_Speed --> IGNORE
+                    // Evade_Movement_Speed_Duration --> Evade_Movement_Dodge_Chance
+                    // Damage_Bonus_On_Elite_Kill --> IGNORE
+                    // Damage_Bonus_On_Elite_Kill_Duration --> Damage_Bonus_On_Elite_Kill_Combined
+                    // Damage_Bonus_Percent_On_Dodge
+                    // Damage_Bonus_Percent_On_Dodge_Duration
+                    // Attack_Speed_Bonus_On_Dodge
+                    // Attack_Speed_Bonus_On_Dodge_Duration
+                    // Blood_Orb_Pickup_Damage_Percent_Bonus
+                    // Blood_Orb_Pickup_Damage_Bonus_Duration
+                    // Barrier_When_Struck_Percent_Chance
+                    // Fortified_When_Struck_Percent_Chance
+                    // Fortified_When_Struck_Amount
+
+                    // Replace some localisationIds with an id that is available in AttributeDescriptions.stl.json
+                    string localisationId = itemAffixAttribute.tAttribute.__eAttribute_name__;
+                    if (localisationId.Equals("Movement_Bonus_On_Elite_Kill_Duration")) localisationId = "Movement_Speed_Bonus_On_Elite_Kill";
+                    if (localisationId.Equals("Damage_Bonus_On_Elite_Kill_Duration")) localisationId = "Damage_Bonus_On_Elite_Kill_Combined";
+                    if (localisationId.Equals("Evade_Movement_Speed_Duration")) localisationId = "Evade_Movement_Dodge_Chance";
+
                     affix.AffixAttributes.Add(new AffixAttribute
                     {
-                        LocalisationId = itemAffixAttribute.tAttribute.__eAttribute_name__,
-                        LocalisationParameter = itemAffixAttribute.tAttribute.nParam
+                        LocalisationId = localisationId,
+                        LocalisationParameter = itemAffixAttribute.tAttribute.nParam,
+                        LocalisationAttributeFormulaValue = itemAffixAttribute?.tAttribute?.szAttributeFormula?.value ?? string.Empty
                     });
                 }
 
@@ -466,6 +497,12 @@ namespace D4DataParser.Parsers
                     else if (affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_Per_Shapeshift_Form"))
                     {
                         ReplaceShapeshiftFormPlaceholders(affix);
+                    }
+                    else if (affixAttribute.LocalisationId.Equals("Movement_Speed_Bonus_On_Elite_Kill") ||
+                        affixAttribute.LocalisationId.Equals("Damage_Bonus_On_Elite_Kill_Combined") || 
+                        affixAttribute.LocalisationId.Equals("Evade_Movement_Dodge_Chance"))
+                    {
+                        ReplaceAttributeFormulaValue(affix, affixAttribute);
                     }
                 }
             }
@@ -1077,6 +1114,11 @@ namespace D4DataParser.Parsers
                     }
                 }
             }
+        }
+
+        private void ReplaceAttributeFormulaValue(AffixInfo affix, AffixAttribute affixAttribute)
+        {
+            affix.Description = affix.Description.Replace("{VALUE2}", affixAttribute.LocalisationAttributeFormulaValue);
         }
 
         private void RemoveUnwantedAffixes()

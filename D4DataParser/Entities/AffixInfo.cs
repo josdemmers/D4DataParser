@@ -27,6 +27,7 @@ namespace D4DataParser.Entities
     {
         public string LocalisationId { get; set; } = string.Empty;
         public uint LocalisationParameter { get; set; }
+        public string LocalisationAttributeFormulaValue { get; set; } = string.Empty;
         public string Localisation { get; set; } = string.Empty;
     }
 }
