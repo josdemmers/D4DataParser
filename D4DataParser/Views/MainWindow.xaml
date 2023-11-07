@@ -13,7 +13,8 @@
             </Border>
         </StackPanel>
         <StackPanel HorizontalAlignment="Left">
-            <Button Content="Affixes + Aspects" Width="Auto" Command="{Binding ParseDataCommand}"/>
+            <Button Content="Affixes" Width="Auto" Command="{Binding ParseAffixDataCommand}"/>
+            <Button Content="Aspects" Width="Auto" Command="{Binding ParseAspectDataCommand}"/>
             <Button Content="Sigils" Width="Auto" Command="{Binding ParseSigilDataCommand}"/>
             <Button Content="Test" Width="Auto" Command="{Binding TestCommand}" IsEnabled="False"/>
         </StackPanel>

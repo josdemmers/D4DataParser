@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 
 namespace D4DataParser.Entities.D4Data
 {
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
-
     public class AffixMeta
     {
         public string __fileName__ { get; set; }

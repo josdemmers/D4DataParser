@@ -25,6 +25,7 @@ namespace D4DataParser.ViewModels
     public class MainWindowViewModel : BindableBase
     {
         private AffixParser _affixParser = new AffixParser();
+        private AspectParser _aspectParser = new AspectParser();
         private SigilParser _sigilParser = new SigilParser();
 
         private string _d4dataPath = @"D:\Games\DiabloIV\d4data\";         
@@ -36,7 +37,8 @@ namespace D4DataParser.ViewModels
         public MainWindowViewModel()
         {
             // Init View commands
-            ParseDataCommand = new DelegateCommand(ParseDataExecute);
+            ParseAffixDataCommand = new DelegateCommand(ParseAffixDataExecute);
+            ParseAspectDataCommand = new DelegateCommand(ParseAspectDataExecute);
             ParseSigilDataCommand = new DelegateCommand(ParseSigilDataExecute);
             TestCommand = new DelegateCommand(TestExecute);
         }
@@ -53,7 +55,8 @@ namespace D4DataParser.ViewModels
 
         #region Properties
 
-        public DelegateCommand ParseDataCommand { get; }
+        public DelegateCommand ParseAffixDataCommand { get; }
+        public DelegateCommand ParseAspectDataCommand { get; }
         public DelegateCommand ParseSigilDataCommand { get; }
         public DelegateCommand TestCommand { get; }
 
@@ -73,12 +76,21 @@ namespace D4DataParser.ViewModels
 
         #region Event handlers
 
-        private void ParseDataExecute()
+        private void ParseAffixDataExecute()
         {
             Task.Factory.StartNew(() =>
             {
                 _affixParser.D4dataPath = D4dataPath;
                 _affixParser.ParseAffixes();
+            });
+        }
+
+        private void ParseAspectDataExecute()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                _aspectParser.D4dataPath = D4dataPath;
+                _aspectParser.ParseAffixes();
             });
         }
 

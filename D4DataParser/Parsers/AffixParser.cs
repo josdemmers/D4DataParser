@@ -25,7 +25,6 @@ namespace D4DataParser.Parsers
         Localisation _localisationJson = new Localisation();
         List<PowerMeta> _powerMetaJsonList = new List<PowerMeta>();
         private List<AffixInfo> _affixInfoList = new List<AffixInfo>();
-        private List<AspectInfo> _aspectInfoList = new List<AspectInfo>();
 
         private Dictionary<uint, string> _mappingResources = new Dictionary<uint, string>();
         private Dictionary<uint, string> _mappingDamageTypes = new Dictionary<uint, string>();
@@ -169,10 +168,8 @@ namespace D4DataParser.Parsers
 
                 ParseAffixesByLanguage(language);
                 UpdateAffixes();
-                UpdateAspects();
 
                 ValidateAffixes();
-                ValidateAspects();
             }
         }
 
@@ -189,7 +186,6 @@ namespace D4DataParser.Parsers
             _powerMetaJsonList.Clear();
 
             _affixInfoList.Clear();
-            _aspectInfoList.Clear();
 
             int affixIndex = 104;
 
@@ -295,12 +291,6 @@ namespace D4DataParser.Parsers
                 }
 
                 _affixInfoList.Add(new AffixInfo
-                {
-                    IdSno = affix.Key,
-                    IdName = affix.Value,
-                });
-
-                _aspectInfoList.Add(new AspectInfo
                 {
                     IdSno = affix.Key,
                     IdName = affix.Value,
@@ -523,84 +513,6 @@ namespace D4DataParser.Parsers
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
         }
 
-        private void UpdateAspects()
-        {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            var elapsedMs = watch.ElapsedMilliseconds;
-
-            // Update affix class
-            // - Allowed classes
-            // - Allowed item labels
-            // - MagicType (affix, aspect)
-            // - Localisation data
-            foreach (var aspect in _aspectInfoList)
-            {
-                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Processing ({aspect.IdSno}) {aspect.IdName}");
-
-                var affixMeta = _affixMetaJsonList.FirstOrDefault(a => a.__snoID__ == aspect.IdSno);
-                if (affixMeta == null)
-                {
-                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: IdSno not found.");
-                    continue;
-                }
-
-                // Skip if affix is of type affix.
-                if (GetAffixType(affixMeta).Equals("affix"))
-                {
-                    continue;
-                }
-
-                int IdSno = affixMeta.__snoID__;
-                List<int> allowedForPlayerClass = affixMeta.fAllowedForPlayerClass ?? new List<int>();
-                List<int> allowedItemLabels = affixMeta.arAllowedItemLabels ?? new List<int>();
-                int magicType = affixMeta.eMagicType;
-
-                aspect.AllowedForPlayerClass = allowedForPlayerClass;
-                aspect.AllowedItemLabels = allowedItemLabels;
-                aspect.Category = GetAspectCategory(affixMeta);
-                aspect.MagicType = magicType;
-
-                // Find localisation data
-                string directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\..\\{_language}_Text\\meta\\StringList\\";
-                string fileName = affixMeta.__fileName__;
-                string fileNameLoc = $"{directory}Affix_{Path.GetFileNameWithoutExtension(fileName)}.stl.json";
-                var jsonAsText = File.ReadAllText(fileNameLoc);
-                var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);
-                if (localisation != null)
-                {
-                    var aspectInfo = localisation.arStrings.FirstOrDefault(l => l.szLabel.Equals("name", StringComparison.OrdinalIgnoreCase));
-                    if (aspectInfo != null)
-                    {
-                        aspect.Name = aspectInfo.szText;
-                    }
-                    aspectInfo = localisation.arStrings.FirstOrDefault(l => l.szLabel.Equals("desc", StringComparison.OrdinalIgnoreCase));
-                    if (aspectInfo != null)
-                    {
-                        aspect.Localisation = aspectInfo.szText;
-                        aspect.Description = aspectInfo.szText;
-                    }
-                }
-            }
-
-            // Replace numeric value placeholders
-            ReplaceAspectPlaceholders();
-
-            // Remove all affixes with no description
-            _aspectInfoList.RemoveAll(a => string.IsNullOrWhiteSpace(a.Description));
-
-            // Sort
-            _aspectInfoList.Sort((x, y) =>
-            {
-                return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
-            });
-
-            // Save
-            SaveAspects();
-
-            watch.Stop();
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
-        }
-
         private void SaveAffixes()
         {
             string fileName = $"Data/Affixes.{_language}.json";
@@ -613,39 +525,9 @@ namespace D4DataParser.Parsers
             JsonSerializer.Serialize(stream, _affixInfoList, options);
         }
 
-        private void SaveAspects()
-        {
-            string fileName = $"Data/Aspects.{_language}.json";
-            string path = Path.GetDirectoryName(fileName) ?? string.Empty;
-            Directory.CreateDirectory(path);
-
-            using FileStream stream = File.Create(fileName);
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-            JsonSerializer.Serialize(stream, _aspectInfoList, options);
-        }
-
         private void ValidateAffixes()
         {
             var duplicates = _affixInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
-            if (duplicates.Any())
-            {
-                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Duplicates found!");
-
-                foreach (var group in duplicates)
-                {
-                    Console.WriteLine("Key: {0}", group.Key);
-                    foreach (var affixInfo in group)
-                    {
-                        Debug.WriteLine($"{affixInfo.IdName}: {affixInfo.Description}");
-                    }
-                }
-            }
-        }
-
-        private void ValidateAspects()
-        {
-            var duplicates = _aspectInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
             if (duplicates.Any())
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Duplicates found!");
@@ -685,13 +567,6 @@ namespace D4DataParser.Parsers
             }
 
             return affixType;
-        }
-
-        private string GetAspectCategory(AffixMeta affixMeta)
-        {
-            var arAffixSkillTags = affixMeta.arAffixSkillTags;
-            var arAffixSkillTag = arAffixSkillTags.FirstOrDefault(c => c.name.Contains("FILTER_Legendary_"));
-            return arAffixSkillTag?.name ?? string.Empty;
         }
 
         private void ReplaceNumericValuePlaceholders()
@@ -777,63 +652,7 @@ namespace D4DataParser.Parsers
                 affix.Description = affix.Description.Replace("|4Kademesi:Kademesi;", "Kademesi");
                 affix.Description = affix.Description.Replace("|4Saniye:Saniye;", "Saniye");
             }
-        }
-
-        private void ReplaceAspectPlaceholders()
-        {
-            // Note: https://regex101.com/
-
-            foreach (var aspect in _aspectInfoList)
-            {
-                //string pattern = @"\[(.*?%+?.*?)\]";
-                //aspect.Description = Regex.Replace(aspect.Description, pattern, "#%");
-
-                //pattern = @"\[(.*?)\]";
-                //aspect.Description = Regex.Replace(aspect.Description, pattern, "#");
-
-                string pattern = @"\[([^%]+?)\]";
-                aspect.Description = Regex.Replace(aspect.Description, pattern, "#");
-
-                pattern = @"\[(.+?)\]";
-                aspect.Description = Regex.Replace(aspect.Description, pattern, "#%");
-
-                pattern = @"{(.*?)}";
-                aspect.Description = Regex.Replace(aspect.Description, pattern, string.Empty);
-
-                // deDE
-                aspect.Description = aspect.Description.Replace("|4Wirkung:Wirkungen;", "Wirkungen");
-
-                // enUS
-                aspect.Description = aspect.Description.Replace("|4cast:casts;", "casts");
-
-                // esES
-                aspect.Description = aspect.Description.Replace("|4lanzamiento adicional:lanzamientos adicionales;", "lanzamientos adicionales");
-
-                // esMX
-                aspect.Description = aspect.Description.Replace("|4lanzamiento adicional:lanzamientos adicionales;", "lanzamientos adicionales");
-
-                // frFR
-                aspect.Description = aspect.Description.Replace("|4lancer supplémentaire:lancers supplémentaires;", "lancers supplémentaires");
-
-                // itIT
-                aspect.Description = aspect.Description.Replace("|4utilizzo:utilizzi;", "utilizzi");
-
-                // jaJP
-                aspect.Description = aspect.Description.Replace("|4cast:casts;", "casts");
-
-                // plPL
-                aspect.Description = aspect.Description.Replace("|4dodatkowe użycie:dodatkowe użycia:dodatkowych użyć;", "dodatkowych użyć");
-
-                // ptBR
-                aspect.Description = aspect.Description.Replace("|4lançamento:lançamentos;", "lançamentos");
-
-                // ruRU
-                aspect.Description = aspect.Description.Replace("|4применение:применения:применений;", "применений");
-
-                // trTR
-                aspect.Description = aspect.Description.Replace("|4kullanım:kullanım;", "kullanım");
-            }
-        }
+        }        
 
         private void ReplaceSkillPlaceholders(AffixInfo affix, List<PowerMeta> powerMetaJsonList)
         {
