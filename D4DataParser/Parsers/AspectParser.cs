@@ -24,6 +24,7 @@ namespace D4DataParser.Parsers
         private List<AffixMeta> _affixMetaJsonList = new List<AffixMeta>();
         private List<AspectMeta> _aspectMetaJsonList = new List<AspectMeta>();
         private List<AspectInfo> _aspectInfoList = new List<AspectInfo>();
+        private List<TrackedRewardMeta> _trackedRewardMetaJsonList = new List<TrackedRewardMeta>();
 
         // Start of Constructors region
 
@@ -182,6 +183,36 @@ namespace D4DataParser.Parsers
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Aspect folder): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;
 
+            // Parse .\d4data\json\base\meta\TrackedReward\
+            _trackedRewardMetaJsonList = new List<TrackedRewardMeta>();
+            directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\meta\\TrackedReward\\";
+            if (Directory.Exists(directory))
+            {
+                var fileEntries = Directory.EnumerateFiles(directory).Where(file => Path.GetFileName(file).StartsWith("TR_SJ_S02_", StringComparison.OrdinalIgnoreCase));
+                foreach (string fileName in fileEntries)
+                {
+                    using (FileStream? stream = File.OpenRead(fileName))
+                    {
+                        if (stream != null)
+                        {
+                            // create the options
+                            var options = new JsonSerializerOptions()
+                            {
+                                WriteIndented = true
+                            };
+                            // register the converter
+                            //options.Converters.Add(new BoolConverter());
+                            options.Converters.Add(new UIntConverter());
+
+                            var trackedRewardMetaJson = JsonSerializer.Deserialize<TrackedRewardMeta>(stream, options) ?? new TrackedRewardMeta();
+                            _trackedRewardMetaJsonList.Add(trackedRewardMetaJson);
+                        }
+                    }
+                }
+            }
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Aspect folder): {watch.ElapsedMilliseconds - elapsedMs}");
+            elapsedMs = watch.ElapsedMilliseconds;
+
             // Create aspect class
             foreach (var aspect in coreTOCAspects)
             {
@@ -252,11 +283,12 @@ namespace D4DataParser.Parsers
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var elapsedMs = watch.ElapsedMilliseconds;
 
-            // Update affix class
+            // Update aspect class
             // - Allowed classes
             // - Allowed item labels
             // - MagicType (affix, aspect)
             // - Localisation data
+            // - Seasonal
             foreach (var aspect in _aspectInfoList)
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Processing ({aspect.IdSno}) {aspect.IdName}");
@@ -293,6 +325,9 @@ namespace D4DataParser.Parsers
                         aspect.Description = aspectInfo.szText;
                     }
                 }
+
+                // Find seasonal data
+                aspect.IsSeasonal = _trackedRewardMetaJsonList.Any(t => t.snoAspect.name.EndsWith(aspect.IdName, StringComparison.OrdinalIgnoreCase));
             }
 
             // Replace numeric value placeholders
