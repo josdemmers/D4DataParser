@@ -360,12 +360,12 @@ namespace D4DataParser.Parsers
                     // Evade_Movement_Speed_Duration --> Evade_Movement_Dodge_Chance
                     // Damage_Bonus_On_Elite_Kill --> IGNORE
                     // Damage_Bonus_On_Elite_Kill_Duration --> Damage_Bonus_On_Elite_Kill_Combined
-                    // Damage_Bonus_Percent_On_Dodge
-                    // Damage_Bonus_Percent_On_Dodge_Duration
-                    // Attack_Speed_Bonus_On_Dodge
-                    // Attack_Speed_Bonus_On_Dodge_Duration
-                    // Blood_Orb_Pickup_Damage_Percent_Bonus
-                    // Blood_Orb_Pickup_Damage_Bonus_Duration
+                    // Damage_Bonus_Percent_On_Dodge --> IGNORE
+                    // Damage_Bonus_Percent_On_Dodge_Duration --> Damage_Bonus_Percent_After_Dodge
+                    // Attack_Speed_Bonus_On_Dodge --> IGNORE
+                    // Attack_Speed_Bonus_On_Dodge_Duration --> Attack_Speed_Bonus_After_Dodge
+                    // Blood_Orb_Pickup_Damage_Percent_Bonus --> IGNORE
+                    // Blood_Orb_Pickup_Damage_Bonus_Duration --> Blood_Orb_Pickup_Damage_Combined
                     // Barrier_When_Struck_Percent_Chance
                     // Fortified_When_Struck_Percent_Chance
                     // Fortified_When_Struck_Amount
@@ -375,6 +375,9 @@ namespace D4DataParser.Parsers
                     if (localisationId.Equals("Movement_Bonus_On_Elite_Kill_Duration")) localisationId = "Movement_Speed_Bonus_On_Elite_Kill";
                     if (localisationId.Equals("Damage_Bonus_On_Elite_Kill_Duration")) localisationId = "Damage_Bonus_On_Elite_Kill_Combined";
                     if (localisationId.Equals("Evade_Movement_Speed_Duration")) localisationId = "Evade_Movement_Dodge_Chance";
+                    if (localisationId.Equals("Attack_Speed_Bonus_On_Dodge_Duration")) localisationId = "Attack_Speed_Bonus_After_Dodge";
+                    if (localisationId.Equals("Damage_Bonus_Percent_On_Dodge_Duration")) localisationId = "Damage_Bonus_Percent_After_Dodge";
+                    if (localisationId.Equals("Blood_Orb_Pickup_Damage_Bonus_Duration")) localisationId = "Blood_Orb_Pickup_Damage_Combined";
 
                     affix.AffixAttributes.Add(new AffixAttribute
                     {
@@ -490,7 +493,10 @@ namespace D4DataParser.Parsers
                     }
                     else if (affixAttribute.LocalisationId.Equals("Movement_Speed_Bonus_On_Elite_Kill") ||
                         affixAttribute.LocalisationId.Equals("Damage_Bonus_On_Elite_Kill_Combined") || 
-                        affixAttribute.LocalisationId.Equals("Evade_Movement_Dodge_Chance"))
+                        affixAttribute.LocalisationId.Equals("Evade_Movement_Dodge_Chance") ||
+                        affixAttribute.LocalisationId.Equals("Attack_Speed_Bonus_After_Dodge") ||
+                        affixAttribute.LocalisationId.Equals("Damage_Bonus_Percent_After_Dodge") ||
+                        affixAttribute.LocalisationId.Equals("Blood_Orb_Pickup_Damage_Combined"))
                     {
                         ReplaceAttributeFormulaValue(affix, affixAttribute);
                     }
