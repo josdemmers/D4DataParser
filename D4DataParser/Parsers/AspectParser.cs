@@ -7,11 +7,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Options;
 
 namespace D4DataParser.Parsers
 {
@@ -24,7 +21,8 @@ namespace D4DataParser.Parsers
         private List<AffixMeta> _affixMetaJsonList = new List<AffixMeta>();
         private List<AspectMeta> _aspectMetaJsonList = new List<AspectMeta>();
         private List<AspectInfo> _aspectInfoList = new List<AspectInfo>();
-        private List<TrackedRewardMeta> _trackedRewardMetaJsonList = new List<TrackedRewardMeta>();
+        private List<TrackedRewardMeta> _trackedRewardCodexMetaJsonList = new List<TrackedRewardMeta>();
+        private List<TrackedRewardMeta> _trackedRewardSeasonalMetaJsonList = new List<TrackedRewardMeta>();
 
         // Start of Constructors region
 
@@ -34,6 +32,7 @@ namespace D4DataParser.Parsers
         {
             // Init languages
             InitLocalisations();
+
         }
 
         #endregion
@@ -184,11 +183,13 @@ namespace D4DataParser.Parsers
             elapsedMs = watch.ElapsedMilliseconds;
 
             // Parse .\d4data\json\base\meta\TrackedReward\
-            _trackedRewardMetaJsonList = new List<TrackedRewardMeta>();
+            _trackedRewardCodexMetaJsonList = new List<TrackedRewardMeta>();
+            _trackedRewardSeasonalMetaJsonList = new List<TrackedRewardMeta>();
             directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\meta\\TrackedReward\\";
             if (Directory.Exists(directory))
             {
-                var fileEntries = Directory.EnumerateFiles(directory).Where(file => Path.GetFileName(file).StartsWith("TR_SJ_S02_", StringComparison.OrdinalIgnoreCase));
+                // Codex
+                var fileEntries = Directory.EnumerateFiles(directory).Where(file => Path.GetFileName(file).StartsWith("TR_ASP_", StringComparison.OrdinalIgnoreCase));
                 foreach (string fileName in fileEntries)
                 {
                     using (FileStream? stream = File.OpenRead(fileName))
@@ -205,7 +206,30 @@ namespace D4DataParser.Parsers
                             options.Converters.Add(new UIntConverter());
 
                             var trackedRewardMetaJson = JsonSerializer.Deserialize<TrackedRewardMeta>(stream, options) ?? new TrackedRewardMeta();
-                            _trackedRewardMetaJsonList.Add(trackedRewardMetaJson);
+                            _trackedRewardCodexMetaJsonList.Add(trackedRewardMetaJson);
+                        }
+                    }
+                }
+
+                // Seasonal
+                fileEntries = Directory.EnumerateFiles(directory).Where(file => Path.GetFileName(file).StartsWith("TR_SJ_S02_", StringComparison.OrdinalIgnoreCase));
+                foreach (string fileName in fileEntries)
+                {
+                    using (FileStream? stream = File.OpenRead(fileName))
+                    {
+                        if (stream != null)
+                        {
+                            // create the options
+                            var options = new JsonSerializerOptions()
+                            {
+                                WriteIndented = true
+                            };
+                            // register the converter
+                            //options.Converters.Add(new BoolConverter());
+                            options.Converters.Add(new UIntConverter());
+
+                            var trackedRewardMetaJson = JsonSerializer.Deserialize<TrackedRewardMeta>(stream, options) ?? new TrackedRewardMeta();
+                            _trackedRewardSeasonalMetaJsonList.Add(trackedRewardMetaJson);
                         }
                     }
                 }
@@ -327,7 +351,13 @@ namespace D4DataParser.Parsers
                 }
 
                 // Find seasonal data
-                aspect.IsSeasonal = _trackedRewardMetaJsonList.Any(t => t.snoAspect.name.EndsWith(aspect.IdName, StringComparison.OrdinalIgnoreCase));
+                aspect.IsSeasonal = _trackedRewardSeasonalMetaJsonList.Any(t => t.snoAspect.name.EndsWith(aspect.IdName, StringComparison.OrdinalIgnoreCase));
+
+                // Find dungeon data
+                if (aspect.IsCodex)
+                {
+                    aspect.Dungeon = GetAspectDungeon(aspect);
+                }
             }
 
             // Replace numeric value placeholders
@@ -381,6 +411,36 @@ namespace D4DataParser.Parsers
             var arAffixSkillTags = affixMeta.arAffixSkillTags;
             var arAffixSkillTag = arAffixSkillTags.FirstOrDefault(c => c.name.Contains("FILTER_Legendary_"));
             return arAffixSkillTag?.name ?? string.Empty;
+        }
+
+        private string GetAspectDungeon(AspectInfo aspectInfo)
+        {
+            string aspectDungeon = string.Empty;
+
+            var trackedReward = _trackedRewardCodexMetaJsonList.FirstOrDefault(c => c.snoAspect.name.EndsWith(aspectInfo.IdName, StringComparison.OrdinalIgnoreCase));
+            if (trackedReward == null) return string.Empty;
+
+            string dungeon = Path.GetFileNameWithoutExtension(trackedReward.__fileName__);
+            string fileName = $"World_DGN_{dungeon.Replace("TR_ASP_", string.Empty)}.stl.json";
+
+            // Find localisation data
+            string directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\..\\{_language}_Text\\meta\\StringList\\";
+            string filePath = $"{directory}{fileName}";
+            // Fix Blizzard bugs
+            filePath = filePath.Replace("ImmortalEmmanation", "ImmortalEmanation");
+
+            var jsonAsText = File.ReadAllText(filePath);
+            var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);
+            if (localisation != null)
+            {
+                var name = localisation.arStrings.FirstOrDefault(l => l.szLabel.Equals("name", StringComparison.OrdinalIgnoreCase));
+                if (name != null)
+                {
+                    aspectDungeon = name.szText;
+                }
+            }
+
+            return aspectDungeon;
         }
 
         private void ReplacePlaceholders()
