@@ -32,7 +32,6 @@ namespace D4DataParser.Parsers
         {
             // Init languages
             InitLocalisations();
-
         }
 
         #endregion
