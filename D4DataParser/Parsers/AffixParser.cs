@@ -995,6 +995,7 @@ namespace D4DataParser.Parsers
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Thorns_Shields")); // "+# Thorns", using "Thorns" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Attack_Reset_Random")); // "Attacks Reduce Evade's Cooldown by # Seconds", using "Evade_Attack_Reset" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Charges_Random")); // "+# Max Evade Charges", using "Evade_Max_Charges" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("LifePercent")); // "#% Maximum Life", using "Life" instead.
 
             // Remove duplicates
             _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_UBERUNIQUE"));
