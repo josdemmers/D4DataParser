@@ -168,7 +168,7 @@ namespace D4DataParser.Parsers
                 else if (fileName.Contains("_Minor_"))
                 {
                     name = affixLocalisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("AffixName", StringComparison.OrdinalIgnoreCase)).szText;
-                    description = affixLocalisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("AffixDesc_Legendary", StringComparison.OrdinalIgnoreCase)).szText;
+                    description = affixLocalisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("AffixDesc_Legendary", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
                     sigilInfo.Type = "Minor";
                 }
                 else if (fileName.Contains("_Major_"))

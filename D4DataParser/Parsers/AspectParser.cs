@@ -295,7 +295,9 @@ namespace D4DataParser.Parsers
 
             // Remove disabled aspects
             //_aspectInfoList.RemoveAll(aspect => !IsAspectEnabled(aspect.IdName));
-            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_034", StringComparison.OrdinalIgnoreCase));
+            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_034", StringComparison.OrdinalIgnoreCase)); // (PH) of Ensnaring Current
+            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_139", StringComparison.OrdinalIgnoreCase)); // (PH) Split Incinerate
+            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_necro_126", StringComparison.OrdinalIgnoreCase)); // (PH) Shadow Warriors
 
             watch.Stop();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");

@@ -993,6 +993,7 @@ namespace D4DataParser.Parsers
             _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_Strength_Weapon")); // "# Strength", using "CoreStat_Strength" instead.      
             _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_Willpower_Weapon")); // "# Willpower", using "CoreStat_Willpower" instead.      
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Thorns_Shields")); // "+# Thorns", using "Thorns" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Attack_Reset_ALWAYSMAX")); // "Attacks Reduce Evade's Cooldown by # Seconds", using "Evade_Attack_Reset" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Attack_Reset_Random")); // "Attacks Reduce Evade's Cooldown by # Seconds", using "Evade_Attack_Reset" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Charges_Random")); // "+# Max Evade Charges", using "Evade_Max_Charges" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("LifePercent")); // "#% Maximum Life", using "Life" instead.
