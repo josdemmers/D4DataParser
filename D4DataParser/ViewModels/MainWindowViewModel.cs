@@ -82,6 +82,9 @@ namespace D4DataParser.ViewModels
             {
                 _affixParser.D4dataPath = D4dataPath;
                 _affixParser.ParseAffixes();
+
+                // Copy affixes.glo.json
+                File.Copy($"{D4dataPath}json\\base\\meta\\Global\\affixes.glo.json", "Data\\affixes.glo.json");
             });
         }
 

@@ -1000,7 +1000,7 @@ namespace D4DataParser.Parsers
 
             // Remove duplicates
             _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_UBERUNIQUE"));
-            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_UNIQUE"));
+            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_UNIQUE") && !a.IdName.Equals("Resource_Max_AllClasses_UNIQUE"));
             _affixInfoList.RemoveAll(a => a.IdName.Contains("_UNIQUE_"));
             _affixInfoList.RemoveAll(a => a.IdName.Contains("_Unique_"));
             _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_UniqueRandom"));
