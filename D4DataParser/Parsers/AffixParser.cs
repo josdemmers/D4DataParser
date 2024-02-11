@@ -12,6 +12,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
+using System.DirectoryServices;
 
 namespace D4DataParser.Parsers
 {
@@ -506,6 +507,9 @@ namespace D4DataParser.Parsers
             // Remove all affixes with no description
             _affixInfoList.RemoveAll(a => string.IsNullOrWhiteSpace(a.Description));
 
+            // Add a cleaned up description for fuzzy searches.
+            AddCleanDescription();
+
             // Sort
             _affixInfoList.Sort((x, y) =>
             {
@@ -573,6 +577,19 @@ namespace D4DataParser.Parsers
             }
 
             return affixType;
+        }
+
+        private void AddCleanDescription()
+        {
+            foreach (var affix in _affixInfoList)
+            {
+                affix.DescriptionClean = affix.Description.Replace("+", string.Empty);
+                affix.DescriptionClean = affix.DescriptionClean.Replace("#", string.Empty);
+                affix.DescriptionClean = affix.DescriptionClean.Replace("%", string.Empty);
+                affix.DescriptionClean = affix.DescriptionClean.Replace("  ", " ");
+                affix.DescriptionClean = affix.DescriptionClean.Replace(" .", ".");
+                affix.DescriptionClean = affix.DescriptionClean.Trim();
+            }
         }
 
         private void ReplaceNumericValuePlaceholders()
@@ -997,6 +1014,10 @@ namespace D4DataParser.Parsers
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Attack_Reset_Random")); // "Attacks Reduce Evade's Cooldown by # Seconds", using "Evade_Attack_Reset" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Charges_Random")); // "+# Max Evade Charges", using "Evade_Max_Charges" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("LifePercent")); // "#% Maximum Life", using "Life" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_DexterityPercent")); // "+#% Dexterity", using "CoreStat_Dexterity" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_IntelligencePercent")); // "+#% Intelligence", using "CoreStat_Intelligence" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_StrengthPercent")); // "+#% Strength", using "CoreStat_Strength" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_WillpowerPercent")); // "+#% Willpower", using "CoreStat_Willpower" instead.
 
             // Remove duplicates
             _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_UBERUNIQUE"));

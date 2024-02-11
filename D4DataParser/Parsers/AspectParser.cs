@@ -364,6 +364,9 @@ namespace D4DataParser.Parsers
             // Replace numeric value placeholders
             ReplacePlaceholders();
 
+            // Add a cleaned up description for fuzzy searches.
+            AddCleanDescription();
+
             // Sort
             _aspectInfoList.Sort((x, y) =>
             {
@@ -442,6 +445,20 @@ namespace D4DataParser.Parsers
             }
 
             return aspectDungeon;
+        }
+
+        private void AddCleanDescription()
+        {
+            foreach (var aspect in _aspectInfoList)
+            {
+                aspect.DescriptionClean = aspect.Description.Replace("+", string.Empty);
+                aspect.DescriptionClean = aspect.DescriptionClean.Replace("#", string.Empty);
+                aspect.DescriptionClean = aspect.DescriptionClean.Replace("%", string.Empty);
+                aspect.DescriptionClean = aspect.DescriptionClean.Replace("\r\n", " ");
+                aspect.DescriptionClean = aspect.DescriptionClean.Replace("  ", " ");
+                aspect.DescriptionClean = aspect.DescriptionClean.Replace(" .", ".");
+                aspect.DescriptionClean = aspect.DescriptionClean.Trim();
+            }
         }
 
         private void ReplacePlaceholders()
