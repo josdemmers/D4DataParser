@@ -193,18 +193,50 @@ namespace D4DataParser.Parsers
             // Add IdName info
             int coreTOCIndex = 42;
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\CoreTOC.dat.json");
-            var coreTOCDictionary = JsonSerializer.Deserialize<Dictionary<int, Dictionary<int, string>>>(jsonAsText);
+            var coreTOCDictionary = JsonSerializer.Deserialize<Dictionary<long, Dictionary<long, string>>>(jsonAsText);
             var sigilDictionary = coreTOCDictionary[coreTOCIndex];
             foreach (var sigilInfo in _sigilInfoList)
             {
                 sigilInfo.IdName = sigilDictionary[sigilInfo.IdSno];
             }
 
+            SigilInfo GetCustomSigilInfoFromUITooltips(string idName)
+            {
+                SigilInfo sigilInfo = new SigilInfo();
+
+                string directory = $"{_d4datePath}json\\{language}_Text\\meta\\StringList\\";
+                string fileNameLoc = $"{directory}UIToolTips.stl.json";
+                var jsonAsText = File.ReadAllText(fileNameLoc);
+                var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);
+                if (localisation != null)
+                {
+                    var sigilLocalisationInfo = localisation.arStrings.FirstOrDefault(l => l.szLabel.Equals(idName, StringComparison.CurrentCultureIgnoreCase));
+                    if (sigilLocalisationInfo != null)
+                    {
+                        sigilInfo.IdSno = sigilLocalisationInfo.hLabel;
+                        sigilInfo.IdName = sigilLocalisationInfo.szLabel;
+                        sigilInfo.Name = sigilLocalisationInfo.szText;
+                        sigilInfo.Description = string.Empty;
+                        sigilInfo.Type = "Misc";
+                    }
+                }
+
+                return sigilInfo;
+            }
+
+            // Add custom sigil affixes
+            // - MonsterLevel, e.g. "Monster Level:"
+            // - ItemDungeonAffixResses, e.g. "Revives Allowed:"
+            _sigilInfoList.Add(GetCustomSigilInfoFromUITooltips("MonsterLevel"));
+            _sigilInfoList.Add(GetCustomSigilInfoFromUITooltips("ItemDungeonAffixResses"));
+
             // Beautify names and descriptions
             foreach (var sigilInfo in _sigilInfoList)
             {
                 sigilInfo.Name = sigilInfo.Name.Replace("{c_bonus}", string.Empty);
+                sigilInfo.Name = sigilInfo.Name.Replace("{c_resource}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{/c}", string.Empty);
+                sigilInfo.Name = sigilInfo.Name.Replace("{s1}", string.Empty);
             }
 
             // Sort
@@ -212,6 +244,9 @@ namespace D4DataParser.Parsers
             {
                 return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
             });
+
+            // Delete unwanted sigils
+            _sigilInfoList.RemoveAll(s => s.IdName.Equals("DungeonAffix_Positive_S03_LTE_LunarNewYearShrine", StringComparison.OrdinalIgnoreCase));
 
             // Save
             SaveSigils(language);
