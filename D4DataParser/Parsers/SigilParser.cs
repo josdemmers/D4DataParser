@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Xml.Linq;
 
 namespace D4DataParser.Parsers
 {
@@ -18,7 +19,9 @@ namespace D4DataParser.Parsers
         private string _d4datePath = string.Empty;
         private List<string> _languages = new List<string>();
         private NightmareDungeonMeta _nightmareDungeonMeta = new NightmareDungeonMeta();
+        private SeasonMeta _seasonMeta = new SeasonMeta();
         private List<SigilInfo> _sigilInfoList = new List<SigilInfo>();
+        private List<ArString> _zoneMetaList = new List<ArString>();
 
         // Start of Constructors region
 
@@ -107,6 +110,18 @@ namespace D4DataParser.Parsers
                 }
             }
 
+            // Nightmare dungeons (Season) - ".\d4data\json\base\meta\Season\Season 3.sea.json"
+            jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\meta\\Season\\Season 3.sea.json");
+            _seasonMeta = System.Text.Json.JsonSerializer.Deserialize<SeasonMeta>(jsonAsText) ?? new SeasonMeta();
+
+            foreach (var arDungeonList in _seasonMeta.arDungeonLists)
+            {
+                foreach (var dungeon in arDungeonList.arDungeons)
+                {
+                    dungeonIds.Add(dungeon.name);
+                }
+            }
+
             SigilInfo GetSigilInfoFromId(string dungeonId)
             {
                 SigilInfo sigilInfo = new SigilInfo();
@@ -125,6 +140,8 @@ namespace D4DataParser.Parsers
                 return sigilInfo;
             }
 
+            // Add all dungeon locations.
+            // Missing DungeonZoneInfo property at this step. Will be added further in the update process.
             var dungeonIdsUnique = dungeonIds.Distinct().ToList();
             foreach (var dungeonId in dungeonIdsUnique)
             {
@@ -185,12 +202,14 @@ namespace D4DataParser.Parsers
                 return sigilInfo;
             }
 
+            // Add all Postive, Minor, and Major affixes.
+            // Missing IdName property at this step. Will be added further in the update process.
             foreach (var affix in affixes)
             {
                 _sigilInfoList.Add(GetSigilInfoFromAffixLocalisation(affix));
             }
 
-            // Add IdName info
+            // Add missing IdName
             int coreTOCIndex = 42;
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\CoreTOC.dat.json");
             var coreTOCDictionary = JsonSerializer.Deserialize<Dictionary<long, Dictionary<long, string>>>(jsonAsText);
@@ -198,6 +217,70 @@ namespace D4DataParser.Parsers
             foreach (var sigilInfo in _sigilInfoList)
             {
                 sigilInfo.IdName = sigilDictionary[sigilInfo.IdSno];
+            }
+
+            // Zones - ".\d4data\json\enUS_Text\meta\StringList\Zones.stl.json"
+            string directory = $"{_d4datePath}json\\{language}_Text\\meta\\StringList\\";
+            string fileNameLoc = $"{directory}Zones.stl.json";
+            string prefix = string.Empty;
+            jsonAsText = File.ReadAllText(fileNameLoc);
+            _zoneMetaList = JsonSerializer.Deserialize<Localisation>(jsonAsText)?.arStrings ?? new List<ArString>();
+
+            string GetSigilDungeonZoneInfo(string idName)
+            {
+                switch (idName)
+                {
+                    case var _ when idName.Contains("_S03_", StringComparison.OrdinalIgnoreCase):
+                        return _zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_S03_HUB", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+
+                    case var _ when idName.Contains("_Frac_",StringComparison.OrdinalIgnoreCase):
+                        return _zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_FRACTURED_PEAKS", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                    case var _ when idName.Contains("_Hawe_", StringComparison.OrdinalIgnoreCase):
+                        return _zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_HAWAZAR_SWAMPS", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                    case var _ when idName.Contains("_Kehj_", StringComparison.OrdinalIgnoreCase):
+                        return _zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_KEHJISTAN", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                    case var _ when idName.Contains("_Scos_", StringComparison.OrdinalIgnoreCase):
+                        return _zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_SCOSGLEN", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                    case var _ when idName.Contains("_Step_", StringComparison.OrdinalIgnoreCase):
+                        return _zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_DRY_STEPPES", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                    default:
+                        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Zone not found for {idName}");
+                        break;
+                }
+
+                return string.Empty;
+            }
+
+            string GetSigilDungeonZoneInfoPrefix()
+            {
+                string directory = $"{_d4datePath}json\\{language}_Text\\meta\\StringList\\";
+                string fileNameLoc = $"{directory}UIToolTips.stl.json";
+                string prefix = string.Empty;
+                var jsonAsText = File.ReadAllText(fileNameLoc);
+                var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);
+                if (localisation != null)
+                {
+                    var sigilLocalisationInfo = localisation.arStrings.FirstOrDefault(l => l.szLabel.Equals("ItemDungeonZoneInfo", StringComparison.CurrentCultureIgnoreCase));
+                    if (sigilLocalisationInfo != null)
+                    {
+                        prefix = sigilLocalisationInfo.szText;
+                    }
+                }
+
+                prefix = prefix.Replace("{c_white}", string.Empty);
+                prefix = prefix.Replace("{/c_white}", string.Empty);
+                prefix = prefix.Replace("{s1}", string.Empty);
+                prefix = prefix.Replace("{s2}", string.Empty);
+                prefix = prefix.Trim();
+
+                return prefix;
+            }
+
+            // Add missing DungeonZoneInfo for sigils of type Dungeon
+            string dungeonZoneInfoPrefix = GetSigilDungeonZoneInfoPrefix();
+            foreach (var sigilInfo in _sigilInfoList.Where(s => s.Type.Equals("Dungeon")))
+            {
+                sigilInfo.DungeonZoneInfo = $"{dungeonZoneInfoPrefix} {GetSigilDungeonZoneInfo(sigilInfo.IdName)}";
             }
 
             SigilInfo GetCustomSigilInfoFromUITooltips(string idName)
