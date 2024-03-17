@@ -355,7 +355,7 @@ namespace D4DataParser.Parsers
             {
                 foreach (var rarity in rarities) 
                 {
-                    if (!rarity.szLabel.Equals("Legendary")) continue;
+                    if (!rarity.szLabel.Equals("Legendary", StringComparison.OrdinalIgnoreCase)) continue;
 
                     _itemTypeInfoList.Add(new ItemTypeInfo
                     {
