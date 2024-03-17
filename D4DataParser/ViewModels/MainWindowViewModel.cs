@@ -27,6 +27,7 @@ namespace D4DataParser.ViewModels
         private AffixParser _affixParser = new AffixParser();
         private AspectParser _aspectParser = new AspectParser();
         private SigilParser _sigilParser = new SigilParser();
+        private ItemTypeParser _itemTypeParser = new ItemTypeParser();
 
         private string _d4dataPath = @"D:\Games\DiabloIV\d4data\";         
 
@@ -40,6 +41,7 @@ namespace D4DataParser.ViewModels
             ParseAffixDataCommand = new DelegateCommand(ParseAffixDataExecute);
             ParseAspectDataCommand = new DelegateCommand(ParseAspectDataExecute);
             ParseSigilDataCommand = new DelegateCommand(ParseSigilDataExecute);
+            ParseItemTypesDataCommand = new DelegateCommand(ParseItemTypesDataExecute);
             TestCommand = new DelegateCommand(TestExecute);
         }
 
@@ -58,6 +60,7 @@ namespace D4DataParser.ViewModels
         public DelegateCommand ParseAffixDataCommand { get; }
         public DelegateCommand ParseAspectDataCommand { get; }
         public DelegateCommand ParseSigilDataCommand { get; }
+        public DelegateCommand ParseItemTypesDataCommand { get; }
         public DelegateCommand TestCommand { get; }
 
         public string D4dataPath
@@ -103,6 +106,15 @@ namespace D4DataParser.ViewModels
             {
                 _sigilParser.D4dataPath = D4dataPath;
                 _sigilParser.ParseSigils();
+            });
+        }
+
+        private void ParseItemTypesDataExecute()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                _itemTypeParser.D4dataPath = D4dataPath;
+                _itemTypeParser.ParseItemTypes();
             });
         }
 

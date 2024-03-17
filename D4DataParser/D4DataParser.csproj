@@ -20,6 +20,7 @@
   <ItemGroup>
     <Folder Include="Config\" />
     <Folder Include="Data\" />
+    <Folder Include="Constants\" />
   </ItemGroup>
 
 </Project>
