@@ -139,11 +139,20 @@ namespace D4DataParser.Parsers
                             quality.szText.Substring(quality.szText.IndexOf(variant) + variant.Length, (quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length) == -1 ? quality.szText.Length : quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length)) - (quality.szText.IndexOf(variant) + variant.Length));
 
                         string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
-                                                    rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+                            rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+
+                        string name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
+                        if (!string.IsNullOrWhiteSpace(qualityVariant) && (language.Equals("deDE") || language.Equals("esES") || language.Equals("esMX") || language.Equals("frFR") || language.Equals("itIT") || language.Equals("plPL") || language.Equals("ptBR") || language.Equals("ruRU") || language.Equals("trTR")))
+                        {
+                            name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
+                        }
+
+                        // Skip duplicates
+                        if (_itemTypeInfoList.Any(t => t.Name.Equals(name))) continue;
 
                         _itemTypeInfoList.Add(new ItemTypeInfo
                         {
-                            Name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim(),
+                            Name = name,
                             Type = type
                         });
                     }
@@ -347,9 +356,15 @@ namespace D4DataParser.Parsers
                     string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
                         rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
 
+                    string name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
+                    if (!string.IsNullOrWhiteSpace(qualityVariant) && (language.Equals("deDE") || language.Equals("esES") || language.Equals("esMX") || language.Equals("frFR") || language.Equals("itIT") || language.Equals("plPL") || language.Equals("ptBR") || language.Equals("ruRU") || language.Equals("trTR")))
+                    {
+                        name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
+                    }
+
                     _itemTypeInfoList.Add(new ItemTypeInfo
                     {
-                        Name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim(),
+                        Name = name,
                         Type = ItemTypeConstants.Aspect
                     });
                 }
