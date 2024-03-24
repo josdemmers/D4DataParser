@@ -175,10 +175,14 @@ namespace D4DataParser.Parsers
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("BarbarianArsenalOverrideName", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
 
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_Axe2H.stl.json");
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("BarbarianArsenalOverrideName", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
 
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_Boots.stl.json");
@@ -245,10 +249,14 @@ namespace D4DataParser.Parsers
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("BarbarianArsenalOverrideName", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
 
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_Mace2H.stl.json");
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("BarbarianArsenalOverrideName", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
 
             //jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_Mace2HDruid.stl.json");
@@ -264,6 +272,8 @@ namespace D4DataParser.Parsers
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_Polearm.stl.json");
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("BarbarianArsenalOverrideName", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
 
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_Ring.stl.json");
@@ -305,10 +315,14 @@ namespace D4DataParser.Parsers
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("BarbarianArsenalOverrideName", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
 
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_Sword2H.stl.json");
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("BarbarianArsenalOverrideName", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
 
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_Wand.stl.json");
@@ -337,6 +351,7 @@ namespace D4DataParser.Parsers
                 });
             }
 
+            // TODO: Remove for Season 4
             // List type - Extracted Aspect
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_Essence.stl.json");
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
