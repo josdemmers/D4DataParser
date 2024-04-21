@@ -191,7 +191,7 @@ namespace D4DataParser.Parsers
                 else if (fileName.Contains("_Major_"))
                 {
                     name = affixLocalisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("AffixName", StringComparison.OrdinalIgnoreCase)).szText;
-                    description = affixLocalisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("AffixDesc", StringComparison.OrdinalIgnoreCase)).szText;
+                    description = affixLocalisation.arStrings.FirstOrDefault(s => s.szLabel.StartsWith("AffixDesc", StringComparison.OrdinalIgnoreCase)).szText;
                     sigilInfo.Type = "Major";
                 }
 

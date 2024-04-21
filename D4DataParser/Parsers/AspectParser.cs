@@ -351,8 +351,9 @@ namespace D4DataParser.Parsers
                     }
                 }
 
+                // TODO: Check for which aspects this is null.
                 // Find seasonal data
-                aspect.IsSeasonal = _trackedRewardSeasonalMetaJsonList.Any(t => t.snoAspect.name.EndsWith(aspect.IdName, StringComparison.OrdinalIgnoreCase));
+                aspect.IsSeasonal = _trackedRewardSeasonalMetaJsonList.Any(t => t.snoAspect?.name.EndsWith(aspect.IdName, StringComparison.OrdinalIgnoreCase) ?? false);
 
                 // Find dungeon data
                 if (aspect.IsCodex)
@@ -433,14 +434,18 @@ namespace D4DataParser.Parsers
             // Fix Blizzard bugs
             filePath = filePath.Replace("ImmortalEmmanation", "ImmortalEmanation");
 
-            var jsonAsText = File.ReadAllText(filePath);
-            var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);
-            if (localisation != null)
+            // TODO: Dungeon check no longer works for season 4.
+            if (File.Exists(filePath))
             {
-                var name = localisation.arStrings.FirstOrDefault(l => l.szLabel.Equals("name", StringComparison.OrdinalIgnoreCase));
-                if (name != null)
+                var jsonAsText = File.ReadAllText(filePath);
+                var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);
+                if (localisation != null)
                 {
-                    aspectDungeon = name.szText;
+                    var name = localisation.arStrings.FirstOrDefault(l => l.szLabel.Equals("name", StringComparison.OrdinalIgnoreCase));
+                    if (name != null)
+                    {
+                        aspectDungeon = name.szText;
+                    }
                 }
             }
 

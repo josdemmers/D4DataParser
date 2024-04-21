@@ -371,8 +371,9 @@ namespace D4DataParser.Parsers
                     // Fortified_When_Struck_Percent_Chance
                     // Fortified_When_Struck_Amount
 
+                    // TODO: Check for which affixes this is null
                     // Replace some localisationIds with an id that is available in AttributeDescriptions.stl.json
-                    string localisationId = itemAffixAttribute.tAttribute.__eAttribute_name__;
+                    string localisationId = itemAffixAttribute.tAttribute.__eAttribute_name__ ?? string.Empty;
                     if (localisationId.Equals("Movement_Bonus_On_Elite_Kill_Duration")) localisationId = "Movement_Speed_Bonus_On_Elite_Kill";
                     if (localisationId.Equals("Damage_Bonus_On_Elite_Kill_Duration")) localisationId = "Damage_Bonus_On_Elite_Kill_Combined";
                     if (localisationId.Equals("Evade_Movement_Speed_Duration")) localisationId = "Evade_Movement_Dodge_Chance";
