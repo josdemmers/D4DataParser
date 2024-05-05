@@ -13,8 +13,6 @@
         public const string Ranged = "ranged";
         public const string Offhand = "offhand";
         public const string Sigil = "sigil";
-        public const string Aspect = "aspect";
-        public const string Consumable = "consumable";
-        public const string Seasonal = "seasonal";
+        public const string Temper = "temper";
     }
 }

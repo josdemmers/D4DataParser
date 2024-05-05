@@ -19,10 +19,7 @@ namespace D4DataParser.Parsers
     {
         private string _d4datePath = string.Empty;
         private List<string> _languages = new List<string>();
-        //private NightmareDungeonMeta _nightmareDungeonMeta = new NightmareDungeonMeta();
-        //private SeasonMeta _seasonMeta = new SeasonMeta();
         private List<ItemTypeInfo> _itemTypeInfoList = new List<ItemTypeInfo>();
-        //private List<ArString> _zoneMetaList = new List<ArString>();
 
         // Start of Constructors region
 
@@ -88,7 +85,6 @@ namespace D4DataParser.Parsers
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
 
-                //_sigilInfoList.Clear();
                 ParseItemTypesByLanguage(language);
             }
 
@@ -122,6 +118,7 @@ namespace D4DataParser.Parsers
                 localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Unique", StringComparison.OrdinalIgnoreCase)) ?? new()
             };
 
+            // Local function to combine ItemType with ItemQuality
             void AddItemType(string type, string typeLoc)
             {
                 string variant = string.Empty;
@@ -375,38 +372,29 @@ namespace D4DataParser.Parsers
                 });
             }
 
-            // TODO: Remove for Season 4
-            // List type - Extracted Aspect
-            jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_Essence.stl.json");
+            // List type - Temper Manual
+            jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_TemperManual.stl.json");
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             variant = itemTypeLoc.Contains("[") ? itemTypeLoc.Substring(0, itemTypeLoc.IndexOf("]") + 1) : string.Empty;
 
-            foreach (var quality in qualities)
+            foreach (var rarity in rarities)
             {
-                foreach (var rarity in rarities) 
+                // Extract variant from rarity that matches with the current type.
+                string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
+                    rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+
+                string name = $"{RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
+                if (!string.IsNullOrWhiteSpace(rarityVariant) && (language.Equals("frFR")))
                 {
-                    if (!rarity.szLabel.Equals("Legendary", StringComparison.OrdinalIgnoreCase)) continue;
-
-                    // Extract variant from quality and rarity that matches with the current type.
-                    string qualityVariant = string.IsNullOrWhiteSpace(quality.szText) ? string.Empty : string.IsNullOrWhiteSpace(variant) ? quality.szText :
-                        quality.szText.Substring(quality.szText.IndexOf(variant) + variant.Length, (quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length) == -1 ? quality.szText.Length : quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length)) - (quality.szText.IndexOf(variant) + variant.Length));
-
-                    string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
-                        rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
-
-                    string name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
-                    if (!string.IsNullOrWhiteSpace(qualityVariant) && (language.Equals("deDE") || language.Equals("esES") || language.Equals("esMX") || language.Equals("frFR") || language.Equals("itIT") || language.Equals("plPL") || language.Equals("ptBR") || language.Equals("ruRU") || language.Equals("trTR")))
-                    {
-                        name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
-                    }
-
-                    _itemTypeInfoList.Add(new ItemTypeInfo
-                    {
-                        Name = name,
-                        Type = ItemTypeConstants.Aspect
-                    });
+                    name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(rarityVariant)}".Trim();
                 }
+
+                _itemTypeInfoList.Add(new ItemTypeInfo
+                {
+                    Name = name,
+                    Type = ItemTypeConstants.Temper
+                });
             }
 
             // Save
