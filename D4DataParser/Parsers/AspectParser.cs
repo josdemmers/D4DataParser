@@ -91,7 +91,7 @@ namespace D4DataParser.Parsers
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
 
-                // TODO: Comment language skip for release
+                // TODO: - DEV - Comment language skip for release
                 //if (!language.Equals("enUS")) continue;
 
                 ParseAffixesByLanguage(language);
@@ -210,8 +210,9 @@ namespace D4DataParser.Parsers
                     }
                 }
 
+                // TODO: - UPD - Requires update when season changes.
                 // Seasonal
-                fileEntries = Directory.EnumerateFiles(directory).Where(file => Path.GetFileName(file).StartsWith("TR_SJ_S02_", StringComparison.OrdinalIgnoreCase));
+                fileEntries = Directory.EnumerateFiles(directory).Where(file => Path.GetFileName(file).StartsWith("TR_SJ_S04_", StringComparison.OrdinalIgnoreCase));
                 foreach (string fileName in fileEntries)
                 {
                     using (FileStream? stream = File.OpenRead(fileName))
@@ -233,7 +234,7 @@ namespace D4DataParser.Parsers
                     }
                 }
             }
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Aspect folder): {watch.ElapsedMilliseconds - elapsedMs}");
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (TrackedReward folder): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;
 
             // Create aspect class
@@ -255,32 +256,35 @@ namespace D4DataParser.Parsers
             }
 
             // Add remaining aspects
-            foreach (var affix in coreTOCAffixes)
-            {
-                if (!affix.Value.StartsWith("Legendary_Generic", StringComparison.OrdinalIgnoreCase) &&
-                    !affix.Value.StartsWith("Legendary_Barb", StringComparison.OrdinalIgnoreCase) &&
-                    !affix.Value.StartsWith("Legendary_Druid", StringComparison.OrdinalIgnoreCase) &&
-                    !affix.Value.StartsWith("Legendary_Necro", StringComparison.OrdinalIgnoreCase) &&
-                    !affix.Value.StartsWith("Legendary_Rogue", StringComparison.OrdinalIgnoreCase) &&
-                    !affix.Value.StartsWith("Legendary_Sorc", StringComparison.OrdinalIgnoreCase))
-                {
-                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipping {affix.Key}: {affix.Value}. Not an aspect.");
-                    continue;
-                }
+            // Note: No longer needed since start of season 4, all aspects are included in coreTOCAspects (Codex)
 
-                if (_aspectInfoList.Any(aspect => aspect.IdSno == affix.Key))
-                {
-                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipping {affix.Key}: {affix.Value}. Duplicate.");
-                    continue;
-                }
+            //Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: coreTOCAffixes");
+            //foreach (var affix in coreTOCAffixes)
+            //{
+            //    if (!affix.Value.StartsWith("Legendary_Generic", StringComparison.OrdinalIgnoreCase) &&
+            //        !affix.Value.StartsWith("Legendary_Barb", StringComparison.OrdinalIgnoreCase) &&
+            //        !affix.Value.StartsWith("Legendary_Druid", StringComparison.OrdinalIgnoreCase) &&
+            //        !affix.Value.StartsWith("Legendary_Necro", StringComparison.OrdinalIgnoreCase) &&
+            //        !affix.Value.StartsWith("Legendary_Rogue", StringComparison.OrdinalIgnoreCase) &&
+            //        !affix.Value.StartsWith("Legendary_Sorc", StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipping {affix.Key}: {affix.Value}. Not an aspect.");
+            //        continue;
+            //    }
 
-                _aspectInfoList.Add(new AspectInfo
-                {
-                    IdSno = affix.Key,
-                    IdName = affix.Value,
-                    IsCodex = false
-                });
-            }
+            //    if (_aspectInfoList.Any(aspect => aspect.IdSno == affix.Key))
+            //    {
+            //        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipping {affix.Key}: {affix.Value}. Duplicate.");
+            //        continue;
+            //    }
+
+            //    _aspectInfoList.Add(new AspectInfo
+            //    {
+            //        IdSno = affix.Key,
+            //        IdName = affix.Value,
+            //        IsCodex = false
+            //    });
+            //}
 
             // TODO: Check if aspect is enabled by looking through all power files?
             // Local function
@@ -295,9 +299,9 @@ namespace D4DataParser.Parsers
 
             // Remove disabled aspects
             //_aspectInfoList.RemoveAll(aspect => !IsAspectEnabled(aspect.IdName));
-            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_034", StringComparison.OrdinalIgnoreCase)); // (PH) of Ensnaring Current
-            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_139", StringComparison.OrdinalIgnoreCase)); // (PH) Split Incinerate
-            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_necro_126", StringComparison.OrdinalIgnoreCase)); // (PH) Shadow Warriors
+            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_necro_126", StringComparison.OrdinalIgnoreCase)); // (PH) Shadow Warriors (added by coreTOCAspects)
+            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_034", StringComparison.OrdinalIgnoreCase)); // (PH) of Ensnaring Current (added by coreTOCAspects)
+            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_139", StringComparison.OrdinalIgnoreCase)); // (PH) Split Incinerate (added by coreTOCAspects)
 
             watch.Stop();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
@@ -351,15 +355,11 @@ namespace D4DataParser.Parsers
                     }
                 }
 
-                // TODO: Check for which aspects this is null.
                 // Find seasonal data
                 aspect.IsSeasonal = _trackedRewardSeasonalMetaJsonList.Any(t => t.snoAspect?.name.EndsWith(aspect.IdName, StringComparison.OrdinalIgnoreCase) ?? false);
 
                 // Find dungeon data
-                if (aspect.IsCodex)
-                {
-                    aspect.Dungeon = GetAspectDungeon(aspect);
-                }
+                aspect.Dungeon = GetAspectDungeon(aspect);
             }
 
             // Replace numeric value placeholders
@@ -434,7 +434,6 @@ namespace D4DataParser.Parsers
             // Fix Blizzard bugs
             filePath = filePath.Replace("ImmortalEmmanation", "ImmortalEmanation");
 
-            // TODO: Dungeon check no longer works for season 4.
             if (File.Exists(filePath))
             {
                 var jsonAsText = File.ReadAllText(filePath);

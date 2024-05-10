@@ -16,7 +16,7 @@ using System.DirectoryServices;
 
 namespace D4DataParser.Parsers
 {
-    public class AffixParser
+    public class AffixParserS03
     {
         private string _d4dataPath = string.Empty;
         private string _language = string.Empty;
@@ -39,7 +39,7 @@ namespace D4DataParser.Parsers
 
         #region Constructors
 
-        public AffixParser()
+        public AffixParserS03()
         {
             // Init languages
             InitLocalisations();
@@ -165,7 +165,7 @@ namespace D4DataParser.Parsers
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
 
-                // TODO: - DEV - Comment language skip for release
+                // - DEV - Comment language skip for release
                 //if (!language.Equals("enUS")) continue;
 
                 ParseAffixesByLanguage(language);
@@ -285,11 +285,17 @@ namespace D4DataParser.Parsers
             // Create affix and aspect class
             foreach (var affix in affixDictionary)
             {
+                // Note: Inherent are the garanteed affixes by item type.
+                if (affix.Value.StartsWith("INHERENT_"))
+                //|| affix.Value.Contains("_Unique_"))
+                {
+                    continue;
+                }
+
                 _affixInfoList.Add(new AffixInfo
                 {
                     IdSno = affix.Key,
                     IdName = affix.Value,
-                    IsTempered = affix.Value.StartsWith("Tempered")
                 });
             }
 
@@ -430,56 +436,28 @@ namespace D4DataParser.Parsers
             {
                 foreach (var affixAttribute in affix.AffixAttributes)
                 {
-                    if (affixAttribute.LocalisationId.Equals("AoE_Size_Bonus_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Attack_Speed_Percent_Bonus_For_Power") ||
-                        affixAttribute.LocalisationId.Equals("Blood_Orb_Bonus_Chance_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Bonus_Count_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Bonus_Percent_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Cleave_Damage_Bonus_Percent_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_While_Affected_By_Power") ||
-                        affixAttribute.LocalisationId.Equals("Movement_Speed_Bonus_Percent_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Percent_Bonus_Projectiles_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Power Bonus Attack Radius Percent") ||
-                        affixAttribute.LocalisationId.Equals("Power_Cooldown_Reduction_Percent") ||
-                        affixAttribute.LocalisationId.Equals("Power_Crit_Percent_Bonus") ||
+                    if (affixAttribute.LocalisationId.Equals("Skill_Rank_Bonus") ||
+                        affixAttribute.LocalisationId.Equals("Talent_Rank_Bonus") ||
                         affixAttribute.LocalisationId.Equals("Power_Damage_Percent_Bonus") ||
                         affixAttribute.LocalisationId.Equals("Power_Duration_Bonus_Pct") ||
-                        affixAttribute.LocalisationId.Equals("Power_Resource_Cost_Reduction_Percent") ||
-                        affixAttribute.LocalisationId.Equals("Resource_Gain_Bonus_Percent_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Skill_Rank_Bonus") ||
-                        affixAttribute.LocalisationId.Equals("Talent_Rank_Bonus"))
+                        affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_While_Affected_By_Power") ||
+                        affixAttribute.LocalisationId.Equals("Attack_Speed_Percent_Bonus_For_Power") ||
+                        affixAttribute.LocalisationId.Equals("Power_Cooldown_Reduction_Percent"))
                     {
                         ReplaceSkillPlaceholders(affix, _powerMetaJsonList);
                     }
-                    else if (affixAttribute.LocalisationId.Equals("Attack_Speed_Percent_Bonus_Per_Skill_Tag") ||
-                        affixAttribute.LocalisationId.Equals("Crit_Damage_Percent_Per_Skill_Tag") ||
-                        affixAttribute.LocalisationId.Equals("Crit_Percent_Bonus_Per_Skill_Tag") ||
-                        affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_Per_Skill_Tag") ||
-                        affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag") ||
-                        affixAttribute.LocalisationId.Equals("Hit_Effect_Chance_Bonus_Per_Skill_Tag") ||
-                        affixAttribute.LocalisationId.Equals("Overpower_Damage_Percent_Bonus_Per_Skill_Tag") ||
-                        affixAttribute.LocalisationId.Equals("Per_Skill_Tag_Buff_Duration_Bonus_Percent") ||
-                        affixAttribute.LocalisationId.Equals("Primary_Resource_On_Cast_Per_Skill_Tag") ||
-                        affixAttribute.LocalisationId.Equals("Skill_Rank_Skill_Tag_Bonus") ||
-                        affixAttribute.LocalisationId.Equals("Skill_Tag_Cooldown_Reduction_Percent") ||
-                        affixAttribute.LocalisationId.Equals("Resource_Gain_Bonus_Percent_Per_Skill_Tag"))
-                    {
-                        ReplaceSkillTagPlaceholders(affix);
-                    }
-                    else if (affixAttribute.LocalisationId.Equals("Resource_Cost_Reduction_Percent") ||
-                        affixAttribute.LocalisationId.Equals("Resource_Max_Bonus") ||
-                        affixAttribute.LocalisationId.Equals("Resource_On_Kill") ||
-                        affixAttribute.LocalisationId.Equals("Resource_Regen_Per_Second"))
+                    else if (affixAttribute.LocalisationId.Equals("Resource_Max_Bonus") ||
+                        affixAttribute.LocalisationId.Equals("Resource_Cost_Reduction_Percent") ||
+                        affixAttribute.LocalisationId.Equals("Resource_On_Kill"))
                     {
                         ReplaceResourcePlaceholders(affix);
                     }
-                    else if (affixAttribute.LocalisationId.Equals("Combat_Effect_Chance_Bonus_Per_Damage_Type") ||
+                    else if (affixAttribute.LocalisationId.Equals("Damage_Type_Percent_Bonus") ||
                         affixAttribute.LocalisationId.Equals("Damage_Type_Crit_Damage_Percent_Bonus") ||
+                        affixAttribute.LocalisationId.Equals("Resistance") ||
+                        affixAttribute.LocalisationId.Equals("Combat_Effect_Chance_Bonus_Per_Damage_Type") ||
                         affixAttribute.LocalisationId.Equals("Damage_Type_Crit_Percent_Bonus_Vs_Elites") ||
-                        affixAttribute.LocalisationId.Equals("Damage_Type_Percent_Bonus") ||
-                        affixAttribute.LocalisationId.Equals("DOT_DPS_Bonus_Percent_Per_Damage_Type") ||
-                        affixAttribute.LocalisationId.Equals("Proc_Flat_Element_Damage_On_Hit") ||
-                        affixAttribute.LocalisationId.Equals("Resistance"))
+                        affixAttribute.LocalisationId.Equals("DOT_DPS_Bonus_Percent_Per_Damage_Type"))
                     {
                         ReplaceDamageTypePlaceholders(affix);
                     }
@@ -494,9 +472,18 @@ namespace D4DataParser.Parsers
                     {
                         ReplaceCrowdControlTypePlaceholders(affix);
                     }
+                    else if (affixAttribute.LocalisationId.Equals("Skill_Rank_Skill_Tag_Bonus") ||
+                        affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_Per_Skill_Tag") ||
+                        affixAttribute.LocalisationId.Equals("Skill_Tag_Cooldown_Reduction_Percent") ||
+                        affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag") ||
+                        affixAttribute.LocalisationId.Equals("Crit_Damage_Percent_Per_Skill_Tag") ||
+                        affixAttribute.LocalisationId.Equals("Overpower_Damage_Percent_Bonus_Per_Skill_Tag") ||
+                        affixAttribute.LocalisationId.Equals("Attack_Speed_Percent_Bonus_Per_Skill_Tag"))
+                    {
+                        ReplaceSkillTagPlaceholders(affix);
+                    }
                     else if (affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_Per_Weapon_Requirement") ||
-                        affixAttribute.LocalisationId.Equals("Overpower_Damage_Percent_Bonus_Per_Weapon_Requirement") ||
-                        affixAttribute.LocalisationId.Equals("Primary_Resource_Gain_Bonus_Percent_Per_Weapon_Requirement"))
+                        affixAttribute.LocalisationId.Equals("Overpower_Damage_Percent_Bonus_Per_Weapon_Requirement"))
                     {
                         ReplaceWeaponTypePlaceholders(affix);
                     }
@@ -505,8 +492,7 @@ namespace D4DataParser.Parsers
                     {
                         ReplaceDotTypePlaceholders(affix);
                     }
-                    else if (affixAttribute.LocalisationId.Equals("NecroArmy_Pet_Type_Damage_Bonus_Pct") ||
-                        affixAttribute.LocalisationId.Equals("NecroArmy_Pet_Type_Inherit_Thorns_Bonus_Pct"))
+                    else if (affixAttribute.LocalisationId.Equals("NecroArmy_Pet_Type_Inherit_Thorns_Bonus_Pct"))
                     {
                         ReplaceNecroPetTypePlaceholders(affix);
                     }
@@ -526,39 +512,8 @@ namespace D4DataParser.Parsers
                 }
             }
 
-            // List all affixes with no description
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Affixes with missing localisation: {_affixInfoList.Count(a => string.IsNullOrWhiteSpace(a.Description))}");
-            _affixInfoList.ForEach(a =>
-            {
-                if (string.IsNullOrWhiteSpace(a.Description))
-                {
-                    Debug.WriteLine($"{a.IdName}");
-                }
-            });
-
             // Remove all affixes with no description
             _affixInfoList.RemoveAll(a => string.IsNullOrWhiteSpace(a.Description));
-
-            // Remove normal affixes when there is an equal tempered affix.
-            var duplicates = _affixInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
-            List<string> affixesToRemove = new();
-            if (duplicates.Any())
-            {
-                foreach (var group in duplicates)
-                {
-                    if (group.Count() == 2 && group.Count(a => a.IdName.StartsWith("Tempered")) == 1)
-                    {
-                        string affixToRemove = group.First(a => !a.IdName.StartsWith("Tempered")).IdName;
-                        affixesToRemove.Add(affixToRemove);
-                    }
-                }
-
-                foreach (var affix in affixesToRemove)
-                {
-                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Removed: {affix}");
-                    _affixInfoList.RemoveAll(a => a.IdName.Equals(affix));
-                }
-            }
 
             // Add a cleaned up description for fuzzy searches.
             AddCleanDescription();
@@ -574,7 +529,6 @@ namespace D4DataParser.Parsers
 
             watch.Stop();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
-            Debug.WriteLine(string.Empty);
         }
 
         private void SaveAffixes()
@@ -686,7 +640,6 @@ namespace D4DataParser.Parsers
                 affix.Description = affix.Description.Replace("+{VALUE2}", "+#");
                 affix.Description = affix.Description.Replace("+{vALUE2}", "+#");
 
-                affix.Description = affix.Description.Replace("{c_important}", string.Empty);
                 affix.Description = affix.Description.Replace("{c_label}", string.Empty);
                 affix.Description = affix.Description.Replace("{/c}", string.Empty);
 
@@ -750,23 +703,16 @@ namespace D4DataParser.Parsers
                     string directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\..\\{_language}_Text\\meta\\StringList\\";
                     string fileName = powerMeta.__fileName__;
                     string fileNameLoc = $"{directory}Power_{Path.GetFileNameWithoutExtension(fileName)}.stl.json";
-                    if (File.Exists(fileNameLoc))
+                    var jsonAsText = File.ReadAllText(fileNameLoc);
+                    var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);
+                    if (localisation != null)
                     {
-                        var jsonAsText = File.ReadAllText(fileNameLoc);
-                        var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);
-                        if (localisation != null)
+                        var skillInfo = localisation.arStrings.FirstOrDefault(l => l.szLabel.Equals("name"));
+                        if (skillInfo != null)
                         {
-                            var skillInfo = localisation.arStrings.FirstOrDefault(l => l.szLabel.Equals("name"));
-                            if (skillInfo != null)
-                            {
-                                string skill = skillInfo.szText;
-                                affix.Description = affix.Description.Replace("{VALUE1}", skill);
-                            }
+                            string skill = skillInfo.szText;
+                            affix.Description = affix.Description.Replace("{VALUE1}", skill);
                         }
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Power_{Path.GetFileNameWithoutExtension(fileName)}.stl.json not found.");
                     }
                 }
             }
@@ -776,10 +722,9 @@ namespace D4DataParser.Parsers
         {
             foreach (var affixAttribute in affix.AffixAttributes)
             {
-                if (affixAttribute.LocalisationId.Equals("Resource_Cost_Reduction_Percent") || 
-                    affixAttribute.LocalisationId.Equals("Resource_Max_Bonus") ||
-                    affixAttribute.LocalisationId.Equals("Resource_On_Kill") ||
-                    affixAttribute.LocalisationId.Equals("Resource_Regen_Per_Second"))
+                if (affixAttribute.LocalisationId.Equals("Resource_Max_Bonus") ||
+                    affixAttribute.LocalisationId.Equals("Resource_Cost_Reduction_Percent") ||
+                    affixAttribute.LocalisationId.Equals("Resource_On_Kill"))
                 {
                     string localisationParameterAsString = _mappingResources[affixAttribute.LocalisationParameter];
                     string directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\..\\{_language}_Text\\meta\\StringList\\";
@@ -803,13 +748,12 @@ namespace D4DataParser.Parsers
         {
             foreach (var affixAttribute in affix.AffixAttributes)
             {
-                if (affixAttribute.LocalisationId.Equals("Combat_Effect_Chance_Bonus_Per_Damage_Type") ||
+                if (affixAttribute.LocalisationId.Equals("Damage_Type_Percent_Bonus") ||
                     affixAttribute.LocalisationId.Equals("Damage_Type_Crit_Damage_Percent_Bonus") ||
+                    affixAttribute.LocalisationId.Equals("Resistance") ||
+                    affixAttribute.LocalisationId.Equals("Combat_Effect_Chance_Bonus_Per_Damage_Type") ||
                     affixAttribute.LocalisationId.Equals("Damage_Type_Crit_Percent_Bonus_Vs_Elites") ||
-                    affixAttribute.LocalisationId.Equals("Damage_Type_Percent_Bonus") ||
-                    affixAttribute.LocalisationId.Equals("DOT_DPS_Bonus_Percent_Per_Damage_Type") ||
-                    affixAttribute.LocalisationId.Equals("Proc_Flat_Element_Damage_On_Hit") ||
-                    affixAttribute.LocalisationId.Equals("Resistance"))
+                    affixAttribute.LocalisationId.Equals("DOT_DPS_Bonus_Percent_Per_Damage_Type"))
                 {
                     string localisationParameterAsString = _mappingDamageTypes[affixAttribute.LocalisationParameter];
                     string directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\..\\{_language}_Text\\meta\\StringList\\";
@@ -890,18 +834,13 @@ namespace D4DataParser.Parsers
 
             foreach (var affixAttribute in affix.AffixAttributes)
             {
-                if (affixAttribute.LocalisationId.Equals("Attack_Speed_Percent_Bonus_Per_Skill_Tag") ||
-                    affixAttribute.LocalisationId.Equals("Crit_Damage_Percent_Per_Skill_Tag") ||
-                    affixAttribute.LocalisationId.Equals("Crit_Percent_Bonus_Per_Skill_Tag") ||
+                if (affixAttribute.LocalisationId.Equals("Skill_Rank_Skill_Tag_Bonus") ||
                     affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_Per_Skill_Tag") ||
-                    affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag") ||
-                    affixAttribute.LocalisationId.Equals("Hit_Effect_Chance_Bonus_Per_Skill_Tag") ||
-                    affixAttribute.LocalisationId.Equals("Overpower_Damage_Percent_Bonus_Per_Skill_Tag") ||
-                    affixAttribute.LocalisationId.Equals("Per_Skill_Tag_Buff_Duration_Bonus_Percent") ||
-                    affixAttribute.LocalisationId.Equals("Primary_Resource_On_Cast_Per_Skill_Tag") ||
-                    affixAttribute.LocalisationId.Equals("Skill_Rank_Skill_Tag_Bonus") ||
                     affixAttribute.LocalisationId.Equals("Skill_Tag_Cooldown_Reduction_Percent") ||
-                    affixAttribute.LocalisationId.Equals("Resource_Gain_Bonus_Percent_Per_Skill_Tag"))
+                    affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag") ||
+                    affixAttribute.LocalisationId.Equals("Crit_Damage_Percent_Per_Skill_Tag") ||
+                    affixAttribute.LocalisationId.Equals("Overpower_Damage_Percent_Bonus_Per_Skill_Tag") ||
+                    affixAttribute.LocalisationId.Equals("Attack_Speed_Percent_Bonus_Per_Skill_Tag"))
                 {
                     var skillCategory = skillTagDictionary[affixAttribute.LocalisationParameter][0];
 
@@ -935,8 +874,7 @@ namespace D4DataParser.Parsers
             foreach (var affixAttribute in affix.AffixAttributes)
             {
                 if (affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_Per_Weapon_Requirement") ||
-                    affixAttribute.LocalisationId.Equals("Overpower_Damage_Percent_Bonus_Per_Weapon_Requirement") ||
-                    affixAttribute.LocalisationId.Equals("Primary_Resource_Gain_Bonus_Percent_Per_Weapon_Requirement"))
+                    affixAttribute.LocalisationId.Equals("Overpower_Damage_Percent_Bonus_Per_Weapon_Requirement"))
                 {
                     var weaponTypeParameterAsString = weaponTypeDictionary[affixAttribute.LocalisationParameter];
 
@@ -987,8 +925,7 @@ namespace D4DataParser.Parsers
         {
             foreach (var affixAttribute in affix.AffixAttributes)
             {
-                if (affixAttribute.LocalisationId.Equals("NecroArmy_Pet_Type_Damage_Bonus_Pct") ||
-                    affixAttribute.LocalisationId.Equals("NecroArmy_Pet_Type_Inherit_Thorns_Bonus_Pct"))
+                if (affixAttribute.LocalisationId.Equals("NecroArmy_Pet_Type_Inherit_Thorns_Bonus_Pct"))
                 {
                     string localisationParameterAsString = _mappingNecroPetTypes[affixAttribute.LocalisationParameter];
                     string directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\..\\{_language}_Text\\meta\\StringList\\";
@@ -1049,39 +986,63 @@ namespace D4DataParser.Parsers
             //    }
             //}
 
-            // Only keep the following affixes:
-            // - S04
-            // - Tempered
-            _affixInfoList.RemoveAll(a => !a.IdName.StartsWith("S04_") && !a.IdName.StartsWith("Tempered"));
+            // Remove all "INHERENT_" affixes
+            _affixInfoList.RemoveAll(a => a.IdName.StartsWith("INHERENT_"));
+
+            // Remove all "_WishingWell_" affixes
+            _affixInfoList.RemoveAll(a => a.IdName.Contains("_WishingWell_"));
+
+            // Remove all "_Jewelry" affixes
+            _affixInfoList.RemoveAll(a => a.IdName.Contains("_Jewelry_"));
+            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("Jewelry"));
+            //_affixInfoList.RemoveAll(a => a.IdName.Equals("LuckJewelry"));
+            //_affixInfoList.RemoveAll(a => a.IdName.Equals("CritChanceJewelry"));
+
+            // Remove all "Resistance_Dual" affixes
+            _affixInfoList.RemoveAll(a => a.IdName.StartsWith("Resistance_Dual"));
+
+            // Remove all "Mount_" affixes
+            _affixInfoList.RemoveAll(a => a.IdName.StartsWith("Mount_"));
+
+            // Remove all "QA_" affixes
+            _affixInfoList.RemoveAll(a => a.IdName.StartsWith("QA_"));
+
+            // Remove disabled gem affixes
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("GemPower1Socket"));
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("GemPower2Socket"));
+
+            // Remove specific duplicates
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStats_All_Weapon")); // "# All Stats", using "CoreStats_All" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("ElementalDamageReduction")); // "#% Resistance to All Elements", using "Resistance_All" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Damage_FullScaling")); // "+#% Damage", using "Damage" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Dodge_Additive")); // "+#% Dodge Chance", using "Dodge" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_Dexterity_Weapon")); // "# Dexterity", using "CoreStat_Dexterity" instead.      
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_Intelligence_Weapon")); // "# Intelligence", using "CoreStat_Intelligence" instead.      
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_Strength_Weapon")); // "# Strength", using "CoreStat_Strength" instead.      
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_Willpower_Weapon")); // "# Willpower", using "CoreStat_Willpower" instead.      
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Thorns_Shields")); // "+# Thorns", using "Thorns" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Attack_Reset_ALWAYSMAX")); // "Attacks Reduce Evade's Cooldown by # Seconds", using "Evade_Attack_Reset" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Attack_Reset_Random")); // "Attacks Reduce Evade's Cooldown by # Seconds", using "Evade_Attack_Reset" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Evade_Charges_Random")); // "+# Max Evade Charges", using "Evade_Max_Charges" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("LifePercent")); // "#% Maximum Life", using "Life" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_DexterityPercent")); // "+#% Dexterity", using "CoreStat_Dexterity" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_IntelligencePercent")); // "+#% Intelligence", using "CoreStat_Intelligence" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_StrengthPercent")); // "+#% Strength", using "CoreStat_Strength" instead.
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("CoreStat_WillpowerPercent")); // "+#% Willpower", using "CoreStat_Willpower" instead.
 
             // Remove duplicates
-            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("Jewelry"));
+            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_UBERUNIQUE"));
+            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_UNIQUE") && !a.IdName.Equals("Resource_Max_AllClasses_UNIQUE"));
+            _affixInfoList.RemoveAll(a => a.IdName.Contains("_UNIQUE_"));
+            _affixInfoList.RemoveAll(a => a.IdName.Contains("_Unique_"));
+            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_UniqueRandom"));
+            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_Unique"));
+            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("Rebalance")); // e.g. CDR_Rupture_S2Rebalance
             _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_Lesser"));
-            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_Shields"));
-
-            // Remove tempered tier 1 and tier 2
-            _affixInfoList.RemoveAll(a => a.IdName.StartsWith("Tempered") && a.IdName.EndsWith("Tier1"));
-            _affixInfoList.RemoveAll(a => a.IdName.StartsWith("Tempered") && a.IdName.EndsWith("Tier2"));
-
-            // Remove specific duplicates            
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("S04_CoreStat_DexterityPercent")); // "+#% Dexterity", using "S04_CoreStat_Dexterity" instead.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("S04_CoreStat_IntelligencePercent")); // "+#% Intelligence", using "S04_CoreStat_Intelligence" instead.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("S04_CoreStat_StrengthPercent")); // "+#% Strength", using "S04_CoreStat_Strength" instead.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("S04_CoreStat_WillpowerPercent")); // "+#% Willpower", using "S04_CoreStat_Willpower" instead.
-
-            // Bugs??
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("S04_PassiveRankBonus_Barb_Berserker_T2_N3_Duelist")); // "+# to Counteroffensive", using "S04_PassiveRankBonus_Barb_03_Counteroffensive" instead.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_08_Unrestrained")); // "+# to Nature's Reach", using "Tempered_PassiveRankBonus_Druid_06_NaturesReach" instead.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_09_Vigilance")); // "+# to Nature's Reach", using "Tempered_PassiveRankBonus_Druid_06_NaturesReach" instead.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_NatureMagic_T2_N3_AncestralFortitude")); // "+# to Crushing Earth", using "Tempered_PassiveRankBonus_Druid_NatureMagic_T2_N2_CrushingEarth" instead.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_NatureMagic_T4_N1_ElectricShock")); // "+# to Defiance", using "Tempered_PassiveRankBonus_Druid_NatureMagic_T4_N2_Defiance" instead.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_Shapeshifting_T1_N2_PredatoryInstinct")); // "+# to Quickshift", using "Tempered_PassiveRankBonus_Druid_Shapeshifting_T4_N1_Quickshift" instead.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_Shapeshifting_T4_N2_NaturalFortitude")); // "+# to Quickshift", using "Tempered_PassiveRankBonus_Druid_Shapeshifting_T4_N1_Quickshift" instead.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Rogue_Discipline_T4_N1_AlchemicalAdvantage")); // "+# to Concussive", using "Tempered_PassiveRankBonus_Rogue_Discipline_T3_N4_Concussive" instead.
-
-            // Remove affixes with unknown values.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_Projectiles_Skill_Necro_SkeletonMage_Tier3")); // +#% Chance for {VALUE1} Projectiles to Cast Twice
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_Resource_After_Skill_Necro_BloodOrb_Tier3")); // +#% Chance for {VALUE1} Projectiles to Cast Twice
+            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_Greater"));
+            _affixInfoList.RemoveAll(a => a.IdName.Contains("_Legendary_"));
+            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_Always1")); // Remove all _Always1 affixes - Used by Rank(s) of affixes
+            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_Scaled2H")); // Remove all "_Scaled2H" affixes - Used by Rank(s) of affixes
         }
 
         #endregion

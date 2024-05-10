@@ -87,8 +87,13 @@ namespace D4DataParser.Parsers
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
 
+                // TODO: - DEV - Comment language skip for release
+                //if (!language.Equals("enUS")) continue;
+
                 _sigilInfoList.Clear();
                 ParseSigilsByLanguage(language);
+
+                ValidateSigils();
             }
 
             watch.Stop();
@@ -110,7 +115,7 @@ namespace D4DataParser.Parsers
                 }
             }
 
-            // TODO: Requires update when season changes.
+            // TODO: - UPD - Requires update when season changes.
             // Nightmare dungeons (Season) - ".\d4data\json\base\meta\Season\Season #.sea.json"
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\meta\\Season\\Season 4.sea.json");
             _seasonMeta = System.Text.Json.JsonSerializer.Deserialize<SeasonMeta>(jsonAsText) ?? new SeasonMeta();
@@ -331,6 +336,13 @@ namespace D4DataParser.Parsers
                 return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
             });
 
+            // Remove duplicates (will otherwise cause issues for OCR)
+            _sigilInfoList.RemoveAll(s => s.IdName.Equals("DungeonAffix_Major_Boss_MegaDemon_Tier31", StringComparison.OrdinalIgnoreCase)); // use DungeonAffix_Major_Boss_MegaDemon_Tier96
+            _sigilInfoList.RemoveAll(s => s.IdName.Equals("DungeonAffix_Minor_Monster_Barrier", StringComparison.OrdinalIgnoreCase)); // use DungeonAffix_Major_Monster_Barrier
+            
+            // Only an issue for some languages.
+            //_sigilInfoList.RemoveAll(s => s.IdName.Equals("DungeonAffix_Positive_GlyphXP_EvergreenVersion", StringComparison.OrdinalIgnoreCase)); // use DungeonAffix_Positive_GlyphXP
+
             // Delete unwanted sigils
             _sigilInfoList.RemoveAll(s => s.IdName.Equals("DungeonAffix_Positive_S03_LTE_LunarNewYearShrine", StringComparison.OrdinalIgnoreCase));
 
@@ -348,6 +360,24 @@ namespace D4DataParser.Parsers
             var options = new JsonSerializerOptions { WriteIndented = true };
             options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
             JsonSerializer.Serialize(stream, _sigilInfoList, options);
+        }
+
+        private void ValidateSigils()
+        {
+            var duplicates = _sigilInfoList.GroupBy(a => a.Name).Where(a => a.Count() > 1);
+            if (duplicates.Any())
+            {
+                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Duplicates found!");
+
+                foreach (var group in duplicates)
+                {
+                    Console.WriteLine("Key: {0}", group.Key);
+                    foreach (var sigilInfo in group)
+                    {
+                        Debug.WriteLine($"{sigilInfo.IdName}: {sigilInfo.Name}");
+                    }
+                }
+            }
         }
 
         #endregion
