@@ -1070,6 +1070,7 @@ namespace D4DataParser.Parsers
             _affixInfoList.RemoveAll(a => a.IdName.Equals("S04_CoreStat_WillpowerPercent")); // "+#% Willpower", using "S04_CoreStat_Willpower" instead.
 
             // Bugs??
+            // TODO: - UPD - Check if localisation bugs are still present after each update
             _affixInfoList.RemoveAll(a => a.IdName.Equals("S04_PassiveRankBonus_Barb_Berserker_T2_N3_Duelist")); // "+# to Counteroffensive", using "S04_PassiveRankBonus_Barb_03_Counteroffensive" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_08_Unrestrained")); // "+# to Nature's Reach", using "Tempered_PassiveRankBonus_Druid_06_NaturesReach" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_09_Vigilance")); // "+# to Nature's Reach", using "Tempered_PassiveRankBonus_Druid_06_NaturesReach" instead.
