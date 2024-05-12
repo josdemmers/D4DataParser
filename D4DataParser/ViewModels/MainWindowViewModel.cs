@@ -31,6 +31,7 @@ namespace D4DataParser.ViewModels
 
         //private string _d4dataPath = @"D:\Games\DiabloIV\d4data\";
         private string _d4dataPath = @"D:\Games\DiabloIV\d4data-ptr\";
+        private bool _keepDuplicates = false;
 
         // Start of Constructors region
 
@@ -74,6 +75,16 @@ namespace D4DataParser.ViewModels
             }
         }
 
+        public bool KeepDuplicates
+        {
+            get => _keepDuplicates;
+            set
+            {
+                _keepDuplicates = value;
+                RaisePropertyChanged(nameof(KeepDuplicates));
+            }
+        }
+
         #endregion
 
         // Start of Event handlers region
@@ -85,6 +96,7 @@ namespace D4DataParser.ViewModels
             Task.Factory.StartNew(() =>
             {
                 _affixParser.D4dataPath = D4dataPath;
+                _affixParser.KeepDuplicates = KeepDuplicates;
                 _affixParser.ParseAffixes();
 
                 // Copy affixes.glo.json

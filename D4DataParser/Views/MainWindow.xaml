@@ -13,7 +13,10 @@
             </Border>
         </StackPanel>
         <StackPanel HorizontalAlignment="Left">
-            <Button Content="Affixes" Width="Auto" Command="{Binding ParseAffixDataCommand}"/>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Affixes" Width="Auto" Command="{Binding ParseAffixDataCommand}"/>
+                <CheckBox IsChecked="{Binding KeepDuplicates}"/>
+            </StackPanel>
             <Button Content="Aspects" Width="Auto" Command="{Binding ParseAspectDataCommand}"/>
             <Button Content="Sigils" Width="Auto" Command="{Binding ParseSigilDataCommand}"/>
             <Button Content="ItemTypes" Width="Auto" Command="{Binding ParseItemTypesDataCommand}"/>

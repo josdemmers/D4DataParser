@@ -19,6 +19,7 @@ namespace D4DataParser.Parsers
     public class AffixParser
     {
         private string _d4dataPath = string.Empty;
+        private bool _keepDuplicates = false;
         private string _language = string.Empty;
         private List<string> _languages = new List<string>();
 
@@ -66,6 +67,7 @@ namespace D4DataParser.Parsers
         }
 
         public string D4dataPath { get => _d4dataPath; set => _d4dataPath = value; }
+        public bool KeepDuplicates { get => _keepDuplicates; set => _keepDuplicates = value; }
 
         #endregion
 
@@ -167,6 +169,8 @@ namespace D4DataParser.Parsers
 
                 // TODO: - DEV - Comment language skip for release
                 //if (!language.Equals("enUS")) continue;
+
+                if (KeepDuplicates && !language.Equals("enUS")) continue;
 
                 ParseAffixesByLanguage(language);
                 UpdateAffixes();
@@ -282,7 +286,7 @@ namespace D4DataParser.Parsers
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Power folder): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;
 
-            // Create affix and aspect class
+            // Create affix class
             foreach (var affix in affixDictionary)
             {
                 _affixInfoList.Add(new AffixInfo
@@ -293,8 +297,11 @@ namespace D4DataParser.Parsers
                 });
             }
 
-            // Remove unwanted affixes.
-            RemoveUnwantedAffixes();
+            if (!KeepDuplicates)
+            {
+                // Remove unwanted affixes.
+                RemoveUnwantedAffixes();
+            }
 
             watch.Stop();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
@@ -579,7 +586,7 @@ namespace D4DataParser.Parsers
 
         private void SaveAffixes()
         {
-            string fileName = $"Data/Affixes.{_language}.json";
+            string fileName = KeepDuplicates ? $"Data/Affixes.Full.{_language}.json" : $"Data/Affixes.{_language}.json";
             string path = Path.GetDirectoryName(fileName) ?? string.Empty;
             Directory.CreateDirectory(path);
 
