@@ -549,7 +549,7 @@ namespace D4DataParser.Parsers
             // Remove normal affixes when there is an equal tempered affix.
             var duplicates = _affixInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
             List<string> affixesToRemove = new();
-            if (duplicates.Any())
+            if (duplicates.Any() && !KeepDuplicates)
             {
                 foreach (var group in duplicates)
                 {
