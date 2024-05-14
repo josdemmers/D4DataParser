@@ -19,10 +19,7 @@ namespace D4DataParser.Parsers
     {
         private string _d4datePath = string.Empty;
         private List<string> _languages = new List<string>();
-        private NightmareDungeonMeta _nightmareDungeonMeta = new NightmareDungeonMeta();
-        private SeasonMeta _seasonMeta = new SeasonMeta();
         private List<SigilInfo> _sigilInfoList = new List<SigilInfo>();
-        private List<ArString> _zoneMetaList = new List<ArString>();
 
         // Start of Constructors region
 
@@ -133,9 +130,9 @@ namespace D4DataParser.Parsers
 
                 // Nightmare dungeons - ".\d4data\json\base\meta\Global\nightmare_dungeons.glo.json"
                 var jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\meta\\Global\\nightmare_dungeons.glo.json");
-                _nightmareDungeonMeta = System.Text.Json.JsonSerializer.Deserialize<NightmareDungeonMeta>(jsonAsText) ?? new NightmareDungeonMeta();
+                var nightmareDungeonMeta = System.Text.Json.JsonSerializer.Deserialize<NightmareDungeonMeta>(jsonAsText) ?? new NightmareDungeonMeta();
 
-                foreach (var arDungeonList in _nightmareDungeonMeta.ptContent[0].arDungeonLists)
+                foreach (var arDungeonList in nightmareDungeonMeta.ptContent[0].arDungeonLists)
                 {
                     bool isSeasonal = arDungeonList.arDungeons.Any(d => d.name.Equals(dungeonName, StringComparison.OrdinalIgnoreCase));
                     if (isSeasonal) return true;
@@ -144,9 +141,9 @@ namespace D4DataParser.Parsers
                 // Nightmare dungeons (Season) - ".\d4data\json\base\meta\Season\Season #.sea.json"
                 // TODO: - UPD - Requires update when season changes.
                 jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\meta\\Season\\Season 4.sea.json");
-                _seasonMeta = System.Text.Json.JsonSerializer.Deserialize<SeasonMeta>(jsonAsText) ?? new SeasonMeta();
+                var seasonMeta = System.Text.Json.JsonSerializer.Deserialize<SeasonMeta>(jsonAsText) ?? new SeasonMeta();
 
-                foreach (var arDungeonList in _seasonMeta.arDungeonLists)
+                foreach (var arDungeonList in seasonMeta.arDungeonLists)
                 {
                     bool isSeasonal = arDungeonList.arDungeons.Any(d => d.name.Equals(dungeonName, StringComparison.OrdinalIgnoreCase));
                     if (isSeasonal) return true;
@@ -170,7 +167,7 @@ namespace D4DataParser.Parsers
             string fileNameLoc = $"{directory}Zones.stl.json";
             string prefix = string.Empty;
             string jsonAsText = File.ReadAllText(fileNameLoc);
-            _zoneMetaList = JsonSerializer.Deserialize<Localisation>(jsonAsText)?.arStrings ?? new List<ArString>();
+            var zoneMetaList = JsonSerializer.Deserialize<Localisation>(jsonAsText)?.arStrings ?? new List<ArString>();
 
             // Local function used by DungeonZoneInfo
             string GetSigilDungeonZoneInfo(string idName)
@@ -178,15 +175,15 @@ namespace D4DataParser.Parsers
                 switch (idName)
                 {
                     case var _ when idName.Contains("_Frac_", StringComparison.OrdinalIgnoreCase):
-                        return _zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_FRACTURED_PEAKS", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                        return zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_FRACTURED_PEAKS", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
                     case var _ when idName.Contains("_Hawe_", StringComparison.OrdinalIgnoreCase):
-                        return _zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_HAWAZAR_SWAMPS", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                        return zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_HAWAZAR_SWAMPS", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
                     case var _ when idName.Contains("_Kehj_", StringComparison.OrdinalIgnoreCase):
-                        return _zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_KEHJISTAN", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                        return zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_KEHJISTAN", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
                     case var _ when idName.Contains("_Scos_", StringComparison.OrdinalIgnoreCase):
-                        return _zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_SCOSGLEN", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                        return zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_SCOSGLEN", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
                     case var _ when idName.Contains("_Step_", StringComparison.OrdinalIgnoreCase):
-                        return _zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_DRY_STEPPES", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                        return zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_DRY_STEPPES", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
                     default:
                         Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Zone not found for {idName}");
                         break;

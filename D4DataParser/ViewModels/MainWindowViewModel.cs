@@ -30,7 +30,8 @@ namespace D4DataParser.ViewModels
         private ItemTypeParser _itemTypeParser = new ItemTypeParser();
 
         //private string _d4dataPath = @"D:\Games\DiabloIV\d4data\";
-        private string _d4dataPath = @"D:\Games\DiabloIV\d4data-ptr\";
+        private string _d4dataPath = @"D:\Games\DiabloIV\d4data-dt\";
+        //private string _d4dataPath = @"D:\Games\DiabloIV\d4data-ptr\";
         private bool _keepDuplicates = false;
 
         // Start of Constructors region

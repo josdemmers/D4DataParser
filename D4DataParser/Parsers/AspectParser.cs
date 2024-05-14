@@ -287,6 +287,7 @@ namespace D4DataParser.Parsers
             //}
 
             // TODO: Check if aspect is enabled by looking through all power files?
+            //       Works for some aspects, did not work for legendary_sorc_139 when it was disabled.
             // Local function
             //bool IsAspectEnabled(string idName)
             //{
@@ -299,9 +300,7 @@ namespace D4DataParser.Parsers
 
             // Remove disabled aspects
             //_aspectInfoList.RemoveAll(aspect => !IsAspectEnabled(aspect.IdName));
-            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_necro_126", StringComparison.OrdinalIgnoreCase)); // (PH) Shadow Warriors (added by coreTOCAspects)
             _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_034", StringComparison.OrdinalIgnoreCase)); // (PH) of Ensnaring Current (added by coreTOCAspects)
-            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_139", StringComparison.OrdinalIgnoreCase)); // (PH) Split Incinerate (added by coreTOCAspects)
 
             watch.Stop();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
