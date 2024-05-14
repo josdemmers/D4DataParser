@@ -1,5 +1,6 @@
 ﻿using D4DataParser.Entities;
 using D4DataParser.Entities.D4Data;
+using D4DataParser.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -102,38 +103,15 @@ namespace D4DataParser.Parsers
 
         private void ParseSigilsByLanguage(string language)
         {
-            // Nightmare dungeons - ".\d4data\json\base\meta\Global\nightmare_dungeons.glo.json"
-            var jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\meta\\Global\\nightmare_dungeons.glo.json");
-            _nightmareDungeonMeta = System.Text.Json.JsonSerializer.Deserialize<NightmareDungeonMeta>(jsonAsText) ?? new NightmareDungeonMeta();
-
-            List<string> dungeonIds = new List<string>();
-            foreach (var arDungeonList in _nightmareDungeonMeta.ptContent[0].arDungeonLists)
-            {
-                foreach (var dungeon in arDungeonList.arDungeons)
-                {
-                    dungeonIds.Add(dungeon.name);
-                }
-            }
-
-            // TODO: - UPD - Requires update when season changes.
-            // Nightmare dungeons (Season) - ".\d4data\json\base\meta\Season\Season #.sea.json"
-            jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\meta\\Season\\Season 4.sea.json");
-            _seasonMeta = System.Text.Json.JsonSerializer.Deserialize<SeasonMeta>(jsonAsText) ?? new SeasonMeta();
-
-            foreach (var arDungeonList in _seasonMeta.arDungeonLists)
-            {
-                foreach (var dungeon in arDungeonList.arDungeons)
-                {
-                    dungeonIds.Add(dungeon.name);
-                }
-            }
+            // Dungeons
 
             // Local function to create SigilInfo for dungeon locations.
-            SigilInfo GetSigilInfoFromDungeonId(string dungeonId)
+            SigilInfo GetSigilInfoFromDungeonId(string fileName)
             {
                 SigilInfo sigilInfo = new SigilInfo();
 
-                var jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\World_{dungeonId}.stl.json");
+                // e.g. World_DGN_Frac_AnicasClaim.stl.json
+                var jsonAsText = File.ReadAllText(fileName);
                 var localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
 
                 string name = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase)).szText;
@@ -143,23 +121,55 @@ namespace D4DataParser.Parsers
                 sigilInfo.Name = name;
                 sigilInfo.Description = description;
                 sigilInfo.Type = "Dungeon";
+                sigilInfo.IsSeasonal = IsDungeonActive(Path.GetFileNameWithoutExtension(localisation.__fileName__));
 
                 return sigilInfo;
             }
 
-            // Add all dungeon locations.
-            // Missing DungeonZoneInfo property at this step. Will be added further in the update process.
-            var dungeonIdsUnique = dungeonIds.Distinct().ToList();
-            foreach (var dungeonId in dungeonIdsUnique)
+            // Local function to check for active seasonal dungeons
+            bool IsDungeonActive(string dungeonName)
             {
-                _sigilInfoList.Add(GetSigilInfoFromDungeonId(dungeonId));
+                dungeonName = dungeonName.Replace("World_", string.Empty);
+
+                // Nightmare dungeons - ".\d4data\json\base\meta\Global\nightmare_dungeons.glo.json"
+                var jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\meta\\Global\\nightmare_dungeons.glo.json");
+                _nightmareDungeonMeta = System.Text.Json.JsonSerializer.Deserialize<NightmareDungeonMeta>(jsonAsText) ?? new NightmareDungeonMeta();
+
+                foreach (var arDungeonList in _nightmareDungeonMeta.ptContent[0].arDungeonLists)
+                {
+                    bool isSeasonal = arDungeonList.arDungeons.Any(d => d.name.Equals(dungeonName, StringComparison.OrdinalIgnoreCase));
+                    if (isSeasonal) return true;
+                }
+
+                // Nightmare dungeons (Season) - ".\d4data\json\base\meta\Season\Season #.sea.json"
+                // TODO: - UPD - Requires update when season changes.
+                jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\meta\\Season\\Season 4.sea.json");
+                _seasonMeta = System.Text.Json.JsonSerializer.Deserialize<SeasonMeta>(jsonAsText) ?? new SeasonMeta();
+
+                foreach (var arDungeonList in _seasonMeta.arDungeonLists)
+                {
+                    bool isSeasonal = arDungeonList.arDungeons.Any(d => d.name.Equals(dungeonName, StringComparison.OrdinalIgnoreCase));
+                    if (isSeasonal) return true;
+                }
+
+                return false;
+            }
+
+            var directory = $"{_d4datePath}json\\{language}_Text\\meta\\StringList\\";
+            if (Directory.Exists(directory))
+            {
+                var fileEntries = Directory.EnumerateFiles(directory).Where(file => Path.GetFileName(file).StartsWith("World_DGN_", StringComparison.OrdinalIgnoreCase));
+                foreach (string fileName in fileEntries)
+                {
+                    _sigilInfoList.Add(GetSigilInfoFromDungeonId(fileName));
+                }
             }
 
             // Zones - ".\d4data\json\enUS_Text\meta\StringList\Zones.stl.json"
-            string directory = $"{_d4datePath}json\\{language}_Text\\meta\\StringList\\";
+            directory = $"{_d4datePath}json\\{language}_Text\\meta\\StringList\\";
             string fileNameLoc = $"{directory}Zones.stl.json";
             string prefix = string.Empty;
-            jsonAsText = File.ReadAllText(fileNameLoc);
+            string jsonAsText = File.ReadAllText(fileNameLoc);
             _zoneMetaList = JsonSerializer.Deserialize<Localisation>(jsonAsText)?.arStrings ?? new List<ArString>();
 
             // Local function used by DungeonZoneInfo
@@ -209,6 +219,16 @@ namespace D4DataParser.Parsers
                 prefix = prefix.Trim();
 
                 return prefix;
+            }
+
+            // Add missing IdName for sigils of type Dungeon
+            int coreTOCIndex = 42;
+            jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\CoreTOC.dat.json");
+            var coreTOCDictionary = JsonSerializer.Deserialize<Dictionary<long, Dictionary<long, string>>>(jsonAsText);
+            var sigilDictionary = coreTOCDictionary[coreTOCIndex];
+            foreach (var sigilInfo in _sigilInfoList)
+            {
+                sigilInfo.IdName = sigilDictionary[sigilInfo.IdSno];
             }
 
             // Add missing DungeonZoneInfo for sigils of type Dungeon
@@ -281,10 +301,6 @@ namespace D4DataParser.Parsers
             }
 
             // Add missing IdName
-            int coreTOCIndex = 42;
-            jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\CoreTOC.dat.json");
-            var coreTOCDictionary = JsonSerializer.Deserialize<Dictionary<long, Dictionary<long, string>>>(jsonAsText);
-            var sigilDictionary = coreTOCDictionary[coreTOCIndex];
             foreach (var sigilInfo in _sigilInfoList)
             {
                 sigilInfo.IdName = sigilDictionary[sigilInfo.IdSno];

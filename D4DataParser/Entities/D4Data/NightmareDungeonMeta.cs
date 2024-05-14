@@ -23,6 +23,7 @@ namespace D4DataParser.Entities.D4Data
 
     public class ArDungeons
     {
+        public long __raw__ { get; set; }
         public string name { get; set; }
     }
 }
