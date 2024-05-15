@@ -166,7 +166,7 @@ namespace D4DataParser.Entities.D4Data
         public long __typeHash__ { get; set; }
         public int eAttribute { get; set; }
         public string __eAttribute_name__ { get; set; }
-        public uint nParam { get; set; }
+        public uint nParam { get; set; } // Keep this at uint, need to automatic fix overflowed values.
         public SzAttributeFormula szAttributeFormula { get; set; }
         public GbidFormula gbidFormula { get; set; }
         public UnkDffdf28 unk_dffdf28 { get; set; }

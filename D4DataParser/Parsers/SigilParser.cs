@@ -128,25 +128,17 @@ namespace D4DataParser.Parsers
             {
                 dungeonName = dungeonName.Replace("World_", string.Empty);
 
-                // Nightmare dungeons - ".\d4data\json\base\meta\Global\nightmare_dungeons.glo.json"
-                var jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\meta\\Global\\nightmare_dungeons.glo.json");
-                var nightmareDungeonMeta = System.Text.Json.JsonSerializer.Deserialize<NightmareDungeonMeta>(jsonAsText) ?? new NightmareDungeonMeta();
-
-                foreach (var arDungeonList in nightmareDungeonMeta.ptContent[0].arDungeonLists)
+                // Nightmare dungeons - ".\d4data\json\base\meta\GameBalance\KeyedDungeonTypes.gam.json"
+                var jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\meta\\GameBalance\\KeyedDungeonTypes.gam.json");
+                var keyedDungeonTypesMeta = System.Text.Json.JsonSerializer.Deserialize<KeyedDungeonTypesMeta>(jsonAsText) ?? new KeyedDungeonTypesMeta();
+                var dungeonEntry = keyedDungeonTypesMeta.ptData[0].tEntries.FirstOrDefault(t => t.tHeader.szName.Equals("NightmareDungeon"));
+                if (dungeonEntry != null)
                 {
-                    bool isSeasonal = arDungeonList.arDungeons.Any(d => d.name.Equals(dungeonName, StringComparison.OrdinalIgnoreCase));
-                    if (isSeasonal) return true;
-                }
-
-                // Nightmare dungeons (Season) - ".\d4data\json\base\meta\Season\Season #.sea.json"
-                // TODO: - UPD - Requires update when season changes.
-                jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\meta\\Season\\Season 4.sea.json");
-                var seasonMeta = System.Text.Json.JsonSerializer.Deserialize<SeasonMeta>(jsonAsText) ?? new SeasonMeta();
-
-                foreach (var arDungeonList in seasonMeta.arDungeonLists)
-                {
-                    bool isSeasonal = arDungeonList.arDungeons.Any(d => d.name.Equals(dungeonName, StringComparison.OrdinalIgnoreCase));
-                    if (isSeasonal) return true;
+                    foreach (var arDungeonList in dungeonEntry.arDungeonLists)
+                    {
+                        bool isSeasonal = arDungeonList.arDungeons.Any(d => d.name.Equals(dungeonName, StringComparison.OrdinalIgnoreCase));
+                        if (isSeasonal) return true;
+                    }
                 }
 
                 return false;

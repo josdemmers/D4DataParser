@@ -19,7 +19,6 @@
 
   <ItemGroup>
     <Folder Include="Config\" />
-    <Folder Include="Constants\" />
   </ItemGroup>
 
 </Project>

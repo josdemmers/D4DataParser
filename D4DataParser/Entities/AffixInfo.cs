@@ -28,7 +28,7 @@ namespace D4DataParser.Entities
     public class AffixAttribute
     {
         public string LocalisationId { get; set; } = string.Empty;
-        public uint LocalisationParameter { get; set; }
+        public uint LocalisationParameter { get; set; } // Keep this at uint, need to automatic fix overflowed values.
         public string LocalisationAttributeFormulaValue { get; set; } = string.Empty;
         public string Localisation { get; set; } = string.Empty;
     }
