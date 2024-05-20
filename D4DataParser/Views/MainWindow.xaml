@@ -20,6 +20,7 @@
             <Button Content="Aspects" Width="Auto" Command="{Binding ParseAspectDataCommand}"/>
             <Button Content="Sigils" Width="Auto" Command="{Binding ParseSigilDataCommand}"/>
             <Button Content="ItemTypes" Width="Auto" Command="{Binding ParseItemTypesDataCommand}"/>
+            <Button Content="All" Width="Auto" Command="{Binding ParseAllCommand}"/>
             <Button Content="Test" Width="Auto" Command="{Binding TestCommand}" IsEnabled="False"/>
         </StackPanel>
     </DockPanel>

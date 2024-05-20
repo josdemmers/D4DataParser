@@ -29,9 +29,8 @@ namespace D4DataParser.ViewModels
         private SigilParser _sigilParser = new SigilParser();
         private ItemTypeParser _itemTypeParser = new ItemTypeParser();
 
-        //private string _d4dataPath = @"D:\Games\DiabloIV\d4data\";
-        private string _d4dataPath = @"D:\Games\DiabloIV\d4data-dt\";
-        //private string _d4dataPath = @"D:\Games\DiabloIV\d4data-ptr\";
+        private string _d4dataPath = @"D:\Games\DiabloIV\d4data\"; // Blizzhackers repo
+        //private string _d4dataPath = @"D:\Games\DiabloIV\d4data-dt\"; // DiabloTools repo
         private bool _keepDuplicates = false;
 
         // Start of Constructors region
@@ -41,6 +40,7 @@ namespace D4DataParser.ViewModels
         public MainWindowViewModel()
         {
             // Init View commands
+            ParseAllCommand = new DelegateCommand(ParseAllExecute);
             ParseAffixDataCommand = new DelegateCommand(ParseAffixDataExecute);
             ParseAspectDataCommand = new DelegateCommand(ParseAspectDataExecute);
             ParseSigilDataCommand = new DelegateCommand(ParseSigilDataExecute);
@@ -60,7 +60,8 @@ namespace D4DataParser.ViewModels
 
         #region Properties
 
-        public DelegateCommand ParseAffixDataCommand { get; }
+        public DelegateCommand ParseAllCommand { get; }
+        public DelegateCommand ParseAffixDataCommand { get; }        
         public DelegateCommand ParseAspectDataCommand { get; }
         public DelegateCommand ParseSigilDataCommand { get; }
         public DelegateCommand ParseItemTypesDataCommand { get; }
@@ -91,6 +92,31 @@ namespace D4DataParser.ViewModels
         // Start of Event handlers region
 
         #region Event handlers
+
+        private void ParseAllExecute()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                KeepDuplicates = true;
+                _affixParser.D4dataPath = D4dataPath;
+                _affixParser.KeepDuplicates = KeepDuplicates;
+                _affixParser.ParseAffixes();
+
+                KeepDuplicates = false;
+                _affixParser.D4dataPath = D4dataPath;
+                _affixParser.KeepDuplicates = KeepDuplicates;
+                _affixParser.ParseAffixes();
+
+                _aspectParser.D4dataPath = D4dataPath;
+                _aspectParser.ParseAffixes();
+
+                _sigilParser.D4dataPath = D4dataPath;
+                _sigilParser.ParseSigils();
+
+                _itemTypeParser.D4dataPath = D4dataPath;
+                _itemTypeParser.ParseItemTypes();
+            });
+        }
 
         private void ParseAffixDataExecute()
         {

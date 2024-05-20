@@ -387,6 +387,16 @@ namespace D4DataParser.Parsers
                     if (localisationId.Equals("Movement_Bonus_On_Elite_Kill_Duration")) localisationId = "Movement_Speed_Bonus_On_Elite_Kill";
                     if (localisationId.Equals("On_Hit_Vulnerable_Proc_Duration_Seconds")) localisationId = "On_Hit_Vulnerable_Proc";
 
+                    // Replace localisationIds for some special cases
+                    if (localisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag") && affix.IdName.Equals("Tempered_Damage_Necro_To_Cursed_Tier3"))
+                    {
+                        localisationId = "Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag#Skill_Primary_Curse";
+                    }
+                    if (localisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag") && affix.IdName.Equals("Tempered_Damage_Rogue_To_Trapped_Tier3"))
+                    {
+                        localisationId = "Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag#Skill_Trap";
+                    }
+
                     affix.AffixAttributes.Add(new AffixAttribute
                     {
                         LocalisationId = localisationId,
@@ -1057,7 +1067,8 @@ namespace D4DataParser.Parsers
             // Only keep the following affixes:
             // - S04
             // - Tempered
-            _affixInfoList.RemoveAll(a => !a.IdName.StartsWith("S04_") && !a.IdName.StartsWith("Tempered"));
+            _affixInfoList.RemoveAll(a => !a.IdName.StartsWith("S04_") && !a.IdName.StartsWith("Tempered") &&
+                !a.IdName.Equals("INHERENT_Evade_Charges"));
 
             // Remove duplicates
             _affixInfoList.RemoveAll(a => a.IdName.EndsWith("Jewelry"));
@@ -1076,7 +1087,6 @@ namespace D4DataParser.Parsers
 
             // Bugs??
             // TODO: - UPD - Check if localisation bugs are still present after each update
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("S04_PassiveRankBonus_Barb_Berserker_T2_N3_Duelist")); // "+# to Counteroffensive", using "S04_PassiveRankBonus_Barb_03_Counteroffensive" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_08_Unrestrained")); // "+# to Nature's Reach", using "Tempered_PassiveRankBonus_Druid_06_NaturesReach" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_09_Vigilance")); // "+# to Nature's Reach", using "Tempered_PassiveRankBonus_Druid_06_NaturesReach" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_NatureMagic_T2_N3_AncestralFortitude")); // "+# to Crushing Earth", using "Tempered_PassiveRankBonus_Druid_NatureMagic_T2_N2_CrushingEarth" instead.
