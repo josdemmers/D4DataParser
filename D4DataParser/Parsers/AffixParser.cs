@@ -320,7 +320,7 @@ namespace D4DataParser.Parsers
             if (!KeepDuplicates)
             {
                 // Remove unwanted affixes.
-                RemoveUnwantedAffixes();
+                RemoveUnwantedAffixes(language);
             }
 
             watch.Stop();
@@ -1097,7 +1097,7 @@ namespace D4DataParser.Parsers
             affix.Description = affix.Description.Replace("{VALUE2}", affixAttribute.LocalisationAttributeFormulaValue);
         }
 
-        private void RemoveUnwantedAffixes()
+        private void RemoveUnwantedAffixes(string language)
         {
             //var jsonAsText = File.ReadAllText("Data/Blacklist.json");
             //var affixBlacklist = System.Text.Json.JsonSerializer.Deserialize<Dictionary<int, string>>(jsonAsText);
@@ -1139,6 +1139,19 @@ namespace D4DataParser.Parsers
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_Shapeshifting_T1_N2_PredatoryInstinct")); // "+# to Quickshift", using "Tempered_PassiveRankBonus_Druid_Shapeshifting_T4_N1_Quickshift" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_Shapeshifting_T4_N2_NaturalFortitude")); // "+# to Quickshift", using "Tempered_PassiveRankBonus_Druid_Shapeshifting_T4_N1_Quickshift" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Rogue_Discipline_T4_N1_AlchemicalAdvantage")); // "+# to Concussive", using "Tempered_PassiveRankBonus_Rogue_Discipline_T3_N4_Concussive" instead.
+            if (language.Equals("esMX"))
+            {
+                // Tempered_Damage_Generic_Type_Lightning_Tier3
+                // Tempered_Damage_Sorc_Tag_Shock_Tier3
+                _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_Damage_Sorc_Tag_Shock_Tier3")); // "+#% de daño de Rayo", using "Tempered_Damage_Generic_Type_Lightning_Tier3" instead.
+            }
+            else if (language.Equals("jaJP"))
+            {
+                // Tempered_Damage_Sorc_Tag_Conjuration_Tier3
+                // Tempered_Damage_Necro_Tag_Summoning_Tier3
+                _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_Damage_Necro_Tag_Summoning_Tier3")); // "召喚スキルのダメージ+#%", using "Tempered_Damage_Sorc_Tag_Conjuration_Tier3" instead.
+            }
+
 
             // Remove affixes with unknown values.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_Projectiles_Skill_Necro_SkeletonMage_Tier3")); // +#% Chance for {VALUE1} Projectiles to Cast Twice

@@ -161,6 +161,11 @@ namespace D4DataParser.Parsers
                                 name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(qualityVariant)}".Trim();
                             }
                         }
+                        else if (language.Equals("zhCN"))
+                        {
+                            // Note: No spaces
+                            name = $"{RemoveVariantIndicator(qualityVariant)}{RemoveVariantIndicator(rarityVariant)}{RemoveVariantIndicator(typeLoc)}".Trim();
+                        }
 
                         // Skip duplicates
                         if (_itemTypeInfoList.Any(t => t.Name.Equals(name))) continue;
