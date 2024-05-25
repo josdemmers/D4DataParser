@@ -26,12 +26,13 @@ namespace D4DataParser.Parsers
         List<PowerMeta> _powerMetaJsonList = new List<PowerMeta>();
         private List<AffixInfo> _affixInfoList = new List<AffixInfo>();
 
-        private Dictionary<uint, string> _mappingResources = new Dictionary<uint, string>();
-        private Dictionary<uint, string> _mappingDamageTypes = new Dictionary<uint, string>();
+        private Dictionary<uint, string> _mappingClassRestrictions = new Dictionary<uint, string>();
         private Dictionary<uint, string> _mappingCrowdControlledTypes = new Dictionary<uint, string>();
         private Dictionary<uint, string> _mappingCrowdControlTypes = new Dictionary<uint, string>();
+        private Dictionary<uint, string> _mappingDamageTypes = new Dictionary<uint, string>(); 
         private Dictionary<uint, string> _mappingDotTypes = new Dictionary<uint, string>();
         private Dictionary<uint, string> _mappingNecroPetTypes = new Dictionary<uint, string>();
+        private Dictionary<uint, string> _mappingResources = new Dictionary<uint, string>();
         private Dictionary<uint, string> _mappingShapeshiftForms = new Dictionary<uint, string>();
 
         // Start of Constructors region
@@ -101,6 +102,14 @@ namespace D4DataParser.Parsers
 
         private void InitMappings()
         {
+            // .\d4data\json\enUS_Text\meta\StringList\AttributeDescriptions.stl.json
+            _mappingClassRestrictions.Clear();
+            _mappingClassRestrictions.Add(0, "Mana_Restriction");
+            _mappingClassRestrictions.Add(1, "Spirit_Restriction");
+            _mappingClassRestrictions.Add(2, "Fury_Restriction");
+            _mappingClassRestrictions.Add(3, "Energy_Restriction");
+            _mappingClassRestrictions.Add(4, "Essence_Restriction");
+
             // .\d4data\json\enUS_Text\meta\StringList\SkillTagNames.stl.json
             _mappingResources.Clear();
             _mappingResources.Add(0, "RESOURCE_MANA");
@@ -166,7 +175,20 @@ namespace D4DataParser.Parsers
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
 
                 // TODO: - DEV - Comment language skip for release
+                //if (!language.Equals("deDE")) continue;
                 //if (!language.Equals("enUS")) continue;
+                //if (!language.Equals("esES")) continue;
+                //if (!language.Equals("esMX")) continue;
+                //if (!language.Equals("frFR")) continue;
+                //if (!language.Equals("itIT")) continue;
+                //if (!language.Equals("jaJP")) continue;
+                //if (!language.Equals("koKR")) continue;
+                //if (!language.Equals("plPL")) continue;
+                //if (!language.Equals("ptBR")) continue;
+                //if (!language.Equals("ruRU")) continue;
+                //if (!language.Equals("trTR")) continue;
+                //if (!language.Equals("zhCN")) continue;
+                //if (!language.Equals("zhTW")) continue;
 
                 if (KeepDuplicates && !language.Equals("enUS")) continue;
 
@@ -338,6 +360,12 @@ namespace D4DataParser.Parsers
                 List<int> allowedItemLabels = affixMeta.arAllowedItemLabels ?? new List<int>();
                 int magicType = affixMeta.eMagicType;
 
+                // Bug - Fix sorc affixes
+                if (affix.IdName.StartsWith("Tempered") && affix.IdName.Contains("_Sorc_"))
+                {
+                    allowedForPlayerClass = new List<int> { 1, 0, 0, 0, 0 };
+                }
+
                 // LocalisationId
                 var itemAffixAttributes = affixMeta.ptItemAffixAttributes ?? new List<PtItemAffixAttribute>();
                 if (!itemAffixAttributes.Any())
@@ -465,6 +493,7 @@ namespace D4DataParser.Parsers
                         affixAttribute.LocalisationId.Equals("Talent_Rank_Bonus"))
                     {
                         ReplaceSkillPlaceholders(affix, _powerMetaJsonList);
+                        AddClassRestriction(affix);
                     }
                     else if (affixAttribute.LocalisationId.Equals("Attack_Speed_Percent_Bonus_Per_Skill_Tag") ||
                         affixAttribute.LocalisationId.Equals("Crit_Damage_Percent_Per_Skill_Tag") ||
@@ -554,8 +583,11 @@ namespace D4DataParser.Parsers
             // Remove all affixes with no description
             _affixInfoList.RemoveAll(a => string.IsNullOrWhiteSpace(a.Description));
 
+            // Add a cleaned up description for fuzzy searches.
+            AddCleanDescription();
+
             // Remove normal affixes when there is an equal tempered affix.
-            var duplicates = _affixInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
+            var duplicates = _affixInfoList.GroupBy(a => a.DescriptionClean).Where(a => a.Count() > 1);
             List<string> affixesToRemove = new();
             if (duplicates.Any() && !KeepDuplicates)
             {
@@ -574,9 +606,6 @@ namespace D4DataParser.Parsers
                     _affixInfoList.RemoveAll(a => a.IdName.Equals(affix));
                 }
             }
-
-            // Add a cleaned up description for fuzzy searches.
-            AddCleanDescription();
 
             // Sort
             _affixInfoList.Sort((x, y) =>
@@ -606,7 +635,7 @@ namespace D4DataParser.Parsers
 
         private void ValidateAffixes()
         {
-            var duplicates = _affixInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
+            var duplicates = _affixInfoList.GroupBy(a => a.DescriptionClean).Where(a => a.Count() > 1);
             if (duplicates.Any())
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Duplicates found!");
@@ -616,7 +645,7 @@ namespace D4DataParser.Parsers
                     Console.WriteLine("Key: {0}", group.Key);
                     foreach (var affixInfo in group)
                     {
-                        Debug.WriteLine($"{affixInfo.IdName}: {affixInfo.Description}");
+                        Debug.WriteLine($"{affixInfo.IdName}: {affixInfo.DescriptionClean}");
                     }
                 }
             }
@@ -648,6 +677,16 @@ namespace D4DataParser.Parsers
             return affixType;
         }
 
+        private void AddClassRestriction(AffixInfo affix)
+        {
+            uint classIndex = (uint)affix.AllowedForPlayerClass.IndexOf(1);
+
+            var classLoc = _localisationJson.arStrings.FirstOrDefault(a => a.szLabel.Equals(_mappingClassRestrictions[classIndex], StringComparison.OrdinalIgnoreCase));
+            if (classLoc == null) return;
+
+            affix.ClassRestriction = classLoc.szText;
+        }
+
         private void AddCleanDescription()
         {
             foreach (var affix in _affixInfoList)
@@ -658,6 +697,12 @@ namespace D4DataParser.Parsers
                 affix.DescriptionClean = affix.DescriptionClean.Replace("  ", " ");
                 affix.DescriptionClean = affix.DescriptionClean.Replace(" .", ".");
                 affix.DescriptionClean = affix.DescriptionClean.Trim();
+
+                // Append class restriction
+                if (!string.IsNullOrEmpty(affix.ClassRestriction))
+                {
+                    affix.DescriptionClean += $" {affix.ClassRestriction}";
+                }
             }
         }
 
