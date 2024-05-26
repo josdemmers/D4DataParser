@@ -1113,7 +1113,12 @@ namespace D4DataParser.Parsers
             // - S04
             // - Tempered
             _affixInfoList.RemoveAll(a => !a.IdName.StartsWith("S04_") && !a.IdName.StartsWith("Tempered") &&
-                !a.IdName.Equals("INHERENT_Evade_Charges"));
+                !a.IdName.Equals("INHERENT_Damage_to_HighLife") &&
+                !a.IdName.Equals("INHERENT_Evade_Attack_Reset") &&
+                !a.IdName.Equals("INHERENT_Evade_Charges") &&
+                !a.IdName.Equals("INHERENT_On_Kill_Health") &&
+                !a.IdName.Equals("PotionBarrier")
+                );
 
             // Remove duplicates
             _affixInfoList.RemoveAll(a => a.IdName.EndsWith("Jewelry"));
