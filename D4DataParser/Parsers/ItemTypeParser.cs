@@ -158,7 +158,7 @@ namespace D4DataParser.Parsers
                             }
                             else
                             {
-                                name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(qualityVariant)}".Trim();
+                                name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)}".Trim();
                             }
                         }
                         else if (language.Equals("zhCN"))

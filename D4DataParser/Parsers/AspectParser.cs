@@ -92,7 +92,20 @@ namespace D4DataParser.Parsers
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
 
                 // TODO: - DEV - Comment language skip for release
+                //if (!language.Equals("deDE")) continue;
                 //if (!language.Equals("enUS")) continue;
+                //if (!language.Equals("esES")) continue;
+                //if (!language.Equals("esMX")) continue;
+                //if (!language.Equals("frFR")) continue;
+                //if (!language.Equals("itIT")) continue;
+                //if (!language.Equals("jaJP")) continue;
+                //if (!language.Equals("koKR")) continue;
+                //if (!language.Equals("plPL")) continue;
+                //if (!language.Equals("ptBR")) continue;
+                //if (!language.Equals("ruRU")) continue;
+                //if (!language.Equals("trTR")) continue;
+                //if (!language.Equals("zhCN")) continue;
+                //if (!language.Equals("zhTW")) continue;
 
                 ParseAffixesByLanguage(language);
                 UpdateAspects();
@@ -344,7 +357,8 @@ namespace D4DataParser.Parsers
                     var aspectInfo = localisation.arStrings.FirstOrDefault(l => l.szLabel.Equals("name", StringComparison.OrdinalIgnoreCase));
                     if (aspectInfo != null)
                     {
-                        aspect.Name = aspectInfo.szText;
+                        // Remove variants (no idea where to get the correct form, so using the first one for now)
+                        aspect.Name = aspectInfo.szText.Contains("]") ? aspectInfo.szText.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1] : aspectInfo.szText;
                     }
                     aspectInfo = localisation.arStrings.FirstOrDefault(l => l.szLabel.Equals("desc", StringComparison.OrdinalIgnoreCase));
                     if (aspectInfo != null)
