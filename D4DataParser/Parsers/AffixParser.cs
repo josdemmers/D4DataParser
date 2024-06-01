@@ -313,7 +313,7 @@ namespace D4DataParser.Parsers
                 {
                     IdSno = affix.Key,
                     IdName = affix.Value,
-                    IsTempered = affix.Value.StartsWith("Tempered")
+                    IsTemperingAvailable = affix.Value.StartsWith("Tempered")
                 });
             }
 
