@@ -365,7 +365,6 @@ namespace D4DataParser.Parsers
                 {
                     allowedForPlayerClass = new List<int> { 1, 0, 0, 0, 0 };
                 }
-                affix.AllowedForPlayerClass = allowedForPlayerClass;
 
                 // LocalisationId
                 var itemAffixAttributes = affixMeta.ptItemAffixAttributes ?? new List<PtItemAffixAttribute>();
@@ -445,10 +444,6 @@ namespace D4DataParser.Parsers
                             if (!string.IsNullOrWhiteSpace(subId))
                             {
                                 subLocalisationId = $"{localisationId}#{subId}";
-                                if (!string.IsNullOrWhiteSpace(subLocalisationId) && _localisationJson.arStrings.Any(a => a.szLabel.Equals(subLocalisationId)))
-                                {
-                                    AddClassRestriction(affix);
-                                }
                             }
                         }
                         else
@@ -467,6 +462,7 @@ namespace D4DataParser.Parsers
                     });
                 }
 
+                affix.AllowedForPlayerClass = allowedForPlayerClass;
                 affix.AllowedItemLabels = allowedItemLabels;
                 affix.MagicType = magicType;
             }
@@ -506,15 +502,15 @@ namespace D4DataParser.Parsers
             {
                 foreach (var affixAttribute in affix.AffixAttributes)
                 {
-                    if (affixAttribute.LocalisationId.Equals("AoE_Size_Bonus_Per_Power") ||
+                    if (affixAttribute.LocalisationId.StartsWith("AoE_Size_Bonus_Per_Power") ||
                         affixAttribute.LocalisationId.Equals("Attack_Speed_Percent_Bonus_For_Power") ||
                         affixAttribute.LocalisationId.Equals("Blood_Orb_Bonus_Chance_Per_Power") ||
                         affixAttribute.LocalisationId.Equals("Bonus_Count_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Bonus_Percent_Per_Power") ||
+                        affixAttribute.LocalisationId.StartsWith("Bonus_Percent_Per_Power") ||
                         affixAttribute.LocalisationId.Equals("Cleave_Damage_Bonus_Percent_Per_Power") ||
                         affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_While_Affected_By_Power") ||
                         affixAttribute.LocalisationId.Equals("Movement_Speed_Bonus_Percent_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Percent_Bonus_Projectiles_Per_Power") ||
+                        affixAttribute.LocalisationId.StartsWith("Percent_Bonus_Projectiles_Per_Power") ||
                         affixAttribute.LocalisationId.Equals("Power Bonus Attack Radius Percent") ||
                         affixAttribute.LocalisationId.Equals("Power_Cooldown_Reduction_Percent") ||
                         affixAttribute.LocalisationId.Equals("Power_Crit_Percent_Bonus") ||
