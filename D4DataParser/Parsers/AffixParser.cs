@@ -365,6 +365,7 @@ namespace D4DataParser.Parsers
                 {
                     allowedForPlayerClass = new List<int> { 1, 0, 0, 0, 0 };
                 }
+                affix.AllowedForPlayerClass = allowedForPlayerClass;
 
                 // LocalisationId
                 var itemAffixAttributes = affixMeta.ptItemAffixAttributes ?? new List<PtItemAffixAttribute>();
@@ -415,14 +416,47 @@ namespace D4DataParser.Parsers
                     if (localisationId.Equals("Movement_Bonus_On_Elite_Kill_Duration")) localisationId = "Movement_Speed_Bonus_On_Elite_Kill";
                     if (localisationId.Equals("On_Hit_Vulnerable_Proc_Duration_Seconds")) localisationId = "On_Hit_Vulnerable_Proc";
 
-                    // Replace localisationIds for some special cases
-                    if (localisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag") && affix.IdName.Equals("Tempered_Damage_Necro_To_Cursed_Tier3"))
+                    // Replace localisationIds with sub localisationIds when available
+                    if (_localisationJson.arStrings.Any(a => a.szLabel.StartsWith($"{localisationId}#")) &&
+                        !localisationId.Equals("Bonus_Count_Per_Power") && // TODO: Bonus_Count_Per_Power#Rogue_PoisonImbue (Tempered_Special_Skill_Rogue_ImbuePoisonImbue_Count_Tier3)
+                        !localisationId.Equals("Cleave_Damage_Bonus_Percent_Per_Power") && // TODO: Cleave_Damage_Bonus_Percent_Per_Power#Barbarian_Bash (Tempered_Resource_WithWeapon_Barb_DualWielding_Tier3)
+                        !localisationId.Equals("Damage_Percent_Bonus_Per_Skill_Tag") && // TODO: Damage_Percent_Bonus_Per_Skill_Tag#Ultimate_Gem
+                        !localisationId.Equals("Damage_Percent_Bonus_While_Affected_By_Power") && // TODO: Damage_Percent_Bonus_While_Affected_By_Power#Barbarian_Proc_Berserk (Tempered_Damage_Barb_WhileBerserking_Tier3)
+                        !localisationId.Equals("Movement_Speed_Bonus_Percent_Per_Power") && // TODO: Movement_Speed_Bonus_Percent_Per_Power#Rogue_BladeShift (Tempered_MovementSpeed_Skill_Rogue_BladeShift_Tier3)
+                        !localisationId.Equals("Power_Cooldown_Reduction_Percent") && // TODO: Power_Cooldown_Reduction_Percent#Necromancer_Golem (Tempered_CDR_Skill_Barb_ChallengingShout_Tier3)
+                        !localisationId.Equals("Primary_Resource_Gain_Bonus_Percent_Per_Weapon_Requirement") && // TODO: Primary_Resource_Gain_Bonus_Percent_Per_Weapon_Requirement#Scythe
+                        !localisationId.Equals("Resistance"))
                     {
-                        localisationId = "Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag#Skill_Primary_Curse";
-                    }
-                    if (localisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag") && affix.IdName.Equals("Tempered_Damage_Rogue_To_Trapped_Tier3"))
-                    {
-                        localisationId = "Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag#Skill_Trap";
+                        uint subSno = itemAffixAttribute.tAttribute.nParam;
+                        string subLocalisationId = string.Empty;
+                        if (localisationId.Equals("AoE_Size_Bonus_Per_Power") ||
+                            localisationId.Equals("Bonus_Percent_Per_Power") ||
+                            localisationId.Equals("Percent_Bonus_Projectiles_Per_Power"))
+                        {
+                            string subId = GetPowerId(subSno);
+                            if(!string.IsNullOrWhiteSpace(subId))
+                            {
+                                subLocalisationId = $"{localisationId}#{subId}";
+                            }
+                        }
+                        else if (localisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag"))
+                        {
+                            string subId = GetSkillTagId(subSno);
+                            if (!string.IsNullOrWhiteSpace(subId))
+                            {
+                                subLocalisationId = $"{localisationId}#{subId}";
+                                if (!string.IsNullOrWhiteSpace(subLocalisationId) && _localisationJson.arStrings.Any(a => a.szLabel.Equals(subLocalisationId)))
+                                {
+                                    AddClassRestriction(affix);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Sub localisation data available but rules not set.");
+                        }
+
+                        localisationId = !string.IsNullOrWhiteSpace(subLocalisationId) && _localisationJson.arStrings.Any(a => a.szLabel.Equals(subLocalisationId)) ? subLocalisationId : localisationId;
                     }
 
                     affix.AffixAttributes.Add(new AffixAttribute
@@ -433,7 +467,6 @@ namespace D4DataParser.Parsers
                     });
                 }
 
-                affix.AllowedForPlayerClass = allowedForPlayerClass;
                 affix.AllowedItemLabels = allowedItemLabels;
                 affix.MagicType = magicType;
             }
@@ -675,6 +708,32 @@ namespace D4DataParser.Parsers
             }
 
             return affixType;
+        }
+
+        private string GetPowerId(uint sno)
+        {
+            var powerMeta = _powerMetaJsonList.FirstOrDefault(p => p.__snoID__ == sno);
+            if (powerMeta == null)
+            {
+                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: power id {sno} not found.");
+                return string.Empty;
+            }
+            else
+            {
+                string fileName = powerMeta.__fileName__;
+                return Path.GetFileNameWithoutExtension(fileName);
+            }
+        }
+
+        private string GetSkillTagId(uint sno)
+        {
+            // Parse GBID.json
+            int skillTagIndex = 56;
+            var jsonAsText = File.ReadAllText($"{Path.GetDirectoryName(CoreTOCPath)}\\..\\GBID.json");
+            var gbidDictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<int, Dictionary<uint, List<string>>>>(jsonAsText);
+            var skillTagDictionary = gbidDictionary[skillTagIndex];
+
+            return skillTagDictionary[sno][0];
         }
 
         private void AddClassRestriction(AffixInfo affix)
