@@ -108,7 +108,7 @@ namespace D4DataParser.ViewModels
                 _affixParser.ParseAffixes();
 
                 _aspectParser.D4dataPath = D4dataPath;
-                _aspectParser.ParseAffixes();
+                _aspectParser.ParseAspects();
 
                 _sigilParser.D4dataPath = D4dataPath;
                 _sigilParser.ParseSigils();
@@ -136,7 +136,7 @@ namespace D4DataParser.ViewModels
             Task.Factory.StartNew(() =>
             {
                 _aspectParser.D4dataPath = D4dataPath;
-                _aspectParser.ParseAffixes();
+                _aspectParser.ParseAspects();
             });
         }
 

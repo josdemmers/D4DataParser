@@ -85,7 +85,7 @@ namespace D4DataParser.Parsers
             _languages.Add("zhTW");
         }
 
-        public void ParseAffixes()
+        public void ParseAspects()
         {
             foreach (var language in _languages)
             {

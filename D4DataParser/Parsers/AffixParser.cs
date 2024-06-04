@@ -366,6 +366,12 @@ namespace D4DataParser.Parsers
                     allowedForPlayerClass = new List<int> { 1, 0, 0, 0, 0 };
                 }
 
+                // Bug - Fix necro affixes
+                if (affix.IdName.StartsWith("Tempered") && affix.IdName.Contains("_Necro_"))
+                {
+                    allowedForPlayerClass = new List<int> { 0, 0, 0, 0, 1 };
+                }
+
                 // LocalisationId
                 var itemAffixAttributes = affixMeta.ptItemAffixAttributes ?? new List<PtItemAffixAttribute>();
                 if (!itemAffixAttributes.Any())
@@ -417,20 +423,18 @@ namespace D4DataParser.Parsers
 
                     // Replace localisationIds with sub localisationIds when available
                     if (_localisationJson.arStrings.Any(a => a.szLabel.StartsWith($"{localisationId}#")) &&
-                        !localisationId.Equals("Bonus_Count_Per_Power") && // TODO: Bonus_Count_Per_Power#Rogue_PoisonImbue (Tempered_Special_Skill_Rogue_ImbuePoisonImbue_Count_Tier3)
-                        !localisationId.Equals("Cleave_Damage_Bonus_Percent_Per_Power") && // TODO: Cleave_Damage_Bonus_Percent_Per_Power#Barbarian_Bash (Tempered_Resource_WithWeapon_Barb_DualWielding_Tier3)
-                        !localisationId.Equals("Damage_Percent_Bonus_Per_Skill_Tag") && // TODO: Damage_Percent_Bonus_Per_Skill_Tag#Ultimate_Gem
-                        !localisationId.Equals("Damage_Percent_Bonus_While_Affected_By_Power") && // TODO: Damage_Percent_Bonus_While_Affected_By_Power#Barbarian_Proc_Berserk (Tempered_Damage_Barb_WhileBerserking_Tier3)
-                        !localisationId.Equals("Movement_Speed_Bonus_Percent_Per_Power") && // TODO: Movement_Speed_Bonus_Percent_Per_Power#Rogue_BladeShift (Tempered_MovementSpeed_Skill_Rogue_BladeShift_Tier3)
-                        !localisationId.Equals("Power_Cooldown_Reduction_Percent") && // TODO: Power_Cooldown_Reduction_Percent#Necromancer_Golem (Tempered_CDR_Skill_Barb_ChallengingShout_Tier3)
-                        !localisationId.Equals("Primary_Resource_Gain_Bonus_Percent_Per_Weapon_Requirement") && // TODO: Primary_Resource_Gain_Bonus_Percent_Per_Weapon_Requirement#Scythe
                         !localisationId.Equals("Resistance"))
                     {
                         uint subSno = itemAffixAttribute.tAttribute.nParam;
                         string subLocalisationId = string.Empty;
                         if (localisationId.Equals("AoE_Size_Bonus_Per_Power") ||
+                            localisationId.Equals("Bonus_Count_Per_Power") ||
                             localisationId.Equals("Bonus_Percent_Per_Power") ||
-                            localisationId.Equals("Percent_Bonus_Projectiles_Per_Power"))
+                            localisationId.Equals("Cleave_Damage_Bonus_Percent_Per_Power") ||
+                            localisationId.Equals("Damage_Percent_Bonus_While_Affected_By_Power") ||
+                            localisationId.Equals("Movement_Speed_Bonus_Percent_Per_Power") ||
+                            localisationId.Equals("Percent_Bonus_Projectiles_Per_Power") ||
+                            localisationId.Equals("Power_Cooldown_Reduction_Percent"))
                         {
                             string subId = GetPowerId(subSno);
                             if(!string.IsNullOrWhiteSpace(subId))
@@ -438,7 +442,8 @@ namespace D4DataParser.Parsers
                                 subLocalisationId = $"{localisationId}#{subId}";
                             }
                         }
-                        else if (localisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag"))
+                        else if (localisationId.Equals("Damage_Percent_Bonus_Per_Skill_Tag") ||
+                            localisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag"))
                         {
                             string subId = GetSkillTagId(subSno);
                             if (!string.IsNullOrWhiteSpace(subId))
@@ -446,9 +451,18 @@ namespace D4DataParser.Parsers
                                 subLocalisationId = $"{localisationId}#{subId}";
                             }
                         }
+                        else if(localisationId.Equals("Primary_Resource_Gain_Bonus_Percent_Per_Weapon_Requirement"))
+                        {
+                            string subId = GetWeaponId(subSno);
+                            if (!string.IsNullOrWhiteSpace(subId))
+                            {
+                                subLocalisationId = $"{localisationId}#{subId}";
+                            }
+                        }
                         else
                         {
-                            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Sub localisation data available but rules not set.");
+                            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Sub localisation data available but rules not set. ({localisationId})");
+                            throw new NotImplementedException();
                         }
 
                         localisationId = !string.IsNullOrWhiteSpace(subLocalisationId) && _localisationJson.arStrings.Any(a => a.szLabel.Equals(subLocalisationId)) ? subLocalisationId : localisationId;
@@ -502,17 +516,17 @@ namespace D4DataParser.Parsers
             {
                 foreach (var affixAttribute in affix.AffixAttributes)
                 {
-                    if (affixAttribute.LocalisationId.StartsWith("AoE_Size_Bonus_Per_Power") ||
+                    if (affixAttribute.LocalisationId.Equals("AoE_Size_Bonus_Per_Power") || affixAttribute.LocalisationId.StartsWith("AoE_Size_Bonus_Per_Power#") ||
                         affixAttribute.LocalisationId.Equals("Attack_Speed_Percent_Bonus_For_Power") ||
                         affixAttribute.LocalisationId.Equals("Blood_Orb_Bonus_Chance_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Bonus_Count_Per_Power") ||
-                        affixAttribute.LocalisationId.StartsWith("Bonus_Percent_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Cleave_Damage_Bonus_Percent_Per_Power") ||
-                        affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_While_Affected_By_Power") ||
-                        affixAttribute.LocalisationId.Equals("Movement_Speed_Bonus_Percent_Per_Power") ||
-                        affixAttribute.LocalisationId.StartsWith("Percent_Bonus_Projectiles_Per_Power") ||
+                        affixAttribute.LocalisationId.Equals("Bonus_Count_Per_Power") || affixAttribute.LocalisationId.StartsWith("Bonus_Count_Per_Power#") ||
+                        affixAttribute.LocalisationId.Equals("Bonus_Percent_Per_Power") || affixAttribute.LocalisationId.StartsWith("Bonus_Percent_Per_Power#") ||
+                        affixAttribute.LocalisationId.Equals("Cleave_Damage_Bonus_Percent_Per_Power") || affixAttribute.LocalisationId.StartsWith("Cleave_Damage_Bonus_Percent_Per_Power#") ||
+                        affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_While_Affected_By_Power") || affixAttribute.LocalisationId.StartsWith("Damage_Percent_Bonus_While_Affected_By_Power#") ||
+                        affixAttribute.LocalisationId.Equals("Movement_Speed_Bonus_Percent_Per_Power") || affixAttribute.LocalisationId.StartsWith("Movement_Speed_Bonus_Percent_Per_Power#") ||
+                        affixAttribute.LocalisationId.Equals("Percent_Bonus_Projectiles_Per_Power") || affixAttribute.LocalisationId.StartsWith("Percent_Bonus_Projectiles_Per_Power#") ||
                         affixAttribute.LocalisationId.Equals("Power Bonus Attack Radius Percent") ||
-                        affixAttribute.LocalisationId.Equals("Power_Cooldown_Reduction_Percent") ||
+                        affixAttribute.LocalisationId.Equals("Power_Cooldown_Reduction_Percent") || affixAttribute.LocalisationId.StartsWith("Power_Cooldown_Reduction_Percent#") ||
                         affixAttribute.LocalisationId.Equals("Power_Crit_Percent_Bonus") ||
                         affixAttribute.LocalisationId.Equals("Power_Damage_Percent_Bonus") ||
                         affixAttribute.LocalisationId.Equals("Power_Duration_Bonus_Pct") ||
@@ -527,8 +541,8 @@ namespace D4DataParser.Parsers
                     else if (affixAttribute.LocalisationId.Equals("Attack_Speed_Percent_Bonus_Per_Skill_Tag") ||
                         affixAttribute.LocalisationId.Equals("Crit_Damage_Percent_Per_Skill_Tag") ||
                         affixAttribute.LocalisationId.Equals("Crit_Percent_Bonus_Per_Skill_Tag") ||
-                        affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_Per_Skill_Tag") ||
-                        affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag") ||
+                        affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_Per_Skill_Tag") || affixAttribute.LocalisationId.StartsWith("Damage_Percent_Bonus_Per_Skill_Tag#") ||
+                        affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag") || affixAttribute.LocalisationId.StartsWith("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag#") ||
                         affixAttribute.LocalisationId.Equals("Hit_Effect_Chance_Bonus_Per_Skill_Tag") ||
                         affixAttribute.LocalisationId.Equals("Overpower_Damage_Percent_Bonus_Per_Skill_Tag") ||
                         affixAttribute.LocalisationId.Equals("Per_Skill_Tag_Buff_Duration_Bonus_Percent") ||
@@ -569,7 +583,7 @@ namespace D4DataParser.Parsers
                     }
                     else if (affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_Per_Weapon_Requirement") ||
                         affixAttribute.LocalisationId.Equals("Overpower_Damage_Percent_Bonus_Per_Weapon_Requirement") ||
-                        affixAttribute.LocalisationId.Equals("Primary_Resource_Gain_Bonus_Percent_Per_Weapon_Requirement"))
+                        affixAttribute.LocalisationId.Equals("Primary_Resource_Gain_Bonus_Percent_Per_Weapon_Requirement") || affixAttribute.LocalisationId.StartsWith("Primary_Resource_Gain_Bonus_Percent_Per_Weapon_Requirement#"))
                     {
                         ReplaceWeaponTypePlaceholders(affix);
                     }
@@ -732,12 +746,24 @@ namespace D4DataParser.Parsers
             return skillTagDictionary[sno][0];
         }
 
+        private string GetWeaponId(uint sno)
+        {
+            // Parse CoreTOC.dat.json
+            int weaponTypeIndex = 116;
+            var jsonAsText = File.ReadAllText(CoreTOCPath);
+            var coreTOCDictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<int, Dictionary<uint, string>>>(jsonAsText);
+            var weaponTypeDictionary = coreTOCDictionary[weaponTypeIndex];
+
+            return weaponTypeDictionary[sno];
+        }
+
         private void AddClassRestriction(AffixInfo affix)
         {
+            int classCount = affix.AllowedForPlayerClass.Count(c => c == 1);
             uint classIndex = (uint)affix.AllowedForPlayerClass.IndexOf(1);
 
             var classLoc = _localisationJson.arStrings.FirstOrDefault(a => a.szLabel.Equals(_mappingClassRestrictions[classIndex], StringComparison.OrdinalIgnoreCase));
-            if (classLoc == null) return;
+            if (classLoc == null || classCount != 1) return;
 
             affix.ClassRestriction = classLoc.szText;
         }
@@ -811,8 +837,10 @@ namespace D4DataParser.Parsers
                 // deDE
                 affix.Description = affix.Description.Replace("|4Aufladung:Aufladungen;", "Aufladungen");
                 affix.Description = affix.Description.Replace("|4Rang:Ränge;", "Ränge");
+                affix.Description = affix.Description.Replace("|4Wirkung:Wirkungen;", "Wirkungen");
 
                 // enUS
+                affix.Description = affix.Description.Replace("|4Cast:Casts;", "Casts");
                 affix.Description = affix.Description.Replace("|4Charge:Charges;", "Charges");
                 affix.Description = affix.Description.Replace("|4Rank:Ranks;", "Ranks");
                 affix.Description = affix.Description.Replace("|4Second:Seconds;", "Seconds");
@@ -820,14 +848,17 @@ namespace D4DataParser.Parsers
                 // esES
                 affix.Description = affix.Description.Replace("|4carga máxima:cargas máximas;", "cargas máximas");
                 affix.Description = affix.Description.Replace("|4rango:rangos;", "rangos");
+                affix.Description = affix.Description.Replace("|4lanzamiento:lanzamientos;", "lanzamientos");
 
                 // esMX
                 affix.Description = affix.Description.Replace("|4carga:cargas;", "cargas");
                 affix.Description = affix.Description.Replace("|4rango:rangos;", "rangos");
                 affix.Description = affix.Description.Replace("|4segundo:segundos;", "segundos");
+                affix.Description = affix.Description.Replace("|4lanzamiento:lanzamientos;", "lanzamientos");
 
                 // frFR
                 affix.Description = affix.Description.Replace("|4charge:charges;", "charges");
+                affix.Description = affix.Description.Replace("|4lancer supplémentaire:lancers supplémentaires;", "lancers supplémentaires");
                 affix.Description = affix.Description.Replace("|4rang:rangs;", "rangs");
 
                 // itIT
@@ -837,16 +868,24 @@ namespace D4DataParser.Parsers
                 // plPL
                 affix.Description = affix.Description.Replace("|4ładunek:ładunki:ładunków;", "ładunków");
                 affix.Description = affix.Description.Replace("|4ranga:rangi:rang;", "rang");
+                affix.Description = affix.Description.Replace("|4użycie:użycia:użyć;", "użyć");
 
                 // ptBR
                 affix.Description = affix.Description.Replace("|4carga:cargas;", "cargas");
                 affix.Description = affix.Description.Replace("|4grau:graus;", "graus");
+                affix.Description = affix.Description.Replace("|4lançamento:lançamentos;", "lançamentos");
                 affix.Description = affix.Description.Replace("|4segundo:segundos;", "segundos");
+
+                // ruRU
+                affix.Description = affix.Description.Replace("|4атаку:атаки:атак;", "атак");
 
                 // trTR
                 affix.Description = affix.Description.Replace("|4Yükü:Yükü;", "Yükü");
                 affix.Description = affix.Description.Replace("|4Kademesi:Kademesi;", "Kademesi");
                 affix.Description = affix.Description.Replace("|4Saniye:Saniye;", "Saniye");
+
+                // zhTW
+                affix.Description = affix.Description.Replace("|4次施放:次施放;", "次施放");
             }
         }        
 
@@ -1211,11 +1250,6 @@ namespace D4DataParser.Parsers
                 // Tempered_Damage_Necro_Tag_Summoning_Tier3
                 _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_Damage_Necro_Tag_Summoning_Tier3")); // "召喚スキルのダメージ+#%", using "Tempered_Damage_Sorc_Tag_Conjuration_Tier3" instead.
             }
-
-
-            // Remove affixes with unknown values.
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_Projectiles_Skill_Necro_SkeletonMage_Tier3")); // +#% Chance for {VALUE1} Projectiles to Cast Twice
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_Resource_After_Skill_Necro_BloodOrb_Tier3")); // +#% Chance for {VALUE1} Projectiles to Cast Twice
         }
 
         #endregion
