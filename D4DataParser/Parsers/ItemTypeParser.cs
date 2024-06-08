@@ -139,7 +139,7 @@ namespace D4DataParser.Parsers
                             rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
 
                         string name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
-                        if (language.Equals("deDE") || language.Equals("itIT") || language.Equals("ptBR") || language.Equals("ruRU") || language.Equals("trTR"))
+                        if (language.Equals("deDE") || language.Equals("itIT") || language.Equals("ruRU") || language.Equals("trTR"))
                         {
                             if (string.IsNullOrWhiteSpace(qualityVariant))
                             {
@@ -148,6 +148,17 @@ namespace D4DataParser.Parsers
                             else
                             {
                                 name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
+                            }
+                        }
+                        else if(language.Equals("ptBR"))
+                        {
+                            if (string.IsNullOrWhiteSpace(qualityVariant))
+                            {
+                                name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)}".Trim();
+                            }
+                            else
+                            {
+                                name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(qualityVariant)}".Trim();
                             }
                         }
                         else if (language.Equals("esES") || language.Equals("esMX") || language.Equals("frFR") || language.Equals("plPL"))
@@ -365,7 +376,8 @@ namespace D4DataParser.Parsers
                     quality.szText.Substring(quality.szText.IndexOf(variant) + variant.Length, (quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length) == -1 ? quality.szText.Length : quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length)) - (quality.szText.IndexOf(variant) + variant.Length));
 
                 string name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
-                if (!string.IsNullOrWhiteSpace(qualityVariant) && (language.Equals("frFR")))
+                if (!string.IsNullOrWhiteSpace(qualityVariant) && 
+                    (language.Equals("frFR") || language.Equals("ptBR")))
                 {
                     name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(qualityVariant)}".Trim();
                 }
