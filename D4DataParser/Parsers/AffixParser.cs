@@ -522,6 +522,7 @@ namespace D4DataParser.Parsers
                         affixAttribute.LocalisationId.Equals("Bonus_Count_Per_Power") || affixAttribute.LocalisationId.StartsWith("Bonus_Count_Per_Power#") ||
                         affixAttribute.LocalisationId.Equals("Bonus_Percent_Per_Power") || affixAttribute.LocalisationId.StartsWith("Bonus_Percent_Per_Power#") ||
                         affixAttribute.LocalisationId.Equals("Cleave_Damage_Bonus_Percent_Per_Power") || affixAttribute.LocalisationId.StartsWith("Cleave_Damage_Bonus_Percent_Per_Power#") ||
+                        affixAttribute.LocalisationId.Equals("Combat_Effect_Chance_Bonus_Per_Skill") ||
                         affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_While_Affected_By_Power") || affixAttribute.LocalisationId.StartsWith("Damage_Percent_Bonus_While_Affected_By_Power#") ||
                         affixAttribute.LocalisationId.Equals("Movement_Speed_Bonus_Percent_Per_Power") || affixAttribute.LocalisationId.StartsWith("Movement_Speed_Bonus_Percent_Per_Power#") ||
                         affixAttribute.LocalisationId.Equals("Percent_Bonus_Projectiles_Per_Power") || affixAttribute.LocalisationId.StartsWith("Percent_Bonus_Projectiles_Per_Power#") ||
@@ -653,7 +654,8 @@ namespace D4DataParser.Parsers
             // Sort
             _affixInfoList.Sort((x, y) =>
             {
-                return string.Compare(x.Description, y.Description, StringComparison.Ordinal);
+                //return string.Compare(x.Description, y.Description, StringComparison.Ordinal);
+                return string.Compare(x.IdName, y.IdName, StringComparison.Ordinal);
             });
 
             // Save affixes
@@ -804,6 +806,9 @@ namespace D4DataParser.Parsers
 
                 pattern = @"\[(.+?)\]";
                 affix.Description = Regex.Replace(affix.Description, pattern, "#%");
+
+                // Missed by regex
+                affix.Description = affix.Description.Replace("{VALUE2}", "#");
 
                 /*affix.Description = affix.Description.Replace("[{VALUE}]", "#");
                 affix.Description = affix.Description.Replace("[{VALUE}|1|]", "#");
@@ -1206,13 +1211,21 @@ namespace D4DataParser.Parsers
             // Only keep the following affixes:
             // - S04
             // - Tempered
+            // - Implicit (only those that exist as implicit only)
             _affixInfoList.RemoveAll(a => !a.IdName.StartsWith("S04_") && !a.IdName.StartsWith("Tempered") &&
-                !a.IdName.Equals("INHERENT_Damage_to_HighLife") &&
+                !a.IdName.Equals("INHERENT_Block") &&
                 !a.IdName.Equals("INHERENT_Evade_Attack_Reset") &&
                 !a.IdName.Equals("INHERENT_Evade_Charges") &&
-                !a.IdName.Equals("INHERENT_On_Kill_Health") &&
+                !a.IdName.Equals("INHERENT_Shield_Damage_Bonus") &&
                 !a.IdName.Equals("PotionBarrier")
                 );
+
+            // TODO: Need to split INHERENT_Block into two affixes.
+            // Workaround to split INHERENT_Block like this:
+            // INHERENT_Block_Block_Chance
+            // INHERENT_Block_Block_Damage_Percent
+            // --> problem there is only one sno id(577278)
+            // --> maybe by using a list of localistions instead?
 
             // Remove duplicates
             _affixInfoList.RemoveAll(a => a.IdName.EndsWith("Jewelry"));
@@ -1220,8 +1233,14 @@ namespace D4DataParser.Parsers
             _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_Shields"));
 
             // Remove tempered tier 1 and tier 2
+            // TODO: Need better approach to only keep one for each tempered affix.
             _affixInfoList.RemoveAll(a => a.IdName.StartsWith("Tempered") && a.IdName.EndsWith("Tier1"));
             _affixInfoList.RemoveAll(a => a.IdName.StartsWith("Tempered") && a.IdName.EndsWith("Tier2"));
+            _affixInfoList.RemoveAll(a => a.IdName.StartsWith("Tempered") && a.IdName.EndsWith("Tier1Tier2"));
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Necro_07_NecroticCarapace"));
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Necro_10_SpikedArmor")); 
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Necro_Summoning_T4_N3_DrainVitality"));
+            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Rogue_07_SecondWind"));        
 
             // Remove specific duplicates            
             _affixInfoList.RemoveAll(a => a.IdName.Equals("S04_CoreStat_DexterityPercent")); // "+#% Dexterity", using "S04_CoreStat_Dexterity" instead.
@@ -1230,6 +1249,9 @@ namespace D4DataParser.Parsers
             _affixInfoList.RemoveAll(a => a.IdName.Equals("S04_CoreStat_WillpowerPercent")); // "+#% Willpower", using "S04_CoreStat_Willpower" instead.
 
             // Bugs??
+            // - Affixes have the wrong localisation string
+            // - Different affixes don't have an unique name in some languages
+            // - Season 5: "+# to Concussive" renamed to "to Unstable Elixirs". Is that intended?. For now no action taken to change this.
             // TODO: - UPD - Check if localisation bugs are still present after each update
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_08_Unrestrained")); // "+# to Nature's Reach", using "Tempered_PassiveRankBonus_Druid_06_NaturesReach" instead.
             _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Druid_09_Vigilance")); // "+# to Nature's Reach", using "Tempered_PassiveRankBonus_Druid_06_NaturesReach" instead.
