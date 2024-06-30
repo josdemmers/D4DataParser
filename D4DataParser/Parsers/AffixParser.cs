@@ -1217,7 +1217,10 @@ namespace D4DataParser.Parsers
                 !a.IdName.Equals("INHERENT_Evade_Attack_Reset") &&
                 !a.IdName.Equals("INHERENT_Evade_Charges") &&
                 !a.IdName.Equals("INHERENT_Shield_Damage_Bonus") &&
-                !a.IdName.Equals("PotionBarrier")
+                !a.IdName.Equals("PotionBarrier") &&
+                !a.IdName.Equals("INHERENT_Damage_to_HighLife") &&
+                !a.IdName.Equals("INHERENT_Damage_to_LowLife") &&
+                !a.IdName.Equals("INHERENT_On_Kill_Health")
                 );
 
             // TODO: Need to split INHERENT_Block into two affixes.
@@ -1236,11 +1239,6 @@ namespace D4DataParser.Parsers
             // TODO: Need better approach to only keep one for each tempered affix.
             _affixInfoList.RemoveAll(a => a.IdName.StartsWith("Tempered") && a.IdName.EndsWith("Tier1"));
             _affixInfoList.RemoveAll(a => a.IdName.StartsWith("Tempered") && a.IdName.EndsWith("Tier2"));
-            _affixInfoList.RemoveAll(a => a.IdName.StartsWith("Tempered") && a.IdName.EndsWith("Tier1Tier2"));
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Necro_07_NecroticCarapace"));
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Necro_10_SpikedArmor")); 
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Necro_Summoning_T4_N3_DrainVitality"));
-            _affixInfoList.RemoveAll(a => a.IdName.Equals("Tempered_PassiveRankBonus_Rogue_07_SecondWind"));        
 
             // Remove specific duplicates            
             _affixInfoList.RemoveAll(a => a.IdName.Equals("S04_CoreStat_DexterityPercent")); // "+#% Dexterity", using "S04_CoreStat_Dexterity" instead.

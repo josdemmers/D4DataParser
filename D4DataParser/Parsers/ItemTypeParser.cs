@@ -115,8 +115,7 @@ namespace D4DataParser.Parsers
                 localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Magic", StringComparison.OrdinalIgnoreCase)) ?? new(),
                 localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Rare", StringComparison.OrdinalIgnoreCase)) ?? new(),
                 localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Legendary", StringComparison.OrdinalIgnoreCase)) ?? new(),
-                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Unique", StringComparison.OrdinalIgnoreCase)) ?? new(),
-                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Mythic", StringComparison.OrdinalIgnoreCase)) ?? new()
+                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Unique", StringComparison.OrdinalIgnoreCase)) ?? new()
             };
 
             // Local function to combine ItemType with ItemQuality
