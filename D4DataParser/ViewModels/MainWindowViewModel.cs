@@ -29,9 +29,9 @@ namespace D4DataParser.ViewModels
         private SigilParser _sigilParser = new SigilParser();
         private ItemTypeParser _itemTypeParser = new ItemTypeParser();
 
-        //private string _d4dataPath = @"D:\Games\DiabloIV\d4data\"; // Blizzhackers repo
-        //private string _d4dataPath = @"D:\Games\DiabloIV\d4data-dt\"; // DiabloTools repo
-        private string _d4dataPath = @"D:\Games\DiabloIV\d4data-dt-ptr\"; // DiabloTools PTR repo
+        private string _d4dataPath = @"D:\Games\DiabloIV\d4data\";
+        //private string _d4dataPath = @"D:\Games\DiabloIV\d4data-ptr\";
+
         private bool _keepDuplicates = false;
 
         // Start of Constructors region
