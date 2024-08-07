@@ -534,6 +534,7 @@ namespace D4DataParser.Parsers
                         affixAttribute.LocalisationId.Equals("Power_Resource_Cost_Reduction_Percent") ||
                         affixAttribute.LocalisationId.Equals("Resource_Gain_Bonus_Percent_Per_Power") ||
                         affixAttribute.LocalisationId.Equals("Skill_Rank_Bonus") ||
+                        affixAttribute.LocalisationId.Equals("Sorc_Conjurations_BonusSummons_Chance") ||
                         affixAttribute.LocalisationId.Equals("Talent_Rank_Bonus"))
                     {
                         ReplaceSkillPlaceholders(affix, _powerMetaJsonList);
@@ -929,7 +930,7 @@ namespace D4DataParser.Parsers
                             if (skillInfo != null)
                             {
                                 string skill = skillInfo.szText;
-                                affix.Description = affix.Description.Replace("{VALUE1}", skill);
+                                affix.Description = affix.Description.Replace("{VALUE1}", skill).Replace("{vALUE1}", skill);
                             }
                         }
                     }
@@ -1238,6 +1239,7 @@ namespace D4DataParser.Parsers
             // --> maybe by using a list of localistions instead?
 
             // Remove duplicates
+            _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_Higher"));
             _affixInfoList.RemoveAll(a => a.IdName.EndsWith("Jewelry"));
             _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_Lesser"));
             _affixInfoList.RemoveAll(a => a.IdName.EndsWith("_Shields"));
