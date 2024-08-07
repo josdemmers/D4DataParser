@@ -224,28 +224,28 @@ namespace D4DataParser.Parsers
                 }
 
                 // TODO: - UPD - Requires update when season changes.
-                // Seasonal
-                fileEntries = Directory.EnumerateFiles(directory).Where(file => Path.GetFileName(file).StartsWith("TR_SJ_S04_", StringComparison.OrdinalIgnoreCase));
-                foreach (string fileName in fileEntries)
-                {
-                    using (FileStream? stream = File.OpenRead(fileName))
-                    {
-                        if (stream != null)
-                        {
-                            // create the options
-                            var options = new JsonSerializerOptions()
-                            {
-                                WriteIndented = true
-                            };
-                            // register the converter
-                            //options.Converters.Add(new BoolConverter());
-                            options.Converters.Add(new UIntConverter());
+                // Seasonal - Only S01, S02, S03 so far
+                //fileEntries = Directory.EnumerateFiles(directory).Where(file => Path.GetFileName(file).StartsWith("TR_SJ_S05_", StringComparison.OrdinalIgnoreCase));
+                //foreach (string fileName in fileEntries)
+                //{
+                //    using (FileStream? stream = File.OpenRead(fileName))
+                //    {
+                //        if (stream != null)
+                //        {
+                //            // create the options
+                //            var options = new JsonSerializerOptions()
+                //            {
+                //                WriteIndented = true
+                //            };
+                //            // register the converter
+                //            //options.Converters.Add(new BoolConverter());
+                //            options.Converters.Add(new UIntConverter());
 
-                            var trackedRewardMetaJson = JsonSerializer.Deserialize<TrackedRewardMeta>(stream, options) ?? new TrackedRewardMeta();
-                            _trackedRewardSeasonalMetaJsonList.Add(trackedRewardMetaJson);
-                        }
-                    }
-                }
+                //            var trackedRewardMetaJson = JsonSerializer.Deserialize<TrackedRewardMeta>(stream, options) ?? new TrackedRewardMeta();
+                //            _trackedRewardSeasonalMetaJsonList.Add(trackedRewardMetaJson);
+                //        }
+                //    }
+                //}
             }
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (TrackedReward folder): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;

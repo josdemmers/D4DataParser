@@ -841,21 +841,25 @@ namespace D4DataParser.Parsers
 
                 // deDE
                 affix.Description = affix.Description.Replace("|4Aufladung:Aufladungen;", "Aufladungen");
+                affix.Description = affix.Description.Replace("|4Kopf:Köpfe;", "Köpfe");
                 affix.Description = affix.Description.Replace("|4Rang:Ränge;", "Ränge");
                 affix.Description = affix.Description.Replace("|4Wirkung:Wirkungen;", "Wirkungen");
 
                 // enUS
                 affix.Description = affix.Description.Replace("|4Cast:Casts;", "Casts");
                 affix.Description = affix.Description.Replace("|4Charge:Charges;", "Charges");
+                affix.Description = affix.Description.Replace("|4Head:Heads;", "Heads");
                 affix.Description = affix.Description.Replace("|4Rank:Ranks;", "Ranks");
                 affix.Description = affix.Description.Replace("|4Second:Seconds;", "Seconds");
 
                 // esES
+                affix.Description = affix.Description.Replace("|4cabeza:cabezas;", "cabezas");
                 affix.Description = affix.Description.Replace("|4carga máxima:cargas máximas;", "cargas máximas");
                 affix.Description = affix.Description.Replace("|4rango:rangos;", "rangos");
                 affix.Description = affix.Description.Replace("|4lanzamiento:lanzamientos;", "lanzamientos");
 
                 // esMX
+                affix.Description = affix.Description.Replace("|4cabeza:cabezas;", "cabezas");
                 affix.Description = affix.Description.Replace("|4carga:cargas;", "cargas");
                 affix.Description = affix.Description.Replace("|4rango:rangos;", "rangos");
                 affix.Description = affix.Description.Replace("|4segundo:segundos;", "segundos");
@@ -865,17 +869,21 @@ namespace D4DataParser.Parsers
                 affix.Description = affix.Description.Replace("|4charge:charges;", "charges");
                 affix.Description = affix.Description.Replace("|4lancer supplémentaire:lancers supplémentaires;", "lancers supplémentaires");
                 affix.Description = affix.Description.Replace("|4rang:rangs;", "rangs");
+                affix.Description = affix.Description.Replace("|4tête:têtes;", "têtes");
 
                 // itIT
                 affix.Description = affix.Description.Replace("|4carica massima:cariche massime;", "cariche massime");
                 affix.Description = affix.Description.Replace("|4grado:gradi;", "gradi");
+                affix.Description = affix.Description.Replace("|4testa:teste;", "teste");
 
                 // plPL
                 affix.Description = affix.Description.Replace("|4ładunek:ładunki:ładunków;", "ładunków");
+                affix.Description = affix.Description.Replace("|4głowę:głowy:głów;", "głów");
                 affix.Description = affix.Description.Replace("|4ranga:rangi:rang;", "rang");
                 affix.Description = affix.Description.Replace("|4użycie:użycia:użyć;", "użyć");
 
                 // ptBR
+                affix.Description = affix.Description.Replace("|4cabeça:cabeças;", "cabeças");
                 affix.Description = affix.Description.Replace("|4carga:cargas;", "cargas");
                 affix.Description = affix.Description.Replace("|4grau:graus;", "graus");
                 affix.Description = affix.Description.Replace("|4lançamento:lançamentos;", "lançamentos");
@@ -883,6 +891,7 @@ namespace D4DataParser.Parsers
 
                 // ruRU
                 affix.Description = affix.Description.Replace("|4атаку:атаки:атак;", "атак");
+                affix.Description = affix.Description.Replace("|4голова:головы:голов;", "голов");
 
                 // trTR
                 affix.Description = affix.Description.Replace("|4Yükü:Yükü;", "Yükü");
@@ -891,6 +900,7 @@ namespace D4DataParser.Parsers
 
                 // zhTW
                 affix.Description = affix.Description.Replace("|4次施放:次施放;", "次施放");
+                affix.Description = affix.Description.Replace("|4頭:頭;", "頭");
             }
         }        
 
@@ -1216,8 +1226,8 @@ namespace D4DataParser.Parsers
                 !a.IdName.Equals("INHERENT_Block") &&
                 !a.IdName.Equals("INHERENT_Evade_Attack_Reset") &&
                 !a.IdName.Equals("INHERENT_Evade_Charges") &&
-                !a.IdName.Equals("INHERENT_Shield_Damage_Bonus") &&
-                !a.IdName.Equals("PotionBarrier")
+                !a.IdName.Equals("INHERENT_PotionBarrier") &&
+                !a.IdName.Equals("INHERENT_Shield_Damage_Bonus")
                 );
 
             // TODO: Need to split INHERENT_Block into two affixes.
