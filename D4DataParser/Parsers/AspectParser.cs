@@ -93,7 +93,7 @@ namespace D4DataParser.Parsers
 
                 // TODO: - DEV - Comment language skip for release
                 //if (!language.Equals("deDE")) continue;
-                if (!language.Equals("enUS")) continue;
+                //if (!language.Equals("enUS")) continue;
                 //if (!language.Equals("esES")) continue;
                 //if (!language.Equals("esMX")) continue;
                 //if (!language.Equals("frFR")) continue;
