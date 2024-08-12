@@ -1227,6 +1227,7 @@ namespace D4DataParser.Parsers
                 !a.IdName.Equals("INHERENT_Block") &&
                 !a.IdName.Equals("INHERENT_Evade_Attack_Reset") &&
                 !a.IdName.Equals("INHERENT_Evade_Charges") &&
+                !a.IdName.Equals("INHERENT_Evade_MovementSpeed") &&
                 !a.IdName.Equals("INHERENT_PotionBarrier") &&
                 !a.IdName.Equals("INHERENT_Shield_Damage_Bonus")
                 );
