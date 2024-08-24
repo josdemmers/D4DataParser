@@ -28,6 +28,7 @@ namespace D4DataParser.ViewModels
         private AspectParser _aspectParser = new AspectParser();
         private SigilParser _sigilParser = new SigilParser();
         private ItemTypeParser _itemTypeParser = new ItemTypeParser();
+        private UniqueParser _uniqueParser = new UniqueParser();
 
         private string _d4dataPath = @"D:\Games\DiabloIV\d4data\";
         //private string _d4dataPath = @"D:\Games\DiabloIV\d4data-ptr\";
@@ -45,6 +46,7 @@ namespace D4DataParser.ViewModels
             ParseAffixDataCommand = new DelegateCommand(ParseAffixDataExecute);
             ParseAspectDataCommand = new DelegateCommand(ParseAspectDataExecute);
             ParseSigilDataCommand = new DelegateCommand(ParseSigilDataExecute);
+            ParseUniqueDataCommand = new DelegateCommand(ParseUniqueDataExecute);
             ParseItemTypesDataCommand = new DelegateCommand(ParseItemTypesDataExecute);
             TestCommand = new DelegateCommand(TestExecute);
         }
@@ -65,6 +67,7 @@ namespace D4DataParser.ViewModels
         public DelegateCommand ParseAffixDataCommand { get; }        
         public DelegateCommand ParseAspectDataCommand { get; }
         public DelegateCommand ParseSigilDataCommand { get; }
+        public DelegateCommand ParseUniqueDataCommand { get; }
         public DelegateCommand ParseItemTypesDataCommand { get; }
         public DelegateCommand TestCommand { get; }
 
@@ -116,6 +119,9 @@ namespace D4DataParser.ViewModels
 
                 _itemTypeParser.D4dataPath = D4dataPath;
                 _itemTypeParser.ParseItemTypes();
+
+                _uniqueParser.D4dataPath = D4dataPath;
+                _uniqueParser.ParseUniques();
             });
         }
 
@@ -150,6 +156,14 @@ namespace D4DataParser.ViewModels
             });
         }
 
+        private void ParseUniqueDataExecute()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                _uniqueParser.D4dataPath = D4dataPath;
+                _uniqueParser.ParseUniques();
+            });
+        }
         private void ParseItemTypesDataExecute()
         {
             Task.Factory.StartNew(() =>
