@@ -19,6 +19,7 @@ namespace D4DataParser.Parsers
         private List<string> _languages = new List<string>();
 
         private List<AffixMeta> _affixMetaJsonList = new List<AffixMeta>();
+        private List<ItemMeta> _itemMetaJsonList = new List<ItemMeta>();
         private List<UniqueInfo> _uniqueInfoList = new List<UniqueInfo>();
 
         // Start of Constructors region
@@ -120,13 +121,19 @@ namespace D4DataParser.Parsers
 
             // reset
             _affixMetaJsonList.Clear();
+            _itemMetaJsonList.Clear();
             _uniqueInfoList.Clear();
 
             // Parse CoreTOC.dat.json
             var jsonAsText = File.ReadAllText(CoreTOCPath);
             var coreTOC = System.Text.Json.JsonSerializer.Deserialize<Dictionary<int, Dictionary<int, string>>>(jsonAsText);
             var coreTOCUniques = coreTOC[42];
-            foreach (var item in coreTOCUniques.Where(kvp => !kvp.Value.Contains("_Unique_",StringComparison.InvariantCultureIgnoreCase)).ToList())
+
+            foreach (var item in coreTOCUniques.Where(kvp =>
+                !kvp.Value.StartsWith("Item_", StringComparison.InvariantCultureIgnoreCase) ||
+                !kvp.Value.Contains("_Unique_", StringComparison.InvariantCultureIgnoreCase) ||
+                kvp.Value.Contains("_TEST_") ||
+                kvp.Value.Contains("_NoPowers")).ToList())
             {
                 coreTOCUniques.Remove(item.Key);
             }
@@ -134,9 +141,39 @@ namespace D4DataParser.Parsers
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (CoreTOC.dat): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;
 
+            // Parse .\d4data\json\base\meta\Item\
+            _itemMetaJsonList = new List<ItemMeta>();
+            var directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\meta\\Item\\";
+            if (Directory.Exists(directory))
+            {
+                var fileEntries = Directory.EnumerateFiles(directory).Where(file => file.EndsWith(".json", StringComparison.OrdinalIgnoreCase));
+                foreach (string fileName in fileEntries)
+                {
+                    using (FileStream? stream = File.OpenRead(fileName))
+                    {
+                        if (stream != null)
+                        {
+                            // create the options
+                            var options = new JsonSerializerOptions()
+                            {
+                                WriteIndented = true
+                            };
+                            // register the converter
+                            //options.Converters.Add(new BoolConverter());
+                            options.Converters.Add(new UIntConverter());
+
+                            var itemMetaJson = JsonSerializer.Deserialize<ItemMeta>(stream, options) ?? new ItemMeta();
+                            _itemMetaJsonList.Add(itemMetaJson);
+                        }
+                    }
+                }
+            }
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Item folder): {watch.ElapsedMilliseconds - elapsedMs}");
+            elapsedMs = watch.ElapsedMilliseconds;
+
             // Parse .\d4data\json\base\meta\Affix\
             _affixMetaJsonList = new List<AffixMeta>();
-            var directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\meta\\Affix\\";
+            directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\meta\\Affix\\";
             if (Directory.Exists(directory))
             {
                 var fileEntries = Directory.EnumerateFiles(directory).Where(file => file.EndsWith(".json", StringComparison.OrdinalIgnoreCase));
@@ -161,31 +198,60 @@ namespace D4DataParser.Parsers
                     }
                 }
             }
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Affix folder): {watch.ElapsedMilliseconds - elapsedMs}");
+            elapsedMs = watch.ElapsedMilliseconds;
 
-            // Create uniques
+            // Validate and create unique items
             foreach (var item in coreTOCUniques)
             {
-                string idName = item.Value;
-                if (idName.StartsWith("Affix_", StringComparison.InvariantCultureIgnoreCase))
+                string idNameItem = item.Value.Substring(5);
+                var itemMeta = _itemMetaJsonList.FirstOrDefault(i => i.__fileName__.EndsWith($"{idNameItem}.itm"));
+
+                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Validating ({item.Key}) {item.Value}");
+
+                if (itemMeta == null)
                 {
-                    idName = idName.Substring(6);
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipped. Item file not found: {idNameItem}.itm");
+                    continue;
+                }
 
-                    // Validate idName
-                    if (idName.Contains("Boost_NoPowers", StringComparison.InvariantCultureIgnoreCase)) continue;
+                // Validate ForcedAffixes
+                if (itemMeta.arForcedAffixes.Count < 5)
+                {
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipped. Invalid affix count: {idNameItem}.itm");
+                    continue;
+                }
 
-                    var affixMeta = _affixMetaJsonList.FirstOrDefault(a => a.__fileName__.EndsWith($"{idName}.aff"));
+                // Find affix with a snoPassivePower
+                foreach (var forcedAffix in itemMeta.arForcedAffixes)
+                {
+                    int idSno = forcedAffix.__raw__;
+                    string idName = forcedAffix.name;
+                    var affixMeta = _affixMetaJsonList.FirstOrDefault(a => a.__snoID__ == idSno);
+
+                    if (affixMeta == null)
+                    {
+                        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipped. Affix not found. {idSno} {idName}");
+                        continue;
+                    }
+
+                    // Skip all normal affixes. Only need the aspect.
+                    if (affixMeta.snoPassivePower == null && affixMeta.eMagicType == 0) continue;
+
                     _uniqueInfoList.Add(new UniqueInfo
                     {
-                        IdSno = affixMeta.__snoID__,
+                        IdSno = idSno,
                         IdName = idName,
+                        IdNameItem = idNameItem,
                         AllowedForPlayerClass = affixMeta.fAllowedForPlayerClass,
                         AllowedItemLabels = affixMeta.arAllowedItemLabels,
                         MagicType = affixMeta.eMagicType
                     });
+
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: OK");
                 }
             }
 
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Affix folder): {watch.ElapsedMilliseconds - elapsedMs}");
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
             watch.Stop();
         }
@@ -204,7 +270,7 @@ namespace D4DataParser.Parsers
                 // Find localisation data
                 string directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\..\\{_language}_Text\\meta\\StringList\\";
                 string fileNameAffix = $"Affix_{unique.IdName}.stl.json";
-                string fileNameItem = $"Item_{unique.IdName}.stl.json";
+                string fileNameItem = $"Item_{unique.IdNameItem}.stl.json";
 
                 if (!File.Exists($"{directory}{fileNameItem}") || !File.Exists($"{directory}{fileNameAffix}"))
                 {
@@ -221,7 +287,8 @@ namespace D4DataParser.Parsers
                     if (localisationName != null)
                     {
                         // Remove variants (no idea where to get the correct form, so using the first one for now)
-                        unique.Name = localisationName.szText.Contains("]") ? localisationName.szText.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1] : localisationName.szText;
+                        unique.Name = localisationName.szText.Contains("]") ? localisationName.szText.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[0] : localisationName.szText;
+                        //unique.Name = localisationName.szText.Contains("]") ? localisationName.szText.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1] : localisationName.szText;
                     }
                 }
 
@@ -244,6 +311,23 @@ namespace D4DataParser.Parsers
             // Remove not implemented
             // - Amulet_Unique_Generic_102 (Eye of the Depths)
             _uniqueInfoList.RemoveAll(u => u.Localisation.Length < 20); // For most languages set as TBD.
+            // Remove test items
+            _uniqueInfoList.RemoveAll(u =>
+                u.IdNameItem.Equals("Gloves_Unique_Barbarian_099") ||
+                u.IdNameItem.Equals("Gloves_Unique_Druid_95") ||
+                u.IdNameItem.Equals("Gloves_Unique_Druid_97") ||
+                u.IdNameItem.Equals("Gloves_Unique_Necromancer_99") ||
+                u.IdNameItem.Equals("Helm_Unique_Druid_95") ||
+                u.IdNameItem.Equals("Helm_Unique_Generic_125") ||
+                u.IdNameItem.Equals("Helm_Unique_Necro_95") ||
+                u.IdNameItem.Equals("Helm_Unique_Necro_98") ||
+                u.IdNameItem.Equals("Helm_Unique_Rogue_95") ||
+                u.IdNameItem.Equals("Pants_Unique_Barbarian_099")
+            );
+            // Remove duplicates
+            _uniqueInfoList.RemoveAll(u =>
+                u.IdNameItem.Equals("Boots_Unique_Generic_125") // Boots_Unique_Generic_003
+            );
 
             // Replace numeric value placeholders
             ReplacePlaceholders();
