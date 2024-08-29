@@ -132,8 +132,8 @@ namespace D4DataParser.Parsers
             foreach (var item in coreTOCUniques.Where(kvp =>
                 !kvp.Value.StartsWith("Item_", StringComparison.InvariantCultureIgnoreCase) ||
                 !kvp.Value.Contains("_Unique_", StringComparison.InvariantCultureIgnoreCase) ||
-                kvp.Value.Contains("_TEST_") ||
-                kvp.Value.Contains("_NoPowers")).ToList())
+                kvp.Value.Contains("_TEST_", StringComparison.InvariantCultureIgnoreCase) ||
+                kvp.Value.Contains("_NoPowers", StringComparison.InvariantCultureIgnoreCase)).ToList())
             {
                 coreTOCUniques.Remove(item.Key);
             }
