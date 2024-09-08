@@ -109,14 +109,43 @@ namespace D4DataParser.Parsers
             _mappingClassRestrictions.Add(2, "Fury_Restriction");
             _mappingClassRestrictions.Add(3, "Energy_Restriction");
             _mappingClassRestrictions.Add(4, "Essence_Restriction");
+            _mappingClassRestrictions.Add(5, "Spirit_Restriction"); // TODO: Update this for season 6. Vigor_Restriction?
 
             // .\d4data\json\enUS_Text\meta\StringList\SkillTagNames.stl.json
+            //_mappingResources.Clear();
+            //_mappingResources.Add(0, "RESOURCE_MANA");
+            //_mappingResources.Add(1, "RESOURCE_FURY");
+            //_mappingResources.Add(3, "RESOURCE_ENERGY");
+            //_mappingResources.Add(5, "RESOURCE_SPIRIT");
+            //_mappingResources.Add(6, "RESOURCE_ESSENCE");
+            //_mappingResources.Add(7, "RESOURCE_***"); // Missing
+
+            // .\d4data\json\enUS_Text\meta\StringList\UIToolTips.stl.json
+            //_mappingResources.Clear();
+            //_mappingResources.Add(0, "Resource_Type_Mana");
+            //_mappingResources.Add(1, "Resource_Type_Fury");
+            //_mappingResources.Add(3, "Resource_Type_Energy");
+            //_mappingResources.Add(5, "Resource_Type_Spirit");
+            //_mappingResources.Add(6, "Resource_Type_Essence");
+            //_mappingResources.Add(7, "Resource_Type_Vigor");
+
+            // .\d4data\json\enUS_Text\meta\StringList\FrontEnd.stl.json
+            //_mappingResources.Clear();
+            //_mappingResources.Add(0, "SorcererResource");
+            //_mappingResources.Add(1, "BarbarianResouce"); // Rage. Note: typo BarbarianResouce instead of BarbarianResource
+            //_mappingResources.Add(3, "RogueResource");
+            //_mappingResources.Add(5, "DruidResource");
+            //_mappingResources.Add(6, "NecromancerResource");
+            //_mappingResources.Add(7, "SpiritbornResource");
+
+            // .\d4data\json\enUS_Text\meta\StringList\SkillTags.stl.json
             _mappingResources.Clear();
-            _mappingResources.Add(0, "RESOURCE_MANA");
-            _mappingResources.Add(1, "RESOURCE_FURY");
-            _mappingResources.Add(3, "RESOURCE_ENERGY");
-            _mappingResources.Add(5, "RESOURCE_SPIRIT");
-            _mappingResources.Add(6, "RESOURCE_ESSENCE");
+            _mappingResources.Add(0, "Search_ResourceMana_TagName");
+            _mappingResources.Add(1, "Search_ResourceFury_TagName");
+            _mappingResources.Add(3, "Search_ResourceEnergy_TagName");
+            _mappingResources.Add(5, "Search_ResourceSpirit_TagName");
+            _mappingResources.Add(6, "Search_ResourceEssence_TagName");
+            _mappingResources.Add(7, "Search_ResourceVigor_TagName");
 
             // .\d4data\json\enUS_Text\meta\StringList\SkillTagNames.stl.json
             _mappingDamageTypes.Clear();
@@ -430,6 +459,7 @@ namespace D4DataParser.Parsers
                         if (localisationId.Equals("AoE_Size_Bonus_Per_Power") ||
                             localisationId.Equals("Bonus_Count_Per_Power") ||
                             localisationId.Equals("Bonus_Percent_Per_Power") ||
+                            localisationId.Equals("Chance_To_Hit_Twice_Per_Power") ||
                             localisationId.Equals("Cleave_Damage_Bonus_Percent_Per_Power") ||
                             localisationId.Equals("Damage_Percent_Bonus_While_Affected_By_Power") ||
                             localisationId.Equals("Movement_Speed_Bonus_Percent_Per_Power") ||
@@ -462,7 +492,14 @@ namespace D4DataParser.Parsers
                         else
                         {
                             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Sub localisation data available but rules not set. ({localisationId})");
-                            throw new NotImplementedException();
+
+                            if (!localisationId.Equals("Bonus_Percent_Per_Power_2") &&
+                                !localisationId.Equals("Bonus_Percent_Per_Power_3") &&
+                                !localisationId.Equals("MaxStacks") &&
+                                !localisationId.Equals("Spiritborn_Spirit_Bonus"))
+                            {
+                                throw new NotImplementedException();
+                            }
                         }
 
                         localisationId = !string.IsNullOrWhiteSpace(subLocalisationId) && _localisationJson.arStrings.Any(a => a.szLabel.Equals(subLocalisationId)) ? subLocalisationId : localisationId;
@@ -706,6 +743,8 @@ namespace D4DataParser.Parsers
             bool hasLengendaryPower = false;
             foreach (var arAffixSkillTag in arAffixSkillTags)
             {
+                if (arAffixSkillTag == null) continue;
+
                 hasLegendaryFilter = arAffixSkillTag.name.Contains("FILTER_Legendary_");
                 if (hasLegendaryFilter) break;
             }
@@ -953,7 +992,7 @@ namespace D4DataParser.Parsers
                 {
                     string localisationParameterAsString = _mappingResources[affixAttribute.LocalisationParameter];
                     string directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\..\\{_language}_Text\\meta\\StringList\\";
-                    string fileNameLoc = $"{directory}SkillTagNames.stl.json";
+                    string fileNameLoc = $"{directory}SkillTags.stl.json";
                     var jsonAsText = File.ReadAllText(fileNameLoc);
                     var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);
                     if (localisation != null)

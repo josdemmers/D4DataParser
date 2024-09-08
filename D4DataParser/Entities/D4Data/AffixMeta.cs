@@ -39,9 +39,9 @@ namespace D4DataParser.Entities.D4Data
 
     public class ArAffixSkillTag
     {
-        public object __raw__ { get; set; }
-        public string __type__ { get; set; }
-        public long __typeHash__ { get; set; }
+        //public object __raw__ { get; set; }
+        //public string __type__ { get; set; }
+        //public object __typeHash__ { get; set; }
         public int group { get; set; }
         public string name { get; set; }
     }

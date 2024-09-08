@@ -20,7 +20,8 @@ namespace D4DataParser.Entities.D4Data
     public class TEntries
     {
         public THeader tHeader { get; set; }
-        public List<ArDungeonLists> arDungeonLists { get; set; }
+        //public List<ArDungeonLists> arDungeonLists { get; set; }
+        public List<ArDungeons> arDungeons { get; set; }
     }
 
     public class THeader
@@ -28,10 +29,10 @@ namespace D4DataParser.Entities.D4Data
         public string szName { get; set; }
     }
 
-    public class ArDungeonLists
-    {
-        public List<ArDungeons> arDungeons { get; set; }
-    }
+    //public class ArDungeonLists
+    //{
+    //    public List<ArDungeons> arDungeons { get; set; }
+    //}
 
     public class ArDungeons
     {

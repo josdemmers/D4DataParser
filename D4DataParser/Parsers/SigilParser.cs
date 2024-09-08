@@ -134,11 +134,8 @@ namespace D4DataParser.Parsers
                 var dungeonEntry = keyedDungeonTypesMeta.ptData[0].tEntries.FirstOrDefault(t => t.tHeader.szName.Equals("NightmareDungeon"));
                 if (dungeonEntry != null)
                 {
-                    foreach (var arDungeonList in dungeonEntry.arDungeonLists)
-                    {
-                        bool isSeasonal = arDungeonList.arDungeons.Any(d => d.name.Equals(dungeonName, StringComparison.OrdinalIgnoreCase));
-                        if (isSeasonal) return true;
-                    }
+                    bool isSeasonal = dungeonEntry.arDungeons.Any(d => d.name.Equals(dungeonName, StringComparison.OrdinalIgnoreCase));
+                    if (isSeasonal) return true;
                 }
 
                 return false;
@@ -172,6 +169,8 @@ namespace D4DataParser.Parsers
                         return zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_HAWAZAR_SWAMPS", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
                     case var _ when idName.Contains("_Kehj_", StringComparison.OrdinalIgnoreCase):
                         return zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_KEHJISTAN", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                    case var _ when idName.Contains("_Naha_", StringComparison.OrdinalIgnoreCase):
+                        return zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_NAHANTU", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
                     case var _ when idName.Contains("_Scos_", StringComparison.OrdinalIgnoreCase):
                         return zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_SCOSGLEN", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
                     case var _ when idName.Contains("_Step_", StringComparison.OrdinalIgnoreCase):
