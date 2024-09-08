@@ -1,2 +1,2 @@
 # D4DataParser
-Parser for the d4data repo
+Moved to https://github.com/josdemmers/D4DataParser2
