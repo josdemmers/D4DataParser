@@ -1,28 +1,306 @@
 ﻿<Window x:Class="D4DataParser.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:D4DataParser.Views"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:D4DataParser.Converters"
+        xmlns:local="clr-namespace:D4DataParser.Views" 
+        xmlns:viewmodels="clr-namespace:D4DataParser.ViewModels" 
         mc:Ignorable="d"
-        Title="D4DataParser" Height="450" Width="800">
-    <DockPanel>
-        <StackPanel DockPanel.Dock="Top" HorizontalAlignment="Left" Orientation="Horizontal" Margin="5">
-            <Border BorderBrush="Black" BorderThickness="1">
-                <TextBlock TextTrimming="CharacterEllipsis" MinWidth="200" Width="Auto" Text="{Binding D4dataPath}" IsEnabled="False"/>
-            </Border>
+        Title="MainWindow" Height="450" Width="1000"
+        Background="#777777">
+    <Window.DataContext>
+        <viewmodels:MainWindowViewModel/>
+    </Window.DataContext>
+    <Window.Resources>
+        <converters:AllowedForPlayerClassToStringConverter x:Key="AllowedForPlayerClassToStringConverter"/>
+        <converters:AllowedItemLabelsToStringConverter x:Key="AllowedItemLabelsToStringConverter"/>
+    </Window.Resources>
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="4" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <!-- Left section -->
+        
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="3">
+            <ComboBox ItemsSource="{Binding DiabloVersions}" SelectedItem="{Binding SelectedDiabloVersion}" />
+            <Button Content="Affixes" Command="{Binding ParseAffixDataCommand}" />
+            <Button Content="Aspects" Command="{Binding ParseAspectDataCommand}" />
+            <Button Content="ItemTypes" Command="{Binding ParseItemTypeDataCommand}" />
+            <Button Content="Sigils" Command="{Binding ParseSigilDataCommand}" />
+            <Button Content="Uniques" Command="{Binding ParseUniqueDataCommand}" />
+            <Button Content="Implicits" Command="{Binding ParseImplicitDataCommand}" />
+            <Button Content="All" Command="{Binding ParseAllDataCommand}" />
         </StackPanel>
-        <StackPanel HorizontalAlignment="Left">
-            <StackPanel Orientation="Horizontal">
-                <Button Content="Affixes" Width="Auto" Command="{Binding ParseAffixDataCommand}"/>
-                <CheckBox IsChecked="{Binding KeepDuplicates}"/>
-            </StackPanel>
-            <Button Content="Aspects" Width="Auto" Command="{Binding ParseAspectDataCommand}"/>
-            <Button Content="Sigils" Width="Auto" Command="{Binding ParseSigilDataCommand}"/>
-            <Button Content="Uniques" Width="Auto" Command="{Binding ParseUniqueDataCommand}"/>
-            <Button Content="ItemTypes" Width="Auto" Command="{Binding ParseItemTypesDataCommand}"/>
-            <Button Content="All" Width="Auto" Command="{Binding ParseAllCommand}"/>
-            <Button Content="Test" Width="Auto" Command="{Binding TestCommand}" IsEnabled="False"/>
-        </StackPanel>
-    </DockPanel>
+        
+        <GridSplitter Grid.Column="1" Grid.RowSpan="3" Width="5" HorizontalAlignment="Stretch" Background="#666666"  />
+
+        <!-- Right section -->
+
+        <ItemsControl Grid.Row="0" Grid.Column="2" VerticalAlignment="Top">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Margin="3 0 3 0" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <Label Width="75" Content="SNO" Margin="3 0 3 0" Padding="0 5 0 5" />
+            <Label Width="300" Content="Name" Margin="3 0 3 0" Padding="0 5 0 5" />
+            <Label Width="75" Content="AffixType" Margin="3 0 3 0" Padding="0 5 0 5" />
+            <Label Width="75" Content="Category" Margin="3 0 3 0" Padding="0 5 0 5" />
+            <Label Width="75" Content="Flags" Margin="3 0 3 0" Padding="0 5 0 5" />
+            <Label Width="75" Content="Tempered" Margin="3 0 3 0" Padding="0 5 0 5" />
+            <Label Width="75" Content="MagicType" Margin="3 0 3 0" Padding="0 5 0 5" />
+            <Label Width="75" Content="Class" Margin="3 0 3 0" Padding="0 5 0 5" />
+            <Label Width="75" Content="Items" Margin="3 0 3 0" Padding="0 5 0 5" />
+            <Label Width="300" Content="Description" Margin="3 0 3 0" Padding="0 5 0 5" />
+            <Label Width="300" Content="DescriptionClean" Margin="3 0 3 0" Padding="0 5 0 5" />
+        </ItemsControl>
+
+        <ItemsControl Grid.Row="1" Grid.Column="2" VerticalAlignment="Top">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <TextBox Width="75" Margin="3 0 3 0" Padding="5 5 0 5" Background="#777777" BorderThickness="1" Text="{Binding SNOTextFilter, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" />
+            <TextBox Width="300" Margin="3 0 3 0" Padding="5 5 0 5" Background="#777777" BorderThickness="1" Text="{Binding NameTextFilter, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" />
+            <TextBox Width="75" Margin="3 0 3 0" Padding="5 5 0 5" Background="#777777" BorderThickness="1" Text="{Binding AffixTypeTextFilter, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" />
+            <TextBox Width="75" Margin="3 0 3 0" Padding="5 5 0 5" Background="#777777" BorderThickness="1" Text="{Binding CategoryTextFilter, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" />
+            <TextBox Width="75" Margin="3 0 3 0" Padding="5 5 0 5" Background="#777777" BorderThickness="1" Text="{Binding FlagsTextFilter, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" />
+            <TextBox Width="75" Margin="3 0 3 0" Padding="5 5 0 5" Background="#777777" BorderThickness="1" Text="{Binding TemperedTextFilter, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" />
+            <TextBox Width="75" Margin="3 0 3 0" Padding="5 5 0 5" Background="#777777" BorderThickness="1" Text="{Binding MagicTypeTextFilter, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" />
+            <TextBox Width="75" Margin="3 0 3 0" Padding="5 5 0 5" Background="#777777" BorderThickness="1" Text="{Binding ClassTextFilter, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" />
+            <TextBox Width="75" Margin="3 0 3 0" Padding="5 5 0 5" Background="#777777" BorderThickness="1" Text="{Binding ItemsTextFilter, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" />
+            <TextBox Width="300" Margin="3 0 3 0" Padding="5 5 0 5" Background="#777777" BorderThickness="1" Text="{Binding DescriptionTextFilter, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" />
+            <TextBox Width="300" Margin="3 0 3 0" Padding="5 5 0 5" Background="#777777" BorderThickness="1" Text="{Binding DescriptionCleanTextFilter, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" />
+        </ItemsControl>
+
+        <ItemsControl Grid.Row="2" Grid.Column="2" ItemsSource="{Binding AffixInfoListFiltered}"
+                      ScrollViewer.CanContentScroll="True" VirtualizingStackPanel.VirtualizationMode="Recycling">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.Template>
+                <ControlTemplate>
+                    <ScrollViewer x:Name="ScrollViewer" HorizontalScrollBarVisibility="Auto" 
+                                  VerticalScrollBarVisibility="Auto" IsDeferredScrollingEnabled="True">
+                        <ItemsPresenter/>
+                    </ScrollViewer>
+                </ControlTemplate>
+            </ItemsControl.Template>
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Margin="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- IdSno-->
+                        <Border Grid.Column="0" CornerRadius="3" Margin="3" Padding="0" Background="#999999">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1"/>
+                            </Border.Effect>
+                        </Border>
+                        <Border Grid.Column="0" CornerRadius="3" Margin="3" Padding="0" Background="#999999">
+                            <Grid>
+                                <TextBlock Grid.Column="0" Width="75" TextTrimming="CharacterEllipsis" FontSize="15"
+                                           Margin="0 0 0 0" Padding="2 0 0 0" VerticalAlignment="Center"
+                                           Text="{Binding Path=IdSno}" 
+                                           ToolTip="{Binding Path=IdSno}">
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <!-- IdName-->
+                        <Border Grid.Column="1" CornerRadius="3" Margin="3" Background="#999999">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1"/>
+                            </Border.Effect>
+                        </Border>
+                        <Border Grid.Column="1" CornerRadius="3" Margin="3" Background="#999999">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Width="300" TextTrimming="CharacterEllipsis" FontSize="15"
+                                           Margin="0 0 0 0" Padding="2 0 0 0" VerticalAlignment="Center"
+                                           Text="{Binding Path=IdName}" 
+                                           ToolTip="{Binding Path=IdName}">
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <!-- AffixType -->
+                        <Border Grid.Column="2" CornerRadius="3" Margin="3" Background="#999999">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1"/>
+                            </Border.Effect>
+                        </Border>
+                        <Border Grid.Column="2" CornerRadius="3" Margin="3" Background="#999999">
+                            <Grid>
+                                <TextBlock Grid.Column="2" Width="75" TextTrimming="CharacterEllipsis" FontSize="15"
+                                           Margin="0 0 0 0" Padding="2 0 0 0" VerticalAlignment="Center"
+                                           Text="{Binding Path=AffixType}" 
+                                           ToolTip="{Binding Path=AffixType}">
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <!-- Category -->
+                        <Border Grid.Column="3" CornerRadius="3" Margin="3" Background="#999999">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1"/>
+                            </Border.Effect>
+                        </Border>
+                        <Border Grid.Column="3" CornerRadius="3" Margin="3" Background="#999999">
+                            <Grid>
+                                <TextBlock Grid.Column="2" Width="75" TextTrimming="CharacterEllipsis" FontSize="15"
+                                           Margin="0 0 0 0" Padding="2 0 0 0" VerticalAlignment="Center"
+                                           Text="{Binding Path=Category}" 
+                                           ToolTip="{Binding Path=Category}">
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <!-- Flags -->
+                        <Border Grid.Column="4" CornerRadius="3" Margin="3" Background="#999999">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1"/>
+                            </Border.Effect>
+                        </Border>
+                        <Border Grid.Column="4" CornerRadius="3" Margin="3" Background="#999999">
+                            <Grid>
+                                <TextBlock Grid.Column="2" Width="75" TextTrimming="CharacterEllipsis" FontSize="15"                                           
+                                           Margin="0 0 0 0" Padding="2 0 0 0" VerticalAlignment="Center"
+                                           Text="{Binding Path=Flags}" 
+                                           ToolTip="{Binding Path=Flags}">
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <!-- Tempered -->
+                        <Border Grid.Column="5" CornerRadius="3" Margin="3" Background="#999999">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1"/>
+                            </Border.Effect>
+                        </Border>
+                        <Border Grid.Column="5" CornerRadius="3" Margin="3" Background="#999999">
+                            <Grid>
+                                <TextBlock Grid.Column="2" Width="75" TextTrimming="CharacterEllipsis" FontSize="15"
+                                           Margin="0 0 0 0" Padding="2 0 0 0" VerticalAlignment="Center"
+                                           Text="{Binding Path=IsTemperingAvailable}" 
+                                           ToolTip="{Binding Path=IsTemperingAvailable}">
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <!-- MagicType -->
+                        <Border Grid.Column="6" CornerRadius="3" Margin="3" Background="#999999">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1"/>
+                            </Border.Effect>
+                        </Border>
+                        <Border Grid.Column="6" CornerRadius="3" Margin="3" Background="#999999">
+                            <Grid>
+                                <TextBlock Grid.Column="2" Width="75" TextTrimming="CharacterEllipsis" FontSize="15"
+                                           Margin="0 0 0 0" Padding="2 0 0 0" VerticalAlignment="Center"
+                                           Text="{Binding Path=MagicType}" 
+                                           ToolTip="{Binding Path=MagicType}">
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <!-- Class -->
+                        <Border Grid.Column="7" CornerRadius="3" Margin="3" Background="#999999">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1"/>
+                            </Border.Effect>
+                        </Border>
+                        <Border Grid.Column="7" CornerRadius="3" Margin="3" Background="#999999">
+                            <Grid>
+                                <TextBlock Grid.Column="2" Width="75" TextTrimming="CharacterEllipsis" FontSize="15"
+                                           Margin="0 0 0 0" Padding="2 0 0 0" VerticalAlignment="Center"
+                                           Text="{Binding Path=AllowedForPlayerClass, Converter={StaticResource AllowedForPlayerClassToStringConverter}}" 
+                                           ToolTip="{Binding Path=AllowedForPlayerClass, Converter={StaticResource AllowedForPlayerClassToStringConverter}}">
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <!-- Items -->
+                        <Border Grid.Column="8" CornerRadius="3" Margin="3" Background="#999999">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1"/>
+                            </Border.Effect>
+                        </Border>
+                        <Border Grid.Column="8" CornerRadius="3" Margin="3" Background="#999999">
+                            <Grid>
+                                <TextBlock Grid.Column="2" Width="75" TextTrimming="CharacterEllipsis" FontSize="15"
+                                           Margin="0 0 0 0" Padding="2 0 0 0" VerticalAlignment="Center"
+                                           Text="{Binding Path=AllowedItemLabels, Converter={StaticResource AllowedItemLabelsToStringConverter}}" 
+                                           ToolTip="{Binding Path=AllowedItemLabels, Converter={StaticResource AllowedItemLabelsToStringConverter}}">
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <!-- Description -->
+                        <Border Grid.Column="9" CornerRadius="3" Margin="3" Background="#999999">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1"/>
+                            </Border.Effect>
+                        </Border>
+                        <Border Grid.Column="9" CornerRadius="3" Margin="3" Background="#999999">
+                            <Grid>
+                                <TextBlock Grid.Column="2" Width="300" TextTrimming="CharacterEllipsis" FontSize="15"
+                                           Margin="0 0 0 0" Padding="2 0 0 0" VerticalAlignment="Center"
+                                           Text="{Binding Path=Description}" 
+                                           ToolTip="{Binding Path=Description}">
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                        <!-- DescriptionClean -->
+                        <Border Grid.Column="10" CornerRadius="3" Margin="3" Background="#999999">
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="1"/>
+                            </Border.Effect>
+                        </Border>
+                        <Border Grid.Column="10" CornerRadius="3" Margin="3" Background="#999999">
+                            <Grid>
+                                <TextBlock Grid.Column="2" Width="300" TextTrimming="CharacterEllipsis" FontSize="15"
+                                           Margin="0 0 0 0" Padding="2 0 0 0" VerticalAlignment="Center"
+                                           Text="{Binding Path=DescriptionClean}" 
+                                           ToolTip="{Binding Path=DescriptionClean}">
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
 </Window>

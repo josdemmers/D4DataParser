@@ -1,4 +1,4 @@
-﻿namespace D4Companion.Constants
+﻿namespace D4DataParser.Constants
 {
     public class ItemTypeConstants
     {
@@ -14,5 +14,6 @@
         public const string Offhand = "offhand";
         public const string Sigil = "sigil";
         public const string Temper = "temper";
+        public const string Rune = "rune";
     }
 }

@@ -76,7 +76,7 @@ namespace D4DataParser.Parsers
             _languages.Add("zhTW");
         }
 
-        public void ParseSigils()
+        public void Parse()
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var elapsedMs = watch.ElapsedMilliseconds;
@@ -86,10 +86,23 @@ namespace D4DataParser.Parsers
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
 
                 // TODO: - DEV - Comment language skip for release
+                //if (!language.Equals("deDE")) continue;
                 //if (!language.Equals("enUS")) continue;
+                //if (!language.Equals("esES")) continue;
+                //if (!language.Equals("esMX")) continue;
+                //if (!language.Equals("frFR")) continue;
+                //if (!language.Equals("itIT")) continue;
+                //if (!language.Equals("jaJP")) continue;
+                //if (!language.Equals("koKR")) continue;
+                //if (!language.Equals("plPL")) continue;
+                //if (!language.Equals("ptBR")) continue;
+                //if (!language.Equals("ruRU")) continue;
+                //if (!language.Equals("trTR")) continue;
+                //if (!language.Equals("zhCN")) continue;
+                //if (!language.Equals("zhTW")) continue;
 
                 _sigilInfoList.Clear();
-                ParseSigilsByLanguage(language);
+                ParseByLanguage(language);
 
                 ValidateSigils();
             }
@@ -98,7 +111,7 @@ namespace D4DataParser.Parsers
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time: {watch.ElapsedMilliseconds}");
         }
 
-        private void ParseSigilsByLanguage(string language)
+        private void ParseByLanguage(string language)
         {
             // Dungeons
 

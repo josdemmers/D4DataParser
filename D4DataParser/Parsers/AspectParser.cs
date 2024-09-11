@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using D4DataParser.Mappings;
 
 namespace D4DataParser.Parsers
 {
@@ -17,12 +18,14 @@ namespace D4DataParser.Parsers
         private string _d4dataPath = string.Empty;
         private string _language = string.Empty;
         private List<string> _languages = new List<string>();
+        private Dictionary<string, List<AspectInfo>> _aspectInfoDictionary = new Dictionary<string, List<AspectInfo>>();
 
+        // D4Data repo data
+        private Dictionary<int, string> _affixDictionary = new Dictionary<int, string>();
+        private Dictionary<int, string> _aspectDictionary = new Dictionary<int, string>();
         private List<AffixMeta> _affixMetaJsonList = new List<AffixMeta>();
         private List<AspectMeta> _aspectMetaJsonList = new List<AspectMeta>();
-        private List<AspectInfo> _aspectInfoList = new List<AspectInfo>();
         private List<TrackedRewardMeta> _trackedRewardCodexMetaJsonList = new List<TrackedRewardMeta>();
-        private List<TrackedRewardMeta> _trackedRewardSeasonalMetaJsonList = new List<TrackedRewardMeta>();
 
         // Start of Constructors region
 
@@ -45,11 +48,6 @@ namespace D4DataParser.Parsers
         // Start of Properties region
 
         #region Properties
-
-        public string CoreTOCPath
-        {
-            get => $"{_d4dataPath}json\\base\\CoreTOC.dat.json";
-        }
 
         public string D4dataPath { get => _d4dataPath; set => _d4dataPath = value; }
 
@@ -85,58 +83,37 @@ namespace D4DataParser.Parsers
             _languages.Add("zhTW");
         }
 
-        public void ParseAspects()
-        {
-            foreach (var language in _languages)
-            {
-                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
-
-                // TODO: - DEV - Comment language skip for release
-                //if (!language.Equals("deDE")) continue;
-                if (!language.Equals("enUS")) continue;
-                //if (!language.Equals("esES")) continue;
-                //if (!language.Equals("esMX")) continue;
-                //if (!language.Equals("frFR")) continue;
-                //if (!language.Equals("itIT")) continue;
-                //if (!language.Equals("jaJP")) continue;
-                //if (!language.Equals("koKR")) continue;
-                //if (!language.Equals("plPL")) continue;
-                //if (!language.Equals("ptBR")) continue;
-                //if (!language.Equals("ruRU")) continue;
-                //if (!language.Equals("trTR")) continue;
-                //if (!language.Equals("zhCN")) continue;
-                //if (!language.Equals("zhTW")) continue;
-
-                ParseAffixesByLanguage(language);
-                UpdateAspects();
-
-                ValidateAspects();
-            }
-        }
-
-        private void ParseAffixesByLanguage(string language)
+        public void Parse()
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var elapsedMs = watch.ElapsedMilliseconds;
 
-            _language = language;
-
-            // reset
-            _aspectMetaJsonList.Clear();
+            // Reset
+            _affixDictionary.Clear();
             _affixMetaJsonList.Clear();
-            _aspectInfoList.Clear();
+            _aspectDictionary.Clear();
+            _aspectInfoDictionary.Clear();
+            _aspectMetaJsonList.Clear();
+            _trackedRewardCodexMetaJsonList.Clear();
 
-            // Parse CoreTOC.dat.json
-            var jsonAsText = File.ReadAllText(CoreTOCPath);
-            var coreTOC = System.Text.Json.JsonSerializer.Deserialize<Dictionary<int, Dictionary<int, string>>>(jsonAsText);
-            var coreTOCAffixes = coreTOC[104];
-            var coreTOCAspects = coreTOC[128];
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (CoreTOC.dat): {watch.ElapsedMilliseconds - elapsedMs}");
+            // Parse CoreTOC.dat.json -- Affixes
+            string coreTOCPath = $"{_d4dataPath}json\\base\\CoreTOC.dat.json";
+            int affixIndex = 104;
+            var jsonAsText = File.ReadAllText(coreTOCPath);
+            var coreTOCDictionary = System.Text.Json.JsonSerializer.Deserialize<Dictionary<int, Dictionary<int, string>>>(jsonAsText) ?? new Dictionary<int, Dictionary<int, string>>();
+            _affixDictionary = coreTOCDictionary.ContainsKey(affixIndex) ? coreTOCDictionary[affixIndex] : new Dictionary<int, string>();
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (CoreTOC.dat.json - Affixes): {watch.ElapsedMilliseconds - elapsedMs}");
+            elapsedMs = watch.ElapsedMilliseconds;
+
+            // Parse CoreTOC.dat.json -- Aspects
+            int aspectIndex = 128;
+            _aspectDictionary = coreTOCDictionary.ContainsKey(aspectIndex) ? coreTOCDictionary[aspectIndex] : new Dictionary<int, string>();
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (CoreTOC.dat.json - Aspects): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;
 
             // Parse .\d4data\json\base\meta\Affix\
             _affixMetaJsonList = new List<AffixMeta>();
-            var directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\meta\\Affix\\";
+            var directory = $"{Path.GetDirectoryName(coreTOCPath)}\\meta\\Affix\\";
             if (Directory.Exists(directory))
             {
                 var fileEntries = Directory.EnumerateFiles(directory).Where(file => file.EndsWith(".json", StringComparison.OrdinalIgnoreCase));
@@ -166,10 +143,10 @@ namespace D4DataParser.Parsers
 
             // Parse .\d4data\json\base\meta\Aspect\
             _aspectMetaJsonList = new List<AspectMeta>();
-            directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\meta\\Aspect\\";
+            directory = $"{Path.GetDirectoryName(coreTOCPath)}\\meta\\Aspect\\";
             if (Directory.Exists(directory))
             {
-                var fileEntries = Directory.EnumerateFiles(directory).Where(file => 
+                var fileEntries = Directory.EnumerateFiles(directory).Where(file =>
                     Path.GetFileName(file).StartsWith("Asp_Legendary_", StringComparison.OrdinalIgnoreCase) ||
                     Path.GetFileName(file).StartsWith("Asp_S05_BSK_", StringComparison.OrdinalIgnoreCase));
                 foreach (string fileName in fileEntries)
@@ -198,8 +175,7 @@ namespace D4DataParser.Parsers
 
             // Parse .\d4data\json\base\meta\TrackedReward\
             _trackedRewardCodexMetaJsonList = new List<TrackedRewardMeta>();
-            _trackedRewardSeasonalMetaJsonList = new List<TrackedRewardMeta>();
-            directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\meta\\TrackedReward\\";
+            directory = $"{Path.GetDirectoryName(coreTOCPath)}\\meta\\TrackedReward\\";
             if (Directory.Exists(directory))
             {
                 // Codex
@@ -224,115 +200,77 @@ namespace D4DataParser.Parsers
                         }
                     }
                 }
-
-                // TODO: - UPD - Requires update when season changes.
-                // Seasonal - Only S01, S02, S03 so far
-                //fileEntries = Directory.EnumerateFiles(directory).Where(file => Path.GetFileName(file).StartsWith("TR_SJ_S05_", StringComparison.OrdinalIgnoreCase));
-                //foreach (string fileName in fileEntries)
-                //{
-                //    using (FileStream? stream = File.OpenRead(fileName))
-                //    {
-                //        if (stream != null)
-                //        {
-                //            // create the options
-                //            var options = new JsonSerializerOptions()
-                //            {
-                //                WriteIndented = true
-                //            };
-                //            // register the converter
-                //            //options.Converters.Add(new BoolConverter());
-                //            options.Converters.Add(new UIntConverter());
-
-                //            var trackedRewardMetaJson = JsonSerializer.Deserialize<TrackedRewardMeta>(stream, options) ?? new TrackedRewardMeta();
-                //            _trackedRewardSeasonalMetaJsonList.Add(trackedRewardMetaJson);
-                //        }
-                //    }
-                //}
             }
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (TrackedReward folder): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;
 
-            // Create aspect class
-            foreach (var aspect in coreTOCAspects)
+            foreach (var language in _languages)
             {
-                var aspectMeta = _aspectMetaJsonList.FirstOrDefault(a => a.__snoID__ == aspect.Key);
-                if (aspectMeta == null)
-                {
-                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipping {aspect.Key}: {aspect.Value}.");
-                    continue;
-                }
+                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
 
-                _aspectInfoList.Add(new AspectInfo
-                {
-                    IdSno = aspectMeta.snoAffix.__raw__,
-                    IdName = aspectMeta.snoAffix.name,
-                    IsCodex = true
-                });                
+                // TODO: - DEV - Comment language skip for release
+                //if (!language.Equals("deDE")) continue;
+                //if (!language.Equals("enUS")) continue;
+                //if (!language.Equals("esES")) continue;
+                //if (!language.Equals("esMX")) continue;
+                //if (!language.Equals("frFR")) continue;
+                //if (!language.Equals("itIT")) continue;
+                //if (!language.Equals("jaJP")) continue;
+                //if (!language.Equals("koKR")) continue;
+                //if (!language.Equals("plPL")) continue;
+                //if (!language.Equals("ptBR")) continue;
+                //if (!language.Equals("ruRU")) continue;
+                //if (!language.Equals("trTR")) continue;
+                //if (!language.Equals("zhCN")) continue;
+                //if (!language.Equals("zhTW")) continue;
+
+                ParseByLanguage(language);
+                ValidateAspects(language);
             }
-
-            // Add remaining aspects
-            // Note: No longer needed since start of season 4, all aspects are included in coreTOCAspects (Codex)
-
-            //Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: coreTOCAffixes");
-            //foreach (var affix in coreTOCAffixes)
-            //{
-            //    if (!affix.Value.StartsWith("Legendary_Generic", StringComparison.OrdinalIgnoreCase) &&
-            //        !affix.Value.StartsWith("Legendary_Barb", StringComparison.OrdinalIgnoreCase) &&
-            //        !affix.Value.StartsWith("Legendary_Druid", StringComparison.OrdinalIgnoreCase) &&
-            //        !affix.Value.StartsWith("Legendary_Necro", StringComparison.OrdinalIgnoreCase) &&
-            //        !affix.Value.StartsWith("Legendary_Rogue", StringComparison.OrdinalIgnoreCase) &&
-            //        !affix.Value.StartsWith("Legendary_Sorc", StringComparison.OrdinalIgnoreCase))
-            //    {
-            //        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipping {affix.Key}: {affix.Value}. Not an aspect.");
-            //        continue;
-            //    }
-
-            //    if (_aspectInfoList.Any(aspect => aspect.IdSno == affix.Key))
-            //    {
-            //        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipping {affix.Key}: {affix.Value}. Duplicate.");
-            //        continue;
-            //    }
-
-            //    _aspectInfoList.Add(new AspectInfo
-            //    {
-            //        IdSno = affix.Key,
-            //        IdName = affix.Value,
-            //        IsCodex = false
-            //    });
-            //}
-
-            // TODO: Check if aspect is enabled by looking through all power files?
-            //       Works for some aspects, did not work for legendary_sorc_139 when it was disabled.
-            // Local function
-            //bool IsAspectEnabled(string idName)
-            //{
-            //    var coreTOCEnabled = coreTOC[29];
-            //    bool isEnabled = coreTOCEnabled.Values.Any(a => a.Equals(idName, StringComparison.OrdinalIgnoreCase)) ||
-            //        coreTOCAspects.Values.Any(a => a.EndsWith(idName, StringComparison.OrdinalIgnoreCase));
-
-            //    return isEnabled;
-            //}
-
-            // Remove disabled aspects
-            //_aspectInfoList.RemoveAll(aspect => !IsAspectEnabled(aspect.IdName));
-            _aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_034", StringComparison.OrdinalIgnoreCase)); // (PH) of Ensnaring Current (added by coreTOCAspects)
-
-            watch.Stop();
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
         }
 
-        private void UpdateAspects()
+        private void ParseByLanguage(string language)
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var elapsedMs = watch.ElapsedMilliseconds;
 
-            // Update aspect class
+            _language = language;
+
+            // Initialise AspectInfo
+            var aspectInfoList = new List<AspectInfo>();
+            _aspectInfoDictionary[language] = aspectInfoList;
+            foreach (var aspectEntry in _aspectDictionary)
+            {
+                var aspectMeta = _aspectMetaJsonList.FirstOrDefault(aspect => aspect.__snoID__ == aspectEntry.Key);
+                if (aspectMeta != null)
+                {
+                    aspectInfoList.Add(new AspectInfo
+                    {
+                        IdSno = aspectMeta.snoAffix.__raw__,
+                        IdName = aspectMeta.snoAffix.name,
+                        IsCodex = true
+                    });
+                }
+                else
+                {
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Missing aspect meta. ({aspectEntry.Key}) {aspectEntry.Value}");
+                }
+            }
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Current aspect count: {aspectInfoList.Count}");
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Initialise AspectInfo): {watch.ElapsedMilliseconds - elapsedMs}");
+            elapsedMs = watch.ElapsedMilliseconds;
+
+            // Cleanup aspects
+            // - Disabled aspects
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_034", StringComparison.OrdinalIgnoreCase)); // (PH) of Ensnaring Current (added by coreTOCAspects)
+
+            // Update AspectInfo
             // - Allowed classes
             // - Allowed item labels
             // - MagicType (affix, aspect)
             // - Localisation data
             // - Seasonal
-            foreach (var aspect in _aspectInfoList)
+            foreach (var aspect in aspectInfoList)
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Processing ({aspect.IdSno}) {aspect.IdName}");
 
@@ -349,10 +287,10 @@ namespace D4DataParser.Parsers
                 aspect.MagicType = magicType;
 
                 // Find localisation data
-                string directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\..\\{_language}_Text\\meta\\StringList\\";
+                string directory = $"{_d4dataPath}json\\{_language}_Text\\meta\\StringList\\";
                 string fileName = affixMeta.__fileName__;
-                string fileNameLoc = $"{directory}Affix_{Path.GetFileNameWithoutExtension(fileName)}.stl.json";
-                var jsonAsText = File.ReadAllText(fileNameLoc);
+                string fileNameLocalisation = $"{directory}Affix_{Path.GetFileNameWithoutExtension(fileName)}.stl.json";
+                var jsonAsText = File.ReadAllText(fileNameLocalisation);
                 var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);
                 if (localisation != null)
                 {
@@ -371,46 +309,50 @@ namespace D4DataParser.Parsers
                 }
 
                 // Find seasonal data
-                aspect.IsSeasonal = _trackedRewardSeasonalMetaJsonList.Any(t => t.snoAspect?.name.EndsWith(aspect.IdName, StringComparison.OrdinalIgnoreCase) ?? false);
+                //aspect.IsSeasonal = false;
 
                 // Find dungeon data
                 aspect.Dungeon = GetAspectDungeon(aspect);
             }
 
             // Replace numeric value placeholders
-            ReplacePlaceholders();
+            ReplacePlaceholders(language);
 
             // Add a cleaned up description for fuzzy searches.
-            AddCleanDescription();
+            SetCleanDescription(language);
 
             // Sort
-            _aspectInfoList.Sort((x, y) =>
+            aspectInfoList.Sort((x, y) =>
             {
                 return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
             });
 
-            // Save
-            SaveAspects();
+            SaveAspects(language);
+            ValidateAspects(language);
 
             watch.Stop();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
         }
 
-        private void SaveAspects()
+        private void SaveAspects(string language)
         {
-            string fileName = $"Data/Aspects.{_language}.json";
+            var aspectInfoList = _aspectInfoDictionary[language];
+
+            string fileName = $"Data/Aspects.{language}.json";
             string path = Path.GetDirectoryName(fileName) ?? string.Empty;
             Directory.CreateDirectory(path);
 
             using FileStream stream = File.Create(fileName);
             var options = new JsonSerializerOptions { WriteIndented = true };
             options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-            JsonSerializer.Serialize(stream, _aspectInfoList, options);
+            JsonSerializer.Serialize(stream, aspectInfoList, options);
         }
 
-        private void ValidateAspects()
+        private void ValidateAspects(string language)
         {
-            var duplicates = _aspectInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
+            var aspectInfoList = _aspectInfoDictionary[language];
+
+            var duplicates = aspectInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
             if (duplicates.Any())
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Duplicates found!");
@@ -444,7 +386,7 @@ namespace D4DataParser.Parsers
             string fileName = $"World_DGN_{dungeon.Replace("TR_ASP_", string.Empty)}.stl.json";
 
             // Find localisation data
-            string directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\..\\{_language}_Text\\meta\\StringList\\";
+            string directory = $"{_d4dataPath}json\\{_language}_Text\\meta\\StringList\\";
             string filePath = $"{directory}{fileName}";
             // Fix Blizzard bugs
             filePath = filePath.Replace("ImmortalEmmanation", "ImmortalEmanation");
@@ -466,9 +408,11 @@ namespace D4DataParser.Parsers
             return aspectDungeon;
         }
 
-        private void AddCleanDescription()
+        private void SetCleanDescription(string language)
         {
-            foreach (var aspect in _aspectInfoList)
+            var aspectInfoList = _aspectInfoDictionary[language];
+
+            foreach (var aspect in aspectInfoList)
             {
                 aspect.DescriptionClean = aspect.Description.Replace("+", string.Empty);
                 aspect.DescriptionClean = aspect.DescriptionClean.Replace("#", string.Empty);
@@ -480,12 +424,14 @@ namespace D4DataParser.Parsers
             }
         }
 
-        private void ReplacePlaceholders()
+        private void ReplacePlaceholders(string language)
         {
-            // Note: https://regex101.com/
+            var aspectInfoList = _aspectInfoDictionary[language];
 
-            foreach (var aspect in _aspectInfoList)
+            foreach (var aspect in aspectInfoList)
             {
+                // Note: https://regex101.com/
+
                 //string pattern = @"\[(.*?%+?.*?)\]";
                 //aspect.Description = Regex.Replace(aspect.Description, pattern, "#%");
 
@@ -501,38 +447,10 @@ namespace D4DataParser.Parsers
                 pattern = @"{(.*?)}";
                 aspect.Description = Regex.Replace(aspect.Description, pattern, string.Empty);
 
-                // deDE
-                aspect.Description = aspect.Description.Replace("|4Wirkung:Wirkungen;", "Wirkungen");
-
-                // enUS
-                aspect.Description = aspect.Description.Replace("|4cast:casts;", "casts");
-
-                // esES
-                aspect.Description = aspect.Description.Replace("|4lanzamiento adicional:lanzamientos adicionales;", "lanzamientos adicionales");
-
-                // esMX
-                aspect.Description = aspect.Description.Replace("|4lanzamiento adicional:lanzamientos adicionales;", "lanzamientos adicionales");
-
-                // frFR
-                aspect.Description = aspect.Description.Replace("|4lancer supplémentaire:lancers supplémentaires;", "lancers supplémentaires");
-
-                // itIT
-                aspect.Description = aspect.Description.Replace("|4utilizzo:utilizzi;", "utilizzi");
-
-                // jaJP
-                aspect.Description = aspect.Description.Replace("|4cast:casts;", "casts");
-
-                // plPL
-                aspect.Description = aspect.Description.Replace("|4dodatkowe użycie:dodatkowe użycia:dodatkowych użyć;", "dodatkowych użyć");
-
-                // ptBR
-                aspect.Description = aspect.Description.Replace("|4lançamento:lançamentos;", "lançamentos");
-
-                // ruRU
-                aspect.Description = aspect.Description.Replace("|4применение:применения:применений;", "применений");
-
-                // trTR
-                aspect.Description = aspect.Description.Replace("|4kullanım:kullanım;", "kullanım");
+                foreach (var placeholder in StringPlaceholderMappings.StringPlaceholder)
+                {
+                    aspect.Description = aspect.Description.Replace(placeholder.Key, placeholder.Value);
+                }
             }
         }
         #endregion

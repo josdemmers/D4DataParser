@@ -1,39 +1,46 @@
-﻿using D4DataParser.Entities;
-using D4DataParser.Entities.D4Data;
-using D4DataParser.Helpers;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using D4DataParser.Constants;
+using D4DataParser.Entities;
 using D4DataParser.Parsers;
-using ImTools;
-using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Prism.Commands;
-using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
-using System.Runtime;
 using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
 
 namespace D4DataParser.ViewModels
 {
-    public class MainWindowViewModel : BindableBase
+    public partial class MainWindowViewModel : ObservableObject
     {
+        private ObservableCollection<AffixInfo> _affixInfoList = new ObservableCollection<AffixInfo>();
+
         private AffixParser _affixParser = new AffixParser();
         private AspectParser _aspectParser = new AspectParser();
-        private SigilParser _sigilParser = new SigilParser();
         private ItemTypeParser _itemTypeParser = new ItemTypeParser();
+        private SigilParser _sigilParser = new SigilParser();
         private UniqueParser _uniqueParser = new UniqueParser();
+        private ImplicitParser _implicitParser = new ImplicitParser();
+        private string _d4DataPath = DiabloPathConstants.Retail;
+        private string _selectedDiabloVersion = string.Empty;
 
-        //private string _d4dataPath = @"D:\Games\DiabloIV\d4data\";
-        private string _d4dataPath = @"D:\Games\DiabloIV\d4data-ptr\";
-
-        private bool _keepDuplicates = false;
+        // Filters
+        private string _affixTypeTextFilter = string.Empty;
+        private string _categoryTextFilter = string.Empty;
+        private string _flagsTextFilter = string.Empty;
+        private string _magicTypeTextFilter = string.Empty;
+        private string _nameTextFilter = string.Empty;
+        private string _snoTextFilter = string.Empty;
+        private string _temperedTextFilter = string.Empty;
+        private string _classTextFilter = string.Empty;
+        private string _itemsTextFilter = string.Empty;
+        private string _descriptionTextFilter = string.Empty;
+        private string _descriptionCleanTextFilter = string.Empty;
 
         // Start of Constructors region
 
@@ -42,13 +49,18 @@ namespace D4DataParser.ViewModels
         public MainWindowViewModel()
         {
             // Init View commands
-            ParseAllCommand = new DelegateCommand(ParseAllExecute);
-            ParseAffixDataCommand = new DelegateCommand(ParseAffixDataExecute);
-            ParseAspectDataCommand = new DelegateCommand(ParseAspectDataExecute);
-            ParseSigilDataCommand = new DelegateCommand(ParseSigilDataExecute);
-            ParseUniqueDataCommand = new DelegateCommand(ParseUniqueDataExecute);
-            ParseItemTypesDataCommand = new DelegateCommand(ParseItemTypesDataExecute);
-            TestCommand = new DelegateCommand(TestExecute);
+            ParseAffixDataCommand = new RelayCommand(ParseAffixDataExecute);
+            ParseAspectDataCommand = new RelayCommand(ParseAspectDataExecute);
+            ParseItemTypeDataCommand = new RelayCommand(ParseItemTypeDataExecute);
+            ParseSigilDataCommand = new RelayCommand(ParseSigilDataExecute);
+            ParseUniqueDataCommand = new RelayCommand(ParseUniqueDataExecute);
+            ParseImplicitDataCommand = new RelayCommand(ParseImplicitDataExecute);
+            ParseAllDataCommand = new RelayCommand(ParseAllDataExecute);
+
+            // Init filter views
+            CreateAffixInfoFilteredView();
+
+            InitDiabloVersions();
         }
 
         #endregion
@@ -63,31 +75,146 @@ namespace D4DataParser.ViewModels
 
         #region Properties
 
-        public DelegateCommand ParseAllCommand { get; }
-        public DelegateCommand ParseAffixDataCommand { get; }        
-        public DelegateCommand ParseAspectDataCommand { get; }
-        public DelegateCommand ParseSigilDataCommand { get; }
-        public DelegateCommand ParseUniqueDataCommand { get; }
-        public DelegateCommand ParseItemTypesDataCommand { get; }
-        public DelegateCommand TestCommand { get; }
+        public ObservableCollection<AffixInfo> AffixInfoList { get => _affixInfoList; set => _affixInfoList = value; }
+        public ObservableCollection<string> DiabloVersions { get; } = new ObservableCollection<string>();
+        public ListCollectionView? AffixInfoListFiltered { get; private set; }
 
-        public string D4dataPath
+        public ICommand ParseAffixDataCommand { get; }
+        public ICommand ParseAspectDataCommand { get; }
+        public ICommand ParseItemTypeDataCommand { get; }
+        public ICommand ParseSigilDataCommand { get; }
+        public ICommand ParseUniqueDataCommand { get; }
+        public ICommand ParseImplicitDataCommand { get; }
+        public ICommand ParseAllDataCommand { get; }
+
+        public string AffixTypeTextFilter
         {
-            get => _d4dataPath;
+            get => _affixTypeTextFilter;
             set
             {
-                _d4dataPath = value;
-                RaisePropertyChanged(nameof(D4dataPath));
+                SetProperty(ref _affixTypeTextFilter, value);
+                AffixInfoListFiltered?.Refresh();
             }
         }
 
-        public bool KeepDuplicates
+        public string CategoryTextFilter
         {
-            get => _keepDuplicates;
+            get => _categoryTextFilter;
             set
             {
-                _keepDuplicates = value;
-                RaisePropertyChanged(nameof(KeepDuplicates));
+                SetProperty(ref _categoryTextFilter, value);
+                AffixInfoListFiltered?.Refresh();
+            }
+        }
+        
+        public string FlagsTextFilter
+        {
+            get => _flagsTextFilter;
+            set
+            {
+                SetProperty(ref _flagsTextFilter, value);
+                AffixInfoListFiltered?.Refresh();
+            }
+        }
+
+        public string MagicTypeTextFilter
+        {
+            get => _magicTypeTextFilter;
+            set
+            {
+                SetProperty(ref _magicTypeTextFilter, value);
+                AffixInfoListFiltered?.Refresh();
+            }
+        }
+
+        public string NameTextFilter
+        {
+            get => _nameTextFilter;
+            set
+            {
+                SetProperty(ref _nameTextFilter, value);
+                AffixInfoListFiltered?.Refresh();
+            }
+        }
+
+        public string SNOTextFilter
+        {
+            get => _snoTextFilter;
+            set
+            {
+                SetProperty(ref _snoTextFilter, value);
+                AffixInfoListFiltered?.Refresh();
+            }
+        }
+
+        public string TemperedTextFilter
+        {
+            get => _temperedTextFilter;
+            set
+            {
+                SetProperty(ref _temperedTextFilter, value);
+                AffixInfoListFiltered?.Refresh();
+            }
+        }
+
+        public string ClassTextFilter
+        {
+            get => _classTextFilter;
+            set
+            {
+                SetProperty(ref _classTextFilter, value);
+                AffixInfoListFiltered?.Refresh();
+            }
+        }
+
+        public string ItemsTextFilter
+        {
+            get => _itemsTextFilter;
+            set
+            {
+                SetProperty(ref _itemsTextFilter, value);
+                AffixInfoListFiltered?.Refresh();
+            }
+        }
+
+        public string DescriptionTextFilter
+        {
+            get => _descriptionTextFilter;
+            set
+            {
+                SetProperty(ref _descriptionTextFilter, value);
+                AffixInfoListFiltered?.Refresh();
+            }
+        }
+
+        public string DescriptionCleanTextFilter
+        {
+            get => _descriptionCleanTextFilter;
+            set
+            {
+                SetProperty(ref _descriptionCleanTextFilter, value);
+                AffixInfoListFiltered?.Refresh();
+            }
+        }
+
+        public string SelectedDiabloVersion 
+        {
+            get => _selectedDiabloVersion;
+            set
+            {
+                SetProperty(ref _selectedDiabloVersion, value);
+                switch (_selectedDiabloVersion)
+                {
+                    case DiabloVersionConstants.Ptr:
+                        _d4DataPath = DiabloPathConstants.Ptr;
+                        break;
+                    case DiabloVersionConstants.Retail:
+                        _d4DataPath = DiabloPathConstants.Retail;
+                        break;
+                    default:
+                        _d4DataPath = DiabloPathConstants.Retail;
+                        break;
+                }
             }
         }
 
@@ -97,44 +224,21 @@ namespace D4DataParser.ViewModels
 
         #region Event handlers
 
-        private void ParseAllExecute()
-        {
-            Task.Factory.StartNew(() =>
-            {
-                KeepDuplicates = true;
-                _affixParser.D4dataPath = D4dataPath;
-                _affixParser.KeepDuplicates = KeepDuplicates;
-                _affixParser.ParseAffixes();
-
-                KeepDuplicates = false;
-                _affixParser.D4dataPath = D4dataPath;
-                _affixParser.KeepDuplicates = KeepDuplicates;
-                _affixParser.ParseAffixes();
-
-                _aspectParser.D4dataPath = D4dataPath;
-                _aspectParser.ParseAspects();
-
-                _sigilParser.D4dataPath = D4dataPath;
-                _sigilParser.ParseSigils();
-
-                _itemTypeParser.D4dataPath = D4dataPath;
-                _itemTypeParser.ParseItemTypes();
-
-                _uniqueParser.D4dataPath = D4dataPath;
-                _uniqueParser.ParseUniques();
-            });
-        }
-
         private void ParseAffixDataExecute()
         {
             Task.Factory.StartNew(() =>
             {
-                _affixParser.D4dataPath = D4dataPath;
-                _affixParser.KeepDuplicates = KeepDuplicates;
-                _affixParser.ParseAffixes();
+                _affixParser.D4dataPath = _d4DataPath;
+                _affixParser.Parse();
 
-                // Copy affixes.glo.json
-                //File.Copy($"{D4dataPath}json\\base\\meta\\Global\\affixes.glo.json", "Data\\affixes.glo.json", true);
+                Application.Current?.Dispatcher?.Invoke(() =>
+                {
+                    AffixInfoList.Clear();
+                    foreach (var item in _affixParser.GetAffixInfoByLanguage("enUS"))
+                    {
+                        AffixInfoList.Add(item);
+                    }
+                });
             });
         }
 
@@ -142,8 +246,17 @@ namespace D4DataParser.ViewModels
         {
             Task.Factory.StartNew(() =>
             {
-                _aspectParser.D4dataPath = D4dataPath;
-                _aspectParser.ParseAspects();
+                _aspectParser.D4dataPath = _d4DataPath;
+                _aspectParser.Parse();
+            });
+        }
+
+        private void ParseItemTypeDataExecute()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                _itemTypeParser.D4dataPath = _d4DataPath;
+                _itemTypeParser.Parse();
             });
         }
 
@@ -151,8 +264,8 @@ namespace D4DataParser.ViewModels
         {
             Task.Factory.StartNew(() =>
             {
-                _sigilParser.D4dataPath = D4dataPath;
-                _sigilParser.ParseSigils();
+                _sigilParser.D4dataPath = _d4DataPath;
+                _sigilParser.Parse();
             });
         }
 
@@ -160,33 +273,57 @@ namespace D4DataParser.ViewModels
         {
             Task.Factory.StartNew(() =>
             {
-                _uniqueParser.D4dataPath = D4dataPath;
-                _uniqueParser.ParseUniques();
+                _uniqueParser.D4dataPath = _d4DataPath;
+                _uniqueParser.Parse();
             });
         }
-        private void ParseItemTypesDataExecute()
+
+        private void ParseImplicitDataExecute()
         {
             Task.Factory.StartNew(() =>
             {
-                _itemTypeParser.D4dataPath = D4dataPath;
-                _itemTypeParser.ParseItemTypes();
+                _implicitParser.D4dataPath = _d4DataPath;
+                _implicitParser.Parse();
             });
         }
 
-        private void TestExecute()
+        private void ParseAllDataExecute()
         {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            var elapsedMs = watch.ElapsedMilliseconds;
+            Task.Factory.StartNew(() =>
+            {
+                // Affixes
+                _affixParser.D4dataPath = _d4DataPath;
+                _affixParser.Parse();
 
-            // 2 seconds
-            //var result = CSharpScript.EvaluateAsync("(1.3+(0.2*1)) / 100").Result;
-            //Debug.WriteLine(result);
+                Application.Current?.Dispatcher?.Invoke(() =>
+                {
+                    AffixInfoList.Clear();
+                    foreach (var item in _affixParser.GetAffixInfoByLanguage("enUS"))
+                    {
+                        AffixInfoList.Add(item);
+                    }
+                });
 
-            double result = Convert.ToDouble(new DataTable().Compute("(1.3+(0.2*1)) / 100", null));
-            Debug.WriteLine(result);
+                // Aspects
+                _aspectParser.D4dataPath = _d4DataPath;
+                _aspectParser.Parse();
 
-            watch.Stop();
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
+                // Item types
+                _itemTypeParser.D4dataPath = _d4DataPath;
+                _itemTypeParser.Parse();
+
+                // Sigils
+                _sigilParser.D4dataPath = _d4DataPath;
+                _sigilParser.Parse();
+
+                // Uniques
+                _uniqueParser.D4dataPath = _d4DataPath;
+                _uniqueParser.Parse();
+
+                // Implicits
+                _implicitParser.D4dataPath = _d4DataPath;
+                _implicitParser.Parse();
+            });
         }
 
         #endregion
@@ -195,7 +332,123 @@ namespace D4DataParser.ViewModels
 
         #region Methods
 
-        #endregion
+        private void InitDiabloVersions()
+        {
+            DiabloVersions.Clear();
+            DiabloVersions.Add(DiabloVersionConstants.Retail);
+            DiabloVersions.Add(DiabloVersionConstants.Ptr);
 
+            SelectedDiabloVersion = DiabloVersions[1];
+        }
+
+        private void CreateAffixInfoFilteredView()
+        {
+            Application.Current?.Dispatcher?.Invoke(() =>
+            {
+                AffixInfoListFiltered = new ListCollectionView(AffixInfoList)
+                {
+                    Filter = FilterAffixInfoList
+                };
+            });
+        }
+
+        private bool FilterAffixInfoList(object affixObj)
+        {
+            var allowed = true;
+            if (affixObj == null) return false;
+
+            AffixInfo affixInfo = (AffixInfo)affixObj;
+
+            // AffixType
+            var keywords = AffixTypeTextFilter.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+            if (keywords.Count > 0 && !keywords.Contains(affixInfo.AffixType.ToString()))
+            {
+                return false;
+            }
+
+            // Category
+            keywords = CategoryTextFilter.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+            if (keywords.Count > 0 && !keywords.Contains(affixInfo.Category.ToString()))
+            {
+                return false;
+            }
+
+            // Flags
+            keywords = FlagsTextFilter.Split(";",StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+            if (keywords.Count > 0 && !keywords.Contains(affixInfo.Flags.ToString()))
+            {
+                return false;
+            }
+
+            // MagicType
+            // Name
+            keywords = NameTextFilter.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+            foreach (var keyword in keywords)
+            {
+                if (string.IsNullOrWhiteSpace(keyword)) continue;
+
+                if (!affixInfo.IdName.ToLower().Contains(keyword.Trim().ToLower()))
+                {
+                    return false;
+                }
+            }
+            // SNO
+            // Tempered
+            // Class
+            keywords = ClassTextFilter.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+            foreach (var keyword in keywords)
+            {
+                if (string.IsNullOrWhiteSpace(keyword)) continue;
+
+                string allowedForPlayerClassAsString = string.Join(",", affixInfo.AllowedForPlayerClass);
+
+                if (!allowedForPlayerClassAsString.Equals(keyword.Trim()))
+                {
+                    return false;
+                }
+            }
+
+            // Items
+            keywords = ItemsTextFilter.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+            foreach (var keyword in keywords)
+            {
+                if (string.IsNullOrWhiteSpace(keyword)) continue;
+
+                string allowedItemLabels = string.Join(",", affixInfo.AllowedItemLabels);
+
+                if (!allowedItemLabels.Contains(keyword.Trim()))
+                {
+                    return false;
+                }
+            }
+
+            // Description
+            keywords = DescriptionTextFilter.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+            foreach (var keyword in keywords)
+            {
+                if (string.IsNullOrWhiteSpace(keyword)) continue;
+
+                if (!affixInfo.Description.ToLower().Contains(keyword.Trim().ToLower()))
+                {
+                    return false;
+                }
+            }
+
+            // DescriptionClean
+            keywords = DescriptionCleanTextFilter.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList() ?? new List<string>();
+            foreach (var keyword in keywords)
+            {
+                if (string.IsNullOrWhiteSpace(keyword)) continue;
+
+                if (!affixInfo.DescriptionClean.ToLower().Contains(keyword.Trim().ToLower()))
+                {
+                    return false;
+                }
+            }
+
+            return allowed;
+        }
+
+        #endregion
     }
 }

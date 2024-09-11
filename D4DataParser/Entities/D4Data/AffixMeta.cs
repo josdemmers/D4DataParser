@@ -19,6 +19,8 @@ namespace D4DataParser.Entities.D4Data
         public int nItemPowerMin { get; set; }
         public int nItemPowerMax { get; set; }
         public TCost tCost { get; set; }
+        public int nWeight { get; set; }
+        public double flGreaterAffixPowerBonus { get; set; }
         public SnoRareNamePrefixStringList snoRareNamePrefixStringList { get; set; }
         public SnoRareNameSuffixStringList snoRareNameSuffixStringList { get; set; }
         public GbidAffixFamily gbidAffixFamily { get; set; }
@@ -26,6 +28,7 @@ namespace D4DataParser.Entities.D4Data
         public List<int> arAllowedItemLabels { get; set; }
         public int dwAllowedQualityLevels { get; set; }
         public int eAffixType { get; set; }
+        public List<int> arMaxLegendaryRanks { get; set; }
         public List<PtItemAffixAttribute> ptItemAffixAttributes { get; set; }
         public List<double> arStaticValues { get; set; }
         public SnoPassivePower snoPassivePower { get; set; }
@@ -34,7 +37,9 @@ namespace D4DataParser.Entities.D4Data
         public List<ArPowerToModify> arPowerToModify { get; set; }
         public List<ArSkillTagsToAdd> arSkillTagsToAdd { get; set; }
         public List<ArSkillTagsToRemove> arSkillTagsToRemove { get; set; }
+        //arConditionalSkillTags
         public GbidMalignantColor gbidMalignantColor { get; set; }
+        public bool bIsTemperedAffix { get; set; } = false;
     }
 
     public class ArAffixSkillTag

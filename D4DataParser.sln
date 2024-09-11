@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.6.33815.320
+VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D4DataParser", "D4DataParser\D4DataParser.csproj", "{3B58013B-6DB3-467D-8C9A-C308C70DDE4A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "D4DataParser", "D4DataParser\D4DataParser.csproj", "{7AD94FF1-8FD0-47F0-B8C9-06CCEFCEAA32}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3B58013B-6DB3-467D-8C9A-C308C70DDE4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3B58013B-6DB3-467D-8C9A-C308C70DDE4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3B58013B-6DB3-467D-8C9A-C308C70DDE4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3B58013B-6DB3-467D-8C9A-C308C70DDE4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AD94FF1-8FD0-47F0-B8C9-06CCEFCEAA32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AD94FF1-8FD0-47F0-B8C9-06CCEFCEAA32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AD94FF1-8FD0-47F0-B8C9-06CCEFCEAA32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AD94FF1-8FD0-47F0-B8C9-06CCEFCEAA32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {5A9A6B26-6C29-4D7F-B462-4A798DA5998B}
+		SolutionGuid = {1AC1C984-7C97-428D-AC13-D5A28389005F}
 	EndGlobalSection
 EndGlobal

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using D4DataParser.Mappings;
 
 namespace D4DataParser.Parsers
 {
@@ -83,7 +84,7 @@ namespace D4DataParser.Parsers
             _languages.Add("zhTW");
         }
 
-        public void ParseUniques()
+        public void Parse()
         {
             foreach (var language in _languages)
             {
@@ -237,6 +238,8 @@ namespace D4DataParser.Parsers
 
                     // Skip all normal affixes. Only need the aspect.
                     if (affixMeta.snoPassivePower == null && affixMeta.eMagicType == 0) continue;
+                    // Skip duplicates
+                    if (_uniqueInfoList.Any(u => u.IdSno == idSno)) continue;
 
                     _uniqueInfoList.Add(new UniqueInfo
                     {
@@ -287,8 +290,7 @@ namespace D4DataParser.Parsers
                     if (localisationName != null)
                     {
                         // Remove variants (no idea where to get the correct form, so using the first one for now)
-                        unique.Name = localisationName.szText.Contains("]") ? localisationName.szText.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[0] : localisationName.szText;
-                        //unique.Name = localisationName.szText.Contains("]") ? localisationName.szText.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1] : localisationName.szText;
+                        unique.Name = localisationName.szText.Contains("]") ? localisationName.szText.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1] : localisationName.szText;
                     }
                 }
 
@@ -309,8 +311,9 @@ namespace D4DataParser.Parsers
             // Remove skipped
             _uniqueInfoList.RemoveAll(u => string.IsNullOrWhiteSpace(u.Localisation) || string.IsNullOrWhiteSpace(u.Name));
             // Remove not implemented
-            // - Amulet_Unique_Generic_102 (Eye of the Depths)
             _uniqueInfoList.RemoveAll(u => u.Localisation.Length < 20); // For most languages set as TBD.
+            _uniqueInfoList.RemoveAll(u => u.Name.StartsWith("PH"));
+            _uniqueInfoList.RemoveAll(u => u.Name.StartsWith("(PH)"));
             // Remove test items
             _uniqueInfoList.RemoveAll(u =>
                 u.IdNameItem.Equals("Gloves_Unique_Barbarian_099") ||
@@ -412,6 +415,11 @@ namespace D4DataParser.Parsers
 
                 pattern = @"{(.*?)}";
                 unique.Description = Regex.Replace(unique.Description, pattern, string.Empty);
+
+                foreach (var placeholder in StringPlaceholderMappings.StringPlaceholder)
+                {
+                    unique.Description = unique.Description.Replace(placeholder.Key, placeholder.Value);
+                }
             }
         }
         #endregion

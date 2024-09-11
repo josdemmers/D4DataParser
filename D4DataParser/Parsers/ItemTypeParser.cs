@@ -1,4 +1,4 @@
-﻿using D4Companion.Constants;
+﻿using D4DataParser.Constants;
 using D4DataParser.Entities;
 using D4DataParser.Entities.D4Data;
 using System;
@@ -76,7 +76,7 @@ namespace D4DataParser.Parsers
             _languages.Add("zhTW");
         }
 
-        public void ParseItemTypes()
+        public void Parse()
         {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var elapsedMs = watch.ElapsedMilliseconds;
@@ -85,15 +85,16 @@ namespace D4DataParser.Parsers
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
 
-                ParseItemTypesByLanguage(language);
+                ParseByLanguage(language);
             }
 
             watch.Stop();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time: {watch.ElapsedMilliseconds}");
         }
 
-        private void ParseItemTypesByLanguage(string language)
+        private void ParseByLanguage(string language)
         {
+            // Reset
             _itemTypeInfoList.Clear();
 
             // ItemQuality - ".\d4data\json\enUS_Text\meta\StringList\ItemQuality.stl.json"
@@ -188,6 +189,34 @@ namespace D4DataParser.Parsers
                             Type = type
                         });
                     }
+                }
+            }
+
+            // Local function to combine ItemType Runes with ItemRarity
+            void AddItemTypeRunes(string type, string itemTypeLoc)
+            {
+                string variant = itemTypeLoc.Contains("[") ? itemTypeLoc.Substring(0, itemTypeLoc.IndexOf("]") + 1) : string.Empty;
+                foreach (var rarity in rarities)
+                {
+                    if (!rarity.szLabel.Equals("Magic") &&
+                        !rarity.szLabel.Equals("Rare") &&
+                        !rarity.szLabel.Equals("Legendary")) continue;
+
+                    // Extract variant from rarity that matches with the current type.
+                    string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
+                        rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+
+                    string name = $"{RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
+                    if (!string.IsNullOrWhiteSpace(rarityVariant) && (language.Equals("frFR")))
+                    {
+                        name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(rarityVariant)}".Trim();
+                    }
+
+                    _itemTypeInfoList.Add(new ItemTypeInfo
+                    {
+                        Name = name,
+                        Type = ItemTypeConstants.Rune
+                    });
                 }
             }
 
@@ -414,6 +443,17 @@ namespace D4DataParser.Parsers
             //        Type = ItemTypeConstants.Temper
             //    });
             //}
+
+            // List type - Runes
+            jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_ConditionRune.stl.json");
+            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemTypeRunes(ItemTypeConstants.Rune, itemTypeLoc);
+
+            jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_EffectRune.stl.json");
+            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemTypeRunes(ItemTypeConstants.Rune, itemTypeLoc);
 
             // Save
             SaveItemTypes(language);
