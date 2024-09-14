@@ -776,11 +776,13 @@ namespace D4DataParser.Parsers
                 }
             }
 
-            // Combine similar affixes - Update sno/name
+            // Combine similar affixes - Update sno/name, tempered
             foreach (var affixInfo in affixInfoList)
             {
                 affixInfo.IdSno = string.Join(";", affixInfo.IdSnoList);
                 affixInfo.IdName = string.Join(";", affixInfo.IdNameList);
+
+                affixInfo.IsTemperingAvailable = affixInfo.IdName.Contains("tempered", StringComparison.OrdinalIgnoreCase);
             }
 
             SaveAffixes(language);
