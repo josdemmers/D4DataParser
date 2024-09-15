@@ -24,6 +24,7 @@ namespace D4DataParser.ViewModels
         private AspectParser _aspectParser = new AspectParser();
         private ItemTypeParser _itemTypeParser = new ItemTypeParser();
         private SigilParser _sigilParser = new SigilParser();
+        private RuneParser _runeParser = new RuneParser();
         private UniqueParser _uniqueParser = new UniqueParser();
         private ImplicitParser _implicitParser = new ImplicitParser();
         private string _d4DataPath = DiabloPathConstants.Retail;
@@ -53,6 +54,7 @@ namespace D4DataParser.ViewModels
             ParseAspectDataCommand = new RelayCommand(ParseAspectDataExecute);
             ParseItemTypeDataCommand = new RelayCommand(ParseItemTypeDataExecute);
             ParseSigilDataCommand = new RelayCommand(ParseSigilDataExecute);
+            ParseRuneDataCommand = new RelayCommand(ParseRuneDataExecute);
             ParseUniqueDataCommand = new RelayCommand(ParseUniqueDataExecute);
             ParseImplicitDataCommand = new RelayCommand(ParseImplicitDataExecute);
             ParseAllDataCommand = new RelayCommand(ParseAllDataExecute);
@@ -83,6 +85,7 @@ namespace D4DataParser.ViewModels
         public ICommand ParseAspectDataCommand { get; }
         public ICommand ParseItemTypeDataCommand { get; }
         public ICommand ParseSigilDataCommand { get; }
+        public ICommand ParseRuneDataCommand { get; }
         public ICommand ParseUniqueDataCommand { get; }
         public ICommand ParseImplicitDataCommand { get; }
         public ICommand ParseAllDataCommand { get; }
@@ -269,6 +272,15 @@ namespace D4DataParser.ViewModels
             });
         }
 
+        private void ParseRuneDataExecute()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                _runeParser.D4dataPath = _d4DataPath;
+                _runeParser.Parse();
+            });
+        }
+
         private void ParseUniqueDataExecute()
         {
             Task.Factory.StartNew(() =>
@@ -315,6 +327,10 @@ namespace D4DataParser.ViewModels
                 // Sigils
                 _sigilParser.D4dataPath = _d4DataPath;
                 _sigilParser.Parse();
+
+                // Runes
+                _runeParser.D4dataPath = _d4DataPath;
+                _runeParser.Parse();
 
                 // Uniques
                 _uniqueParser.D4dataPath = _d4DataPath;

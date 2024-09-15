@@ -36,6 +36,7 @@
             <Button Content="Aspects" Command="{Binding ParseAspectDataCommand}" />
             <Button Content="ItemTypes" Command="{Binding ParseItemTypeDataCommand}" />
             <Button Content="Sigils" Command="{Binding ParseSigilDataCommand}" />
+            <Button Content="Runes" Command="{Binding ParseRuneDataCommand}" />
             <Button Content="Uniques" Command="{Binding ParseUniqueDataCommand}" />
             <Button Content="Implicits" Command="{Binding ParseImplicitDataCommand}" />
             <Button Content="All" Command="{Binding ParseAllDataCommand}" />
