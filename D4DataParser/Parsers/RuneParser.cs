@@ -147,6 +147,10 @@ namespace D4DataParser.Parsers
                 }
             }
 
+            // Remove test runes
+            runeInfoList.RemoveAll(r => r.IdName.Equals("Item_Rune_Condition_OncePerXSeconds"));
+            runeInfoList.RemoveAll(r => r.IdName.Equals("Item_Rune_Condition_OncePerSecond"));
+
             // Update localisation
             foreach (var runeInfo in runeInfoList)
             {
