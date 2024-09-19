@@ -671,7 +671,7 @@ namespace D4DataParser.Parsers
                         ReplaceSkillPlaceholders(affixInfo, i);
                         SetClassRestriction(affixInfo);
                     }
-                    else if (affixAttribute.LocalisationId.Equals("AoE_Size_Bonus_Per_Skill_Tag") || 
+                    else if (affixAttribute.LocalisationId.Equals("AoE_Size_Bonus_Per_Skill_Tag") ||
                         affixAttribute.LocalisationId.Equals("Attack_Speed_Percent_Bonus_Per_Skill_Tag") ||
                         affixAttribute.LocalisationId.Equals("Crit_Damage_Percent_Per_Skill_Tag") ||
                         affixAttribute.LocalisationId.Equals("Crit_Percent_Bonus_Per_Skill_Tag") ||
@@ -776,9 +776,39 @@ namespace D4DataParser.Parsers
                 }
             }
 
+            // Combine similar affixes - Update AllowedForPlayerClass
+            foreach (var affixInfo in affixInfoList)
+            {
+                // Replaces data old affixes with the newer S04 variant.
+                string? idName = affixInfo.IdNameList.FirstOrDefault(a => !affixInfo.IdName.Contains("S04_") && a.Contains("S04_", StringComparison.OrdinalIgnoreCase));
+                if (!string.IsNullOrWhiteSpace(idName))
+                {
+                    var affix = affixInfoList.FirstOrDefault(a => a.IdName.Equals(idName));
+                    if (affix != null)
+                    {
+                        affixInfo.AllowedForPlayerClass.Clear();
+                        affixInfo.AllowedForPlayerClass.AddRange(affix.AllowedForPlayerClass);
+                    }
+                }
+
+                // Replaces data old affixes with the newer X1 variant.
+                idName = affixInfo.IdNameList.FirstOrDefault(a => !affixInfo.IdName.Contains("X1_") && a.Contains("X1_", StringComparison.OrdinalIgnoreCase));
+                if (!string.IsNullOrWhiteSpace(idName))
+                {
+                    var affix = affixInfoList.FirstOrDefault(a => a.IdName.Equals(idName));
+                    if (affix != null)
+                    {
+                        affixInfo.AllowedForPlayerClass.Clear();
+                        affixInfo.AllowedForPlayerClass.AddRange(affix.AllowedForPlayerClass);
+                    }
+                }
+            }
+
             // Combine similar affixes - Update sno/name, tempered
             foreach (var affixInfo in affixInfoList)
             {
+                // TODO: - DEV - Comment to skip combining of affixes.
+
                 affixInfo.IdSno = string.Join(";", affixInfo.IdSnoList);
                 affixInfo.IdName = string.Join(";", affixInfo.IdNameList);
 
