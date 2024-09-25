@@ -30,6 +30,7 @@ namespace D4DataParser.Parsers
         private Dictionary<uint, List<string>> _skillTagDictionary = new Dictionary<uint, List<string>>();
         private Dictionary<uint, string> _weaponTypeDictionary = new Dictionary<uint, string>();
         private Localisation _attributeDescriptions = new Localisation();
+        private Localisation _frontEnd = new Localisation();
         private Localisation _itemRequirements = new Localisation();
         private Localisation _necromancerArmy = new Localisation();
         private Localisation _skillTagNames = new Localisation();
@@ -232,6 +233,7 @@ namespace D4DataParser.Parsers
 
             // Reset
             _attributeDescriptions = new Localisation();
+            _frontEnd = new Localisation();
             _itemRequirements = new Localisation();
             _necromancerArmy = new Localisation();
             _skillTagNames = new Localisation();
@@ -261,6 +263,31 @@ namespace D4DataParser.Parsers
                 }
             }
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (AttributeDescriptions.stl.json): {watch.ElapsedMilliseconds - elapsedMs}");
+            elapsedMs = watch.ElapsedMilliseconds;
+
+            // Parse ".\d4data\json\{language}_Text\meta\StringList\FrontEnd.stl.json"
+            directory = $"{_d4dataPath}json\\{_language}_Text\\meta\\StringList\\";
+            if (Directory.Exists(directory))
+            {
+                string fileName = $"{directory}FrontEnd.stl.json";
+                using (FileStream? stream = File.OpenRead(fileName))
+                {
+                    if (stream != null)
+                    {
+                        // create the options
+                        var options = new JsonSerializerOptions()
+                        {
+                            WriteIndented = true
+                        };
+                        // register the converter
+                        //options.Converters.Add(new BoolConverter());
+                        //options.Converters.Add(new IntConverter());
+
+                        _frontEnd = JsonSerializer.Deserialize<Localisation>(stream, options) ?? new Localisation();
+                    }
+                }
+            }
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (FrontEnd.stl.json): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;
 
             // Parse ".\d4data\json\{language}_Text\meta\StringList\ItemRequirements.stl.json"
@@ -856,6 +883,15 @@ namespace D4DataParser.Parsers
             if (classLoc == null || classCount != 1) return;
 
             affix.ClassRestriction = classLoc.szText;
+
+            if (classIndex == 5)
+            {
+                // Spiritborn workaround
+                var classParamLoc = _frontEnd.arStrings.FirstOrDefault(a => a.szLabel.Equals("SpiritbornTitle", StringComparison.OrdinalIgnoreCase));
+                if (classParamLoc == null) return;
+
+                affix.ClassRestriction = affix.ClassRestriction.Replace("{s1}", classParamLoc.szText);
+            }
         }
 
         private void SetCleanDescription(AffixInfo affix)

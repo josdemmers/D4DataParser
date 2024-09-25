@@ -291,6 +291,7 @@ namespace D4DataParser.Parsers
                     {
                         // Remove variants (no idea where to get the correct form, so using the first one for now)
                         unique.Name = localisationName.szText.Contains("]") ? localisationName.szText.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1] : localisationName.szText;
+                        unique.Name = unique.Name.Trim();
                     }
                 }
 

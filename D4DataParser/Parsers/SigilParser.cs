@@ -128,7 +128,7 @@ namespace D4DataParser.Parsers
                 string description = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Desc", StringComparison.OrdinalIgnoreCase)).szText;
 
                 sigilInfo.IdSno = localisation.__snoID__;
-                sigilInfo.Name = name;
+                sigilInfo.Name = name.Trim();
                 sigilInfo.Description = description;
                 sigilInfo.Type = "Dungeon";
                 sigilInfo.IsSeasonal = IsDungeonActive(Path.GetFileNameWithoutExtension(localisation.__fileName__));

@@ -10,7 +10,7 @@
             { 2, "Fury_Restriction" },
             { 3, "Energy_Restriction" },
             { 4, "Essence_Restriction" },
-            { 5, "Spirit_Restriction" }  // TODO: Update this for season 6. Vigor_Restriction?
+            { 5, "ClassRestriction" }  // TODO: Update this for season 6. Vigor_Restriction?
         };
 
         public static readonly Dictionary<uint, string> CrowdControlTypes = new Dictionary<uint, string>
