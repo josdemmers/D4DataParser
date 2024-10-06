@@ -148,6 +148,7 @@ namespace D4DataParser.Parsers
             {
                 var fileEntries = Directory.EnumerateFiles(directory).Where(file =>
                     Path.GetFileName(file).StartsWith("Asp_Legendary_", StringComparison.OrdinalIgnoreCase) ||
+                    Path.GetFileName(file).StartsWith("Asp_x1_Legendary_", StringComparison.OrdinalIgnoreCase) ||
                     Path.GetFileName(file).StartsWith("Asp_S05_BSK_", StringComparison.OrdinalIgnoreCase));
                 foreach (string fileName in fileEntries)
                 {
