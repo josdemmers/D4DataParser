@@ -354,7 +354,7 @@ namespace D4DataParser.ViewModels
             DiabloVersions.Add(DiabloVersionConstants.Retail);
             DiabloVersions.Add(DiabloVersionConstants.Ptr);
 
-            SelectedDiabloVersion = DiabloVersions[1];
+            SelectedDiabloVersion = DiabloVersions[0];
         }
 
         private void CreateAffixInfoFilteredView()
