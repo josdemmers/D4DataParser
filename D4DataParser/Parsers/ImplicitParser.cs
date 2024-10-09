@@ -164,6 +164,14 @@ namespace D4DataParser.Parsers
                     Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {affix}");
                 }
 
+                // 2HQuarterstaff
+                implicits = GetImplicitAffixes($"{directory}X1_2HQuarterstaff_Legendary_Spiritborn_001.itm.json");
+                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: 2HQuarterstaff");
+                foreach (var affix in implicits)
+                {
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {affix}");
+                }
+
                 // 2HScythe
                 implicits = GetImplicitAffixes($"{directory}2HScythe_Legendary_Generic_001.itm.json");
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: 2HScythe");

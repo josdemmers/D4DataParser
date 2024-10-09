@@ -337,6 +337,11 @@ namespace D4DataParser.Parsers
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("BarbarianArsenalOverrideName", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
 
+            jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_Quarterstaff.stl.json");
+            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
+
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_Ring.stl.json");
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
