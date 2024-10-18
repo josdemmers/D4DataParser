@@ -234,7 +234,13 @@ namespace D4DataParser.Parsers
                 rune.Description = rune.Description.Replace("[6*5]", "30");
                 rune.Description = rune.Description.Replace("{s1}", "#");
 
+                foreach (var placeholder in StringPlaceholderMappings.StringPlaceholder)
+                {
+                    rune.Description = rune.Description.Replace(placeholder.Key, placeholder.Value);
+                }
+
                 // Localisation
+                rune.Name = rune.Name.Replace("[ms]", string.Empty);
                 rune.Description = rune.Description.Replace("[fs]", string.Empty);
             }
         }
@@ -269,7 +275,8 @@ namespace D4DataParser.Parsers
             foreach (var runeInfo in runeInfoList)
             {
                 if (runeInfo.Description.Contains("{") || runeInfo.Description.Contains("}") ||
-                    runeInfo.Description.Contains("[") || runeInfo.Description.Contains("]"))
+                    runeInfo.Description.Contains("[") || runeInfo.Description.Contains("]") ||
+                    runeInfo.Description.Contains("|4"))
                 {
                     Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {runeInfo.IdName}: missed formatting.");
                 }

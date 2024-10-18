@@ -21,8 +21,11 @@
             { "|4second:seconds;", "seconds" },
             { "|4Second:Seconds;", "Seconds" },
             { "|4Shade Totem:Shade Totems;", "Shade Totems" },
+            { "|4 shadow:shadows;", "shadows" },
             { "|4Target:Targets;", "Targets" },
             { "|4Time:Times;", "Times" },
+
+            //
 
             // esES
             { "|4cabeza:cabezas;", "cabezas" },
@@ -31,6 +34,7 @@
             { "|4lanzamiento adicional:lanzamientos adicionales;", "lanzamientos adicionales" },
             { "|4objetivo:objetivos;", "objetivos" },
             { "|4rango:rangos;", "rangos" },
+            { "|4 sombra:sombras;", "sombras" },
             { "|4tótem penumbroso activo:tótems penumbrosos activos;", "tótems penumbrosos activos" },
             { "|4tótem penumbroso activo:tótems penumbrosos activos", "tótems penumbrosos activos" },
             { "|4vez:veces;", "veces" },
@@ -43,6 +47,7 @@
             //{ "|4objetivo:objetivos;", "objetivos" },
             //{ "|4rango:rangos;", "rangos" },
             { "|4segundo:segundos;", "segundos" },
+            { "|4sombra:sombras;", "sombras" },
             { "|4Tótem de Sombra activo:Tótems de Sombra activos;", "Tótems de Sombra activos" },
             //{ "|4vez:veces;", "veces" },
 
@@ -58,6 +63,7 @@
             { "|4cumul:cumuls;", "cumuls" },
             { "|4généré:générés;", "générés" },
             { "|4lancer supplémentaire:lancers supplémentaires;", "lancers supplémentaires" },
+            { "|4ombre:ombres;", "ombres" },
             { "|4point:points;", "points" },
             { "4|point:points;", "points" },
             { "|4projectile supplémentaire:projectiles supplémentaires;", "projectiles supplémentaires" },
@@ -69,6 +75,7 @@
             { "|4carica massima:cariche massime;", "cariche massime" },
             { "|4Carica massima:Cariche massime;", "Cariche massime" },
             { "|4grado:gradi;", "gradi" },
+            { "|4ombra:ombre;", "ombre" },
             { "|4punto:punti;", "punti" },
             { "|4testa:teste;", "teste" },
             { "|4Totem dell'Ombra attivo:Totem dell'Ombra attivi;", "Totem dell'Ombra attivi" },
@@ -80,6 +87,7 @@
             // plPL
             { "|4ładunek:ładunki:ładunków;", "ładunków" },
             { "|4cel:cele:celów;", "celów" },
+            { "|4cień:cienie:cieni;", "cieni" },
             { "|4dodatkowy pocisk:dodatkowe pociski:dodatkowych pocisków;", "dodatkowych pocisków" },
             { "|4dodatkowe użycie:dodatkowe użycia:dodatkowych użyć;", "dodatkowych użyć" },
             { "|4generuje:generują:generują;", "generują"},
@@ -101,6 +109,7 @@
             { "|4lançamento:lançamentos;", "lançamentos" },
             { "|4lançamento adicional:lançamentos adicionais;", "lançamentos adicionais" },
             //{ "|4segundo:segundos;", "segundos" },
+            //{ "|4 sombra:sombras;", "sombras" },
             { "|4Totem de Vulto ativo:Totens de Vulto ativos;", "Totens de Vulto ativos" },
             { "|4vez:vezes;", "vezes" },
 
@@ -127,6 +136,7 @@
             { "|4голова:головы:голов;", "голов" },
             { "|4гидру:гидры:гидр;", "гидр" },
             { "|4теневой тотем:теневых тотема:теневых тотемов;", "теневых тотемов" },
+            { "|4тенью:тенями:тенями;", "тенями" },
             { "|4трупа:трупов:трупов;", "трупов"},
             { "|4цель:цели:целей;", "целей" },
             { "|4удар:удара:ударов;", "ударов" },
@@ -137,6 +147,9 @@
             { "|4kullanım:kullanım;", "kullanım" },
             { "|4Saniye:Saniye;", "Saniye" },
 
+            // zhCN
+            { "|4 个暗影:暗影;", "暗影" },
+
             // zhTW
             { "|4次施放:次施放;", "次施放" },
             { "|4頭:頭;", "頭" },
@@ -144,7 +157,8 @@
             { "|4 秒: 秒;", " 秒" },
             { "|4目標:目標;", "目標" },
             { "|4倍:倍;", "倍" },
-            { "|4幽影圖騰:幽影圖騰;", "幽影圖騰" }
+            { "|4幽影圖騰:幽影圖騰;", "幽影圖騰" },
+            { "|4暗影:暗影;", "暗影" },
         };
     }
 }
