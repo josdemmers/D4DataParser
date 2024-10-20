@@ -676,6 +676,8 @@ namespace D4DataParser.Parsers
                         affixAttribute.LocalisationId.Equals("Bonus_Count_Per_Power") || affixAttribute.LocalisationId.StartsWith("Bonus_Count_Per_Power#") ||
                         affixAttribute.LocalisationId.Equals("Bonus_Max_Skill_Charges_For_Power") ||
                         affixAttribute.LocalisationId.Equals("Bonus_Percent_Per_Power") || affixAttribute.LocalisationId.StartsWith("Bonus_Percent_Per_Power#") ||
+                        affixAttribute.LocalisationId.Equals("Bonus_Percent_Per_Power_2") || affixAttribute.LocalisationId.StartsWith("Bonus_Percent_Per_Power_2#") ||
+                        affixAttribute.LocalisationId.Equals("Bonus_Percent_Per_Power_3") || affixAttribute.LocalisationId.StartsWith("Bonus_Percent_Per_Power_3#") ||
                         affixAttribute.LocalisationId.Equals("Chance_For_Double_Damage_Per_Power") ||
                         affixAttribute.LocalisationId.Equals("Chance_To_Consume_No_Charges_Per_Power") ||
                         affixAttribute.LocalisationId.Equals("Chance_To_Hit_Twice_Per_Power") ||
