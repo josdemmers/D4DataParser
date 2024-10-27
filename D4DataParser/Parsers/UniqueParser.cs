@@ -18,10 +18,12 @@ namespace D4DataParser.Parsers
         private string _d4dataPath = string.Empty;
         private string _language = string.Empty;
         private List<string> _languages = new List<string>();
+        private Dictionary<string, List<UniqueInfo>> _uniqueInfoDictionary = new Dictionary<string, List<UniqueInfo>>();
 
+        // D4Data repo data
+        private Dictionary<int, string> _uniqueItemDictionary = new Dictionary<int, string>();
         private List<AffixMeta> _affixMetaJsonList = new List<AffixMeta>();
         private List<ItemMeta> _itemMetaJsonList = new List<ItemMeta>();
-        private List<UniqueInfo> _uniqueInfoList = new List<UniqueInfo>();
 
         // Start of Constructors region
 
@@ -86,44 +88,14 @@ namespace D4DataParser.Parsers
 
         public void Parse()
         {
-            foreach (var language in _languages)
-            {
-                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
-
-                // TODO: - DEV - Comment language skip for release
-                //if (!language.Equals("deDE")) continue;
-                //if (!language.Equals("enUS")) continue;
-                //if (!language.Equals("esES")) continue;
-                //if (!language.Equals("esMX")) continue;
-                //if (!language.Equals("frFR")) continue;
-                //if (!language.Equals("itIT")) continue;
-                //if (!language.Equals("jaJP")) continue;
-                //if (!language.Equals("koKR")) continue;
-                //if (!language.Equals("plPL")) continue;
-                //if (!language.Equals("ptBR")) continue;
-                //if (!language.Equals("ruRU")) continue;
-                //if (!language.Equals("trTR")) continue;
-                //if (!language.Equals("zhCN")) continue;
-                //if (!language.Equals("zhTW")) continue;
-
-                ParseByLanguage(language);
-                UpdateUniques();
-
-                ValidateUniques();
-            }
-        }
-
-        private void ParseByLanguage(string language)
-        {
             var watch = System.Diagnostics.Stopwatch.StartNew();
             var elapsedMs = watch.ElapsedMilliseconds;
 
-            _language = language;
-
-            // reset
-            _affixMetaJsonList.Clear();
+            // Reset
+            _uniqueItemDictionary.Clear();
             _itemMetaJsonList.Clear();
-            _uniqueInfoList.Clear();
+            _affixMetaJsonList.Clear();
+            _uniqueInfoDictionary.Clear();
 
             // Parse CoreTOC.dat.json
             var jsonAsText = File.ReadAllText(CoreTOCPath);
@@ -138,6 +110,7 @@ namespace D4DataParser.Parsers
             {
                 coreTOCUniques.Remove(item.Key);
             }
+            _uniqueItemDictionary = coreTOCUniques;
 
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (CoreTOC.dat): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;
@@ -202,8 +175,43 @@ namespace D4DataParser.Parsers
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Affix folder): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;
 
-            // Validate and create unique items
-            foreach (var item in coreTOCUniques)
+            foreach (var language in _languages)
+            {
+                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
+
+                // TODO: - DEV - Comment language skip for release
+                //if (!language.Equals("deDE")) continue;
+                //if (!language.Equals("enUS")) continue;
+                //if (!language.Equals("esES")) continue;
+                //if (!language.Equals("esMX")) continue;
+                //if (!language.Equals("frFR")) continue;
+                //if (!language.Equals("itIT")) continue;
+                //if (!language.Equals("jaJP")) continue;
+                //if (!language.Equals("koKR")) continue;
+                //if (!language.Equals("plPL")) continue;
+                //if (!language.Equals("ptBR")) continue;
+                //if (!language.Equals("ruRU")) continue;
+                //if (!language.Equals("trTR")) continue;
+                //if (!language.Equals("zhCN")) continue;
+                //if (!language.Equals("zhTW")) continue;
+
+                ParseByLanguage(language);
+                ValidateUniques(language);
+            }
+
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
+        }
+
+        private void ParseByLanguage(string language)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            var elapsedMs = watch.ElapsedMilliseconds;
+
+            _language = language;
+
+            var uniqueInfoList = new List<UniqueInfo>();
+            _uniqueInfoDictionary[language] = uniqueInfoList;
+            foreach (var item in _uniqueItemDictionary)
             {
                 string idNameItem = item.Value.Substring(5);
                 var itemMeta = _itemMetaJsonList.FirstOrDefault(i => i.__fileName__.EndsWith($"{idNameItem}.itm"));
@@ -239,36 +247,35 @@ namespace D4DataParser.Parsers
                     // Skip all normal affixes. Only need the aspect.
                     if (affixMeta.snoPassivePower == null && affixMeta.eMagicType == 0) continue;
                     // Skip duplicates
-                    if (_uniqueInfoList.Any(u => u.IdSno == idSno)) continue;
+                    var duplicate = uniqueInfoList.FirstOrDefault(u => u.IdSno == idSno);
+                    if (duplicate != null)
+                    {
+                        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipped. Duplicate found.");
+                        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: - Existing: ({duplicate.IdSno}) {duplicate.IdName} {duplicate.IdNameItem}");
+                        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: - New:      ({idSno}) {idName} {idNameItem}");
+                        continue;
+                    }
 
-                    _uniqueInfoList.Add(new UniqueInfo
+                    string idNameItemActor = itemMeta.snoActor.name;
+
+                    uniqueInfoList.Add(new UniqueInfo
                     {
                         IdSno = idSno,
                         IdName = idName,
                         IdNameItem = idNameItem,
+                        IdNameItemActor = idNameItemActor,
                         AllowedForPlayerClass = affixMeta.fAllowedForPlayerClass,
                         AllowedItemLabels = affixMeta.arAllowedItemLabels,
                         MagicType = affixMeta.eMagicType
                     });
-
-                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: OK");
                 }
             }
 
-            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
-            watch.Stop();
-        }
-
-        private void UpdateUniques()
-        {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            var elapsedMs = watch.ElapsedMilliseconds;
-
             // Update unique class
             // - Localisation data
-            foreach (var unique in _uniqueInfoList)
+            foreach (var unique in uniqueInfoList)
             {
-                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Processing ({unique.IdSno}) {unique.IdName}");
+                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Processing ({unique.IdSno}) {unique.IdName} {unique.IdNameItem}");
 
                 // Find localisation data
                 string directory = $"{Path.GetDirectoryName(CoreTOCPath)}\\..\\{_language}_Text\\meta\\StringList\\";
@@ -310,13 +317,13 @@ namespace D4DataParser.Parsers
             }
 
             // Remove skipped
-            _uniqueInfoList.RemoveAll(u => string.IsNullOrWhiteSpace(u.Localisation) || string.IsNullOrWhiteSpace(u.Name));
+            uniqueInfoList.RemoveAll(u => string.IsNullOrWhiteSpace(u.Localisation) || string.IsNullOrWhiteSpace(u.Name));
             // Remove not implemented
-            _uniqueInfoList.RemoveAll(u => u.Localisation.Length < 20); // For most languages set as TBD.
-            _uniqueInfoList.RemoveAll(u => u.Name.StartsWith("PH"));
-            _uniqueInfoList.RemoveAll(u => u.Name.StartsWith("(PH)"));
+            uniqueInfoList.RemoveAll(u => u.Localisation.Length < 20); // For most languages set as TBD.
+            uniqueInfoList.RemoveAll(u => u.Name.StartsWith("PH"));
+            uniqueInfoList.RemoveAll(u => u.Name.StartsWith("(PH)"));
             // Remove test items
-            _uniqueInfoList.RemoveAll(u =>
+            uniqueInfoList.RemoveAll(u =>
                 u.IdNameItem.Equals("Gloves_Unique_Barbarian_099") ||
                 u.IdNameItem.Equals("Gloves_Unique_Druid_95") ||
                 u.IdNameItem.Equals("Gloves_Unique_Druid_97") ||
@@ -329,7 +336,7 @@ namespace D4DataParser.Parsers
                 u.IdNameItem.Equals("Pants_Unique_Barbarian_099")
             );
             // Remove duplicates
-            _uniqueInfoList.RemoveAll(u =>
+            uniqueInfoList.RemoveAll(u =>
                 u.IdNameItem.Equals("Boots_Unique_Generic_125") // Boots_Unique_Generic_003
             );
 
@@ -340,7 +347,7 @@ namespace D4DataParser.Parsers
             AddCleanDescription();
 
             // Sort
-            _uniqueInfoList.Sort((x, y) =>
+            uniqueInfoList.Sort((x, y) =>
             {
                 return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
             });
@@ -348,12 +355,14 @@ namespace D4DataParser.Parsers
             // Save
             SaveUniques();
 
-            watch.Stop();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
+            watch.Stop();
         }
 
         private void SaveUniques()
         {
+            var uniqueInfoList = _uniqueInfoDictionary[_language];
+
             string fileName = $"Data/Uniques.{_language}.json";
             string path = Path.GetDirectoryName(fileName) ?? string.Empty;
             Directory.CreateDirectory(path);
@@ -361,12 +370,14 @@ namespace D4DataParser.Parsers
             using FileStream stream = File.Create(fileName);
             var options = new JsonSerializerOptions { WriteIndented = true };
             options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-            JsonSerializer.Serialize(stream, _uniqueInfoList, options);
+            JsonSerializer.Serialize(stream, uniqueInfoList, options);
         }
 
-        private void ValidateUniques()
+        private void ValidateUniques(string language)
         {
-            var duplicates = _uniqueInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
+            var uniqueInfoList = _uniqueInfoDictionary[language];
+
+            var duplicates = uniqueInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
             if (duplicates.Any())
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Duplicates found!");
@@ -384,7 +395,9 @@ namespace D4DataParser.Parsers
 
         private void AddCleanDescription()
         {
-            foreach (var aspect in _uniqueInfoList)
+            var uniqueInfoList = _uniqueInfoDictionary[_language];
+
+            foreach (var aspect in uniqueInfoList)
             {
                 aspect.DescriptionClean = aspect.Description.Replace("+", string.Empty);
                 aspect.DescriptionClean = aspect.DescriptionClean.Replace("#", string.Empty);
@@ -398,9 +411,11 @@ namespace D4DataParser.Parsers
 
         private void ReplacePlaceholders()
         {
+            var uniqueInfoList = _uniqueInfoDictionary[_language];
+
             // Note: https://regex101.com/
 
-            foreach (var unique in _uniqueInfoList)
+            foreach (var unique in uniqueInfoList)
             {
                 //string pattern = @"\[(.*?%+?.*?)\]";
                 //aspect.Description = Regex.Replace(aspect.Description, pattern, "#%");

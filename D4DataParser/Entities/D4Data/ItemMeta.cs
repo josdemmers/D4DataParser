@@ -13,11 +13,18 @@ namespace D4DataParser.Entities.D4Data
         public int __snoID__ { get; set; }
         public string __type__ { get; set; }
         public long __typeHash__ { get; set; }
+        public SnoActor snoActor { get; set; }
         public SnoItemType snoItemType {  get; set; }
         public int eMagicType { get; set; }
         public List<ArInherentAffix> arInherentAffixes { get; set; }
         public List<ArForcedAffix> arForcedAffixes { get; set; }
         public List<int> fUsableByClass { get; set; }
+    }
+
+    public class SnoActor
+    {
+        public string groupName { get; set; }
+        public string name { get; set; }
     }
 
     public class SnoItemType
