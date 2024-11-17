@@ -407,27 +407,33 @@ namespace D4DataParser.Parsers
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             string variant = itemTypeLoc.Contains("[") ? itemTypeLoc.Substring(0, itemTypeLoc.IndexOf("]") + 1) : string.Empty;
 
-            foreach (var quality in qualities)
+            _itemTypeInfoList.Add(new ItemTypeInfo
             {
-                if (string.IsNullOrWhiteSpace(quality.szText)) continue;
+                Name = itemTypeLoc,
+                Type = ItemTypeConstants.Sigil
+            });
 
-                // Extract variant from quality that matches with the current type.
-                string qualityVariant = string.IsNullOrWhiteSpace(variant) ? quality.szText :
-                    quality.szText.Substring(quality.szText.IndexOf(variant) + variant.Length, (quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length) == -1 ? quality.szText.Length : quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length)) - (quality.szText.IndexOf(variant) + variant.Length));
+            //foreach (var quality in qualities)
+            //{
+            //    if (string.IsNullOrWhiteSpace(quality.szText)) continue;
 
-                string name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
-                if (!string.IsNullOrWhiteSpace(qualityVariant) && 
-                    (language.Equals("frFR") || language.Equals("ptBR")))
-                {
-                    name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(qualityVariant)}".Trim();
-                }
+            //    // Extract variant from quality that matches with the current type.
+            //    string qualityVariant = string.IsNullOrWhiteSpace(variant) ? quality.szText :
+            //        quality.szText.Substring(quality.szText.IndexOf(variant) + variant.Length, (quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length) == -1 ? quality.szText.Length : quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length)) - (quality.szText.IndexOf(variant) + variant.Length));
 
-                _itemTypeInfoList.Add(new ItemTypeInfo
-                {
-                    Name = name,
-                    Type = ItemTypeConstants.Sigil
-                });
-            }
+            //    string name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
+            //    if (!string.IsNullOrWhiteSpace(qualityVariant) && 
+            //        (language.Equals("frFR") || language.Equals("ptBR")))
+            //    {
+            //        name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(qualityVariant)}".Trim();
+            //    }
+
+            //    _itemTypeInfoList.Add(new ItemTypeInfo
+            //    {
+            //        Name = name,
+            //        Type = ItemTypeConstants.Sigil
+            //    });
+            //}
 
             // List type - Temper Manual
             //jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_TemperManual.stl.json");
