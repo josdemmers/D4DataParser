@@ -60,6 +60,8 @@ namespace D4DataParser.Parsers
         private void InitLocalisations()
         {
             _languages.Clear();
+
+            // TODO: - DEV - Enable languages for release
             _languages.Add("deDE");
             _languages.Add("enUS");
             _languages.Add("esES");
@@ -215,7 +217,35 @@ namespace D4DataParser.Parsers
                     _itemTypeInfoList.Add(new ItemTypeInfo
                     {
                         Name = name,
-                        Type = ItemTypeConstants.Rune
+                        Type = type
+                    });
+                }
+            }
+
+            // Local function to combine ItemType Occult Gem with ItemRarity
+            void AddItemTypeOccultGem(string type, string itemTypeLoc)
+            {
+                string variant = itemTypeLoc.Contains("[") ? itemTypeLoc.Substring(0, itemTypeLoc.IndexOf("]") + 1) : string.Empty;
+                foreach (var rarity in rarities)
+                {
+                    if (!rarity.szLabel.Equals("Magic") &&
+                        !rarity.szLabel.Equals("Rare") &&
+                        !rarity.szLabel.Equals("Legendary")) continue;
+
+                    // Extract variant from rarity that matches with the current type.
+                    string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
+                        rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+
+                    string name = $"{RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
+                    if (!string.IsNullOrWhiteSpace(rarityVariant) && (language.Equals("frFR")))
+                    {
+                        name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(rarityVariant)}".Trim();
+                    }
+
+                    _itemTypeInfoList.Add(new ItemTypeInfo
+                    {
+                        Name = name,
+                        Type = type
                     });
                 }
             }
@@ -470,6 +500,12 @@ namespace D4DataParser.Parsers
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemTypeRunes(ItemTypeConstants.Rune, itemTypeLoc);
+
+            // List type - Occult Gem
+            jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_SeasonalSocketable.stl.json");
+            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemTypeOccultGem(ItemTypeConstants.OccultGem, itemTypeLoc);
 
             // Save
             SaveItemTypes(language);

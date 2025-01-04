@@ -77,6 +77,7 @@ namespace D4DataParser.Parsers
         {
             _languages.Clear();
 
+            // TODO: - DEV - Enable languages for release
             _languages.Add("deDE");
             _languages.Add("enUS");
             _languages.Add("esES");
@@ -203,23 +204,6 @@ namespace D4DataParser.Parsers
             foreach (var language in _languages)
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
-
-                // TODO: - DEV - Comment language skip for release
-                //if (!language.Equals("deDE")) continue;
-                //if (!language.Equals("enUS")) continue;
-                //if (!language.Equals("esES")) continue;
-                //if (!language.Equals("esMX")) continue;
-                //if (!language.Equals("frFR")) continue;
-                //if (!language.Equals("itIT")) continue;
-                //if (!language.Equals("jaJP")) continue;
-                //if (!language.Equals("koKR")) continue;
-                //if (!language.Equals("plPL")) continue;
-                //if (!language.Equals("ptBR")) continue;
-                //if (!language.Equals("ruRU")) continue;
-                //if (!language.Equals("trTR")) continue;
-                //if (!language.Equals("zhCN")) continue;
-                //if (!language.Equals("zhTW")) continue;
-
                 ParseByLanguage(language);
             }
         }
