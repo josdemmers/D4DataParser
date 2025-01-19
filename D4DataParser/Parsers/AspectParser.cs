@@ -231,7 +231,7 @@ namespace D4DataParser.Parsers
                 {
                     aspectInfoList.Add(new AspectInfo
                     {
-                        IdSno = aspectMeta.snoAffix.__raw__,
+                        IdSno = aspectMeta.snoAffix.__raw__.ToString(),
                         IdName = aspectMeta.snoAffix.name,
                         IsCodex = true
                     });
@@ -259,9 +259,8 @@ namespace D4DataParser.Parsers
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Processing ({aspect.IdSno}) {aspect.IdName}");
 
-                var affixMeta = _affixMetaJsonList.FirstOrDefault(a => a.__snoID__ == aspect.IdSno);
+                var affixMeta = _affixMetaJsonList.FirstOrDefault(a => a.__snoID__.ToString().Equals(aspect.IdSno));
 
-                int IdSno = affixMeta.__snoID__;
                 List<int> allowedForPlayerClass = affixMeta.fAllowedForPlayerClass ?? new List<int>();
                 List<int> allowedItemLabels = affixMeta.arAllowedItemLabels ?? new List<int>();
                 int magicType = affixMeta.eMagicType;
@@ -312,6 +311,24 @@ namespace D4DataParser.Parsers
                 return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
             });
 
+            // Combine similar aspects - Create lists
+            foreach (var aspectInfo in aspectInfoList)
+            {
+                var aspectInfoDuplicates = aspectInfoList.FindAll(a => a.DescriptionClean.Equals(aspectInfo.DescriptionClean));
+                foreach (var aspectInfoDuplicate in aspectInfoDuplicates)
+                {
+                    aspectInfo.IdSnoList.Add(aspectInfoDuplicate.IdSno);
+                    aspectInfo.IdNameList.Add(aspectInfoDuplicate.IdName);
+                }
+            }
+
+            // Combine similar affixes - Update sno/name
+            foreach (var aspectInfo in aspectInfoList)
+            {
+                aspectInfo.IdSno = string.Join(";", aspectInfo.IdSnoList);
+                aspectInfo.IdName = string.Join(";", aspectInfo.IdNameList);
+            }
+
             SaveAspects(language);
             ValidateAspects(language);
 
@@ -321,7 +338,15 @@ namespace D4DataParser.Parsers
 
         private void SaveAspects(string language)
         {
+            // Create export list without any duplicates
             var aspectInfoList = _aspectInfoDictionary[language];
+            var aspectInfoListExport = new List<AspectInfo>();
+            foreach (var aspectInfo in aspectInfoList)
+            {
+                if (aspectInfoListExport.Any(a => a.DescriptionClean.Equals(aspectInfo.DescriptionClean))) continue;
+
+                aspectInfoListExport.Add(aspectInfo);
+            }
 
             string fileName = $"Data/Aspects.{language}.json";
             string path = Path.GetDirectoryName(fileName) ?? string.Empty;
@@ -330,27 +355,27 @@ namespace D4DataParser.Parsers
             using FileStream stream = File.Create(fileName);
             var options = new JsonSerializerOptions { WriteIndented = true };
             options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-            JsonSerializer.Serialize(stream, aspectInfoList, options);
+            JsonSerializer.Serialize(stream, aspectInfoListExport, options);
         }
 
         private void ValidateAspects(string language)
         {
             var aspectInfoList = _aspectInfoDictionary[language];
 
-            var duplicates = aspectInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
-            if (duplicates.Any())
-            {
-                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Duplicates found!");
+            //var duplicates = aspectInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
+            //if (duplicates.Any())
+            //{
+            //    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Duplicates found!");
 
-                foreach (var group in duplicates)
-                {
-                    Console.WriteLine("Key: {0}", group.Key);
-                    foreach (var affixInfo in group)
-                    {
-                        Debug.WriteLine($"{affixInfo.IdName}: {affixInfo.Description}");
-                    }
-                }
-            }
+            //    foreach (var group in duplicates)
+            //    {
+            //        Console.WriteLine("Key: {0}", group.Key);
+            //        foreach (var affixInfo in group)
+            //        {
+            //            Debug.WriteLine($"{affixInfo.IdName}: {affixInfo.Description}");
+            //        }
+            //    }
+            //}
         }
 
         private string GetAspectCategory(AffixMeta affixMeta)

@@ -241,7 +241,17 @@ namespace D4DataParser.Parsers
 
         private void SaveRunes(string language)
         {
+            // Create export list without any duplicates
+            // Note: Removing duplicates is a workaround for bugged localisations of some languages, e.g. German.
             var runeInfoList = _runeInfoDictionary[language];
+            var runeInfoListExport = new List<RuneInfo>();
+            foreach (var runeInfo in runeInfoList)
+            {
+                if (runeInfoListExport.Any(r => r.Name.Equals(runeInfo.Name))) continue;
+                if (runeInfoListExport.Any(r => r.DescriptionClean.Equals(runeInfo.DescriptionClean))) continue;
+
+                runeInfoListExport.Add(runeInfo);
+            }
 
             string fileName = $"Data/Runes.{language}.json";
             string path = Path.GetDirectoryName(fileName) ?? string.Empty;
@@ -250,7 +260,7 @@ namespace D4DataParser.Parsers
             using FileStream stream = File.Create(fileName);
             var options = new JsonSerializerOptions { WriteIndented = true };
             options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-            JsonSerializer.Serialize(stream, runeInfoList, options);
+            JsonSerializer.Serialize(stream, runeInfoListExport, options);
         }
 
         private void ValidateRunes(string language)

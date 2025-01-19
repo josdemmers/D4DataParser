@@ -250,6 +250,18 @@ namespace D4DataParser.Parsers
                 }
             }
 
+            // Local function to add ItemType WitcherSigil (Whispering Wood)
+            void AddItemTypeWitcherSigil(string type, string itemTypeLoc)
+            {
+                string name = $"{RemoveVariantIndicator(itemTypeLoc)}".Trim();
+
+                _itemTypeInfoList.Add(new ItemTypeInfo
+                {
+                    Name = name,
+                    Type = type
+                });
+            }
+
             string RemoveVariantIndicator(string typeLoc)
             {
                 // Remove variant indicator from text.
@@ -501,11 +513,17 @@ namespace D4DataParser.Parsers
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemTypeRunes(ItemTypeConstants.Rune, itemTypeLoc);
 
-            // List type - Occult Gem
+            // List type - Occult Gem (Season 7)
             jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\ItemType_SeasonalSocketable.stl.json");
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemTypeOccultGem(ItemTypeConstants.OccultGem, itemTypeLoc);
+
+            // List type - Whispering Wood (Season 7 Sigil)
+            jsonAsText = File.ReadAllText($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\Item_S07_WitcherSigil.stl.json");
+            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemTypeWitcherSigil(ItemTypeConstants.WitcherSigil, itemTypeLoc);
 
             // Save
             SaveItemTypes(language);
