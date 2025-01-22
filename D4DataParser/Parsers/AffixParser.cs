@@ -946,7 +946,9 @@ namespace D4DataParser.Parsers
 
                 affix.Description = affix.Description.Replace("{c_important}", string.Empty);
                 affix.Description = affix.Description.Replace("{c_label}", string.Empty);
+                affix.Description = affix.Description.Replace("{c_number}", string.Empty);
                 affix.Description = affix.Description.Replace("{/c}", string.Empty);
+                affix.Description = affix.Description.Replace("{d}", " ");
 
                 // Prefix found in frFR
                 affix.Description = affix.Description.Replace("|2", string.Empty);
