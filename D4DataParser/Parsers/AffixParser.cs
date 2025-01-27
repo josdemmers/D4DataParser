@@ -891,11 +891,12 @@ namespace D4DataParser.Parsers
             affix.DescriptionClean = affix.DescriptionClean.Replace(" .", ".");
             affix.DescriptionClean = affix.DescriptionClean.Trim();
 
+            // Note: Class restriction text removed from affixes in season 7
             // Append class restriction
-            if (!string.IsNullOrEmpty(affix.ClassRestriction))
-            {
-                affix.DescriptionClean += $" {affix.ClassRestriction}";
-            }
+            //if (!string.IsNullOrEmpty(affix.ClassRestriction))
+            //{
+            //    affix.DescriptionClean += $" {affix.ClassRestriction}";
+            //}
         }
 
         private void ReplaceNumericValuePlaceholders()
