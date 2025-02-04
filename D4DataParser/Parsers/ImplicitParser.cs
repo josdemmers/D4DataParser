@@ -213,7 +213,12 @@ namespace D4DataParser.Parsers
                 }
 
                 // Boots
+                // Note: Different affixes possible, there is no default.
+                // - INHERENT_Evade_Charges: +# Maximum Evade Charges
+                // - INHERENT_Evade_MovementSpeed: Evade Grants +#% Movement Speed for # Seconds
+                // ? INHERENT_Evade_Attack_Reset: Attacks Reduce Evade's Cooldown by # Seconds
                 implicits = GetImplicitAffixes($"{directory}Boots_Legendary_Generic_050.itm.json");
+                //implicits = GetImplicitAffixes($"{directory}Boots_Rare_S04_USZ_HelltideReputation.itm.json");
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Boots");
                 foreach (var affix in implicits)
                 {
