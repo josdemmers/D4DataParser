@@ -23,8 +23,9 @@ namespace D4DataParser.ViewModels
         private AffixParser _affixParser = new AffixParser();
         private AspectParser _aspectParser = new AspectParser();
         private ItemTypeParser _itemTypeParser = new ItemTypeParser();
-        private SigilParser _sigilParser = new SigilParser();
+        private ParagonParser _paragonParser = new ParagonParser();
         private RuneParser _runeParser = new RuneParser();
+        private SigilParser _sigilParser = new SigilParser();
         private UniqueParser _uniqueParser = new UniqueParser();
         private ImplicitParser _implicitParser = new ImplicitParser();
         private string _d4DataPath = DiabloPathConstants.Retail;
@@ -53,8 +54,9 @@ namespace D4DataParser.ViewModels
             ParseAffixDataCommand = new RelayCommand(ParseAffixDataExecute);
             ParseAspectDataCommand = new RelayCommand(ParseAspectDataExecute);
             ParseItemTypeDataCommand = new RelayCommand(ParseItemTypeDataExecute);
-            ParseSigilDataCommand = new RelayCommand(ParseSigilDataExecute);
+            ParseParagonDataCommand = new RelayCommand(ParseParagonDataExecute);
             ParseRuneDataCommand = new RelayCommand(ParseRuneDataExecute);
+            ParseSigilDataCommand = new RelayCommand(ParseSigilDataExecute);
             ParseUniqueDataCommand = new RelayCommand(ParseUniqueDataExecute);
             ParseImplicitDataCommand = new RelayCommand(ParseImplicitDataExecute);
             ParseAllDataCommand = new RelayCommand(ParseAllDataExecute);
@@ -84,8 +86,10 @@ namespace D4DataParser.ViewModels
         public ICommand ParseAffixDataCommand { get; }
         public ICommand ParseAspectDataCommand { get; }
         public ICommand ParseItemTypeDataCommand { get; }
-        public ICommand ParseSigilDataCommand { get; }
+        public ICommand ParseParagonDataCommand { get; }
         public ICommand ParseRuneDataCommand { get; }
+        public ICommand ParseSigilDataCommand { get; }
+        
         public ICommand ParseUniqueDataCommand { get; }
         public ICommand ParseImplicitDataCommand { get; }
         public ICommand ParseAllDataCommand { get; }
@@ -263,12 +267,12 @@ namespace D4DataParser.ViewModels
             });
         }
 
-        private void ParseSigilDataExecute()
+        private void ParseParagonDataExecute()
         {
             Task.Factory.StartNew(() =>
             {
-                _sigilParser.D4dataPath = _d4DataPath;
-                _sigilParser.Parse();
+                _paragonParser.D4dataPath = _d4DataPath;
+                _paragonParser.Parse();
             });
         }
 
@@ -278,6 +282,15 @@ namespace D4DataParser.ViewModels
             {
                 _runeParser.D4dataPath = _d4DataPath;
                 _runeParser.Parse();
+            });
+        }
+
+        private void ParseSigilDataExecute()
+        {
+            Task.Factory.StartNew(() =>
+            {
+                _sigilParser.D4dataPath = _d4DataPath;
+                _sigilParser.Parse();
             });
         }
 
@@ -324,13 +337,17 @@ namespace D4DataParser.ViewModels
                 _itemTypeParser.D4dataPath = _d4DataPath;
                 _itemTypeParser.Parse();
 
-                // Sigils
-                _sigilParser.D4dataPath = _d4DataPath;
-                _sigilParser.Parse();
+                // Paragon
+                _paragonParser.D4dataPath = _d4DataPath;
+                _paragonParser.Parse();
 
                 // Runes
                 _runeParser.D4dataPath = _d4DataPath;
                 _runeParser.Parse();
+
+                // Sigils
+                _sigilParser.D4dataPath = _d4DataPath;
+                _sigilParser.Parse();
 
                 // Uniques
                 _uniqueParser.D4dataPath = _d4DataPath;
