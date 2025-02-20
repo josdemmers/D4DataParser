@@ -143,7 +143,7 @@ namespace D4DataParser.Parsers
                             rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
 
                         string name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
-                        if (language.Equals("itIT") || language.Equals("ruRU") || language.Equals("trTR"))
+                        if (language.Equals("itIT") || language.Equals("trTR"))
                         {
                             if (string.IsNullOrWhiteSpace(qualityVariant))
                             {
