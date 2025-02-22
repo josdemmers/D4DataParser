@@ -448,6 +448,7 @@ namespace D4DataParser.Parsers
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             string variant = itemTypeLoc.Contains("[") ? itemTypeLoc.Substring(0, itemTypeLoc.IndexOf("]") + 1) : string.Empty;
+            itemTypeLoc = itemTypeLoc.Contains("]") ? itemTypeLoc.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1] : itemTypeLoc;
 
             _itemTypeInfoList.Add(new ItemTypeInfo
             {
