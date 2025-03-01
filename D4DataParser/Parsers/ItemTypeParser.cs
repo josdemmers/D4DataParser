@@ -165,7 +165,7 @@ namespace D4DataParser.Parsers
                                 name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(qualityVariant)}".Trim();
                             }
                         }
-                        else if (language.Equals("esMX") || language.Equals("frFR") || language.Equals("itIT") || language.Equals("plPL"))
+                        else if (language.Equals("esMX") || language.Equals("frFR") || language.Equals("itIT"))
                         {
                             if (string.IsNullOrWhiteSpace(qualityVariant))
                             {
