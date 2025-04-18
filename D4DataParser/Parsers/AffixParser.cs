@@ -548,6 +548,30 @@ namespace D4DataParser.Parsers
                             string subId = LocalisationMappings.Resistance[affixAttributes.LocalisationParameter];
                             subLocalisationId = $"{affixAttributes.LocalisationId}#{subId}";
                         }
+                        else if (affixAttributes.LocalisationId.Equals("Damage_Percent_Bonus_Against_Dot_Type"))
+                        {
+                            string subId = GetDamagePercentBonusAgainstDotType(subSno);
+                            if (!string.IsNullOrWhiteSpace(subId))
+                            {
+                                subLocalisationId = $"{affixAttributes.LocalisationId}#{subId}";
+                            }
+                        }
+                        else if (affixAttributes.LocalisationId.Equals("Damage_Percent_Reduction_From_Dotted_Enemy"))
+                        {
+                            string subId = GetDamagePercentReductionFromDottedEnemy(subSno);
+                            if (!string.IsNullOrWhiteSpace(subId))
+                            {
+                                subLocalisationId = $"{affixAttributes.LocalisationId}#{subId}";
+                            }
+                        }
+                        else if (affixAttributes.LocalisationId.Equals("DOT_DPS_Bonus_Percent_Per_Damage_Type"))
+                        {
+                            string subId = GetDOTDPSBonusPercentPerDamageType(subSno);
+                            if (!string.IsNullOrWhiteSpace(subId))
+                            {
+                                subLocalisationId = $"{affixAttributes.LocalisationId}#{subId}";
+                            }
+                        }
                         else
                         {
                             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Sub localisation data available but rules not set. ({affixAttributes.LocalisationId})");
@@ -835,6 +859,65 @@ namespace D4DataParser.Parsers
 
             watch.Stop();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
+        }
+
+        private string GetDamagePercentBonusAgainstDotType(uint sno)
+        {
+            //Damage_Percent_Bonus_Against_Dot_Type
+            //Damage_Percent_Bonus_Against_Dot_Type#Shadow
+
+            string type = string.Empty;
+            switch (sno)
+            {
+                // 0, 1, 4 not defined.
+                case 5:
+                    type = "Shadow";
+                    break;
+            }
+            return type;
+        }
+
+        private string GetDamagePercentReductionFromDottedEnemy(uint sno)
+        {
+            //Damage_Percent_Reduction_From_Dotted_Enemy
+            //Damage_Percent_Reduction_From_Dotted_Enemy#Shadow
+
+            string type = string.Empty;
+            switch (sno)
+            {
+                // 0, 1, 4 not defined.
+                case 5:
+                    type = "Shadow";
+                    break;
+            }
+            return type;
+        }
+
+        private string GetDOTDPSBonusPercentPerDamageType(uint sno)
+        {
+            //DOT_DPS_Bonus_Percent_Per_Damage_Type
+            //DOT_DPS_Bonus_Percent_Per_Damage_Type#Fire
+            //DOT_DPS_Bonus_Percent_Per_Damage_Type#Physical
+            //DOT_DPS_Bonus_Percent_Per_Damage_Type#Poison
+            //DOT_DPS_Bonus_Percent_Per_Damage_Type#Shadow
+
+            string type = string.Empty;
+            switch (sno)
+            {
+                case 0:
+                    type = "Physical";
+                    break;
+                case 1:
+                    type = "Fire";
+                    break;
+                case 4:
+                    type = "Poison";
+                    break;
+                case 5:
+                    type = "Shadow";
+                    break;
+            }
+            return type;
         }
 
         private string GetPowerId(uint sno)
