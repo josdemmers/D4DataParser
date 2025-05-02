@@ -208,9 +208,16 @@ namespace D4DataParser.Parsers
 
             foreach (var language in _languages)
             {
-                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
-                ParseByLanguage(language);
-                ValidateAspects(language);
+                if (Directory.Exists($"{_d4dataPath}json\\{language}_Text\\"))
+                {
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
+                    ParseByLanguage(language);
+                    ValidateAspects(language);
+                }
+                else
+                {
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipped {language}, not available.");
+                }
             }
         }
 

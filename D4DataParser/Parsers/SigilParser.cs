@@ -17,7 +17,7 @@ namespace D4DataParser.Parsers
 {
     public class SigilParser
     {
-        private string _d4datePath = string.Empty;
+        private string _d4dataPath = string.Empty;
         private List<string> _languages = new List<string>();
         private List<SigilInfo> _sigilInfoList = new List<SigilInfo>();
 
@@ -43,7 +43,7 @@ namespace D4DataParser.Parsers
 
         #region Properties
 
-        public string D4dataPath { get => _d4datePath; set => _d4datePath = value; }
+        public string D4dataPath { get => _d4dataPath; set => _d4dataPath = value; }
 
         #endregion
 
@@ -85,10 +85,17 @@ namespace D4DataParser.Parsers
 
             foreach (var language in _languages)
             {
-                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
-                _sigilInfoList.Clear();
-                ParseByLanguage(language);
-                ValidateSigils();
+                if (Directory.Exists($"{_d4dataPath}json\\{language}_Text\\"))
+                {
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
+                    _sigilInfoList.Clear();
+                    ParseByLanguage(language);
+                    ValidateSigils();
+                }
+                else
+                {
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipped {language}, not available.");
+                }
             }
 
             watch.Stop();
@@ -126,7 +133,7 @@ namespace D4DataParser.Parsers
                 dungeonName = dungeonName.Replace("World_", string.Empty);
 
                 // Nightmare dungeons - ".\d4data\json\base\meta\GameBalance\KeyedDungeonTypes.gam.json"
-                var jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\meta\\GameBalance\\KeyedDungeonTypes.gam.json");
+                var jsonAsText = File.ReadAllText($"{_d4dataPath}json\\base\\meta\\GameBalance\\KeyedDungeonTypes.gam.json");
                 var keyedDungeonTypesMeta = System.Text.Json.JsonSerializer.Deserialize<KeyedDungeonTypesMeta>(jsonAsText) ?? new KeyedDungeonTypesMeta();
                 var dungeonEntry = keyedDungeonTypesMeta.ptData[0].tEntries.FirstOrDefault(t => t.tHeader.szName.Equals("NightmareDungeon"));
                 if (dungeonEntry != null)
@@ -138,7 +145,7 @@ namespace D4DataParser.Parsers
                 return false;
             }
 
-            var directory = $"{_d4datePath}json\\{language}_Text\\meta\\StringList\\";
+            var directory = $"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\";
             if (Directory.Exists(directory))
             {
                 var fileEntries = Directory.EnumerateFiles(directory).Where(file => Path.GetFileName(file).StartsWith("World_DGN_", StringComparison.OrdinalIgnoreCase));
@@ -149,7 +156,7 @@ namespace D4DataParser.Parsers
             }
 
             // Zones - ".\d4data\json\enUS_Text\meta\StringList\Zones.stl.json"
-            directory = $"{_d4datePath}json\\{language}_Text\\meta\\StringList\\";
+            directory = $"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\";
             string fileNameLoc = $"{directory}Zones.stl.json";
             string prefix = string.Empty;
             string jsonAsText = File.ReadAllText(fileNameLoc);
@@ -183,7 +190,7 @@ namespace D4DataParser.Parsers
             // Local function used by DungeonZoneInfo
             string GetSigilDungeonZoneInfoPrefix()
             {
-                string directory = $"{_d4datePath}json\\{language}_Text\\meta\\StringList\\";
+                string directory = $"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\";
                 string fileNameLoc = $"{directory}UIToolTips.stl.json";
                 string prefix = string.Empty;
                 var jsonAsText = File.ReadAllText(fileNameLoc);
@@ -208,7 +215,7 @@ namespace D4DataParser.Parsers
 
             // Add missing IdName for sigils of type Dungeon
             int coreTOCIndex = 42;
-            jsonAsText = File.ReadAllText($"{_d4datePath}json\\base\\CoreTOC.dat.json");
+            jsonAsText = File.ReadAllText($"{_d4dataPath}json\\base\\CoreTOC.dat.json");
             var coreTOCDictionary = JsonSerializer.Deserialize<Dictionary<long, Dictionary<long, string>>>(jsonAsText);
             var sigilDictionary = coreTOCDictionary[coreTOCIndex];
             foreach (var sigilInfo in _sigilInfoList)
@@ -227,7 +234,7 @@ namespace D4DataParser.Parsers
             // ".\d4data\json\enUS_Text\meta\StringList\DungeonAffix_Positive_AttackMoveSpeedOnKill.stl.json"
             // ".\d4data\json\enUS_Text\meta\StringList\DungeonAffix_Minor_Monster_AntiCC.stl.json"
             // ".\d4data\json\enUS_Text\meta\StringList\DungeonAffix_Major_Avenger.stl.json"
-            var affixFiles = Directory.EnumerateFiles($"{_d4datePath}json\\{language}_Text\\meta\\StringList\\", "*.*", SearchOption.TopDirectoryOnly)
+            var affixFiles = Directory.EnumerateFiles($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\", "*.*", SearchOption.TopDirectoryOnly)
             .Where(s => s.Contains("DungeonAffix_Positive_", StringComparison.OrdinalIgnoreCase) ||
             s.Contains("DungeonAffix_Minor_", StringComparison.OrdinalIgnoreCase) ||
             s.Contains("DungeonAffix_Major_", StringComparison.OrdinalIgnoreCase));
@@ -296,7 +303,7 @@ namespace D4DataParser.Parsers
             {
                 SigilInfo sigilInfo = new SigilInfo();
 
-                string directory = $"{_d4datePath}json\\{language}_Text\\meta\\StringList\\";
+                string directory = $"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\";
                 string fileNameLoc = $"{directory}UIToolTips.stl.json";
                 var jsonAsText = File.ReadAllText(fileNameLoc);
                 var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);

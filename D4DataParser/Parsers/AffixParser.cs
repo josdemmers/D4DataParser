@@ -203,8 +203,15 @@ namespace D4DataParser.Parsers
 
             foreach (var language in _languages)
             {
-                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
-                ParseByLanguage(language);
+                if (Directory.Exists($"{_d4dataPath}json\\{language}_Text\\"))
+                {
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
+                    ParseByLanguage(language);
+                }
+                else
+                {
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipped {language}, not available.");
+                }
             }
         }
 
@@ -246,6 +253,7 @@ namespace D4DataParser.Parsers
                     }
                 }
             }
+
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (AttributeDescriptions.stl.json): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;
 
