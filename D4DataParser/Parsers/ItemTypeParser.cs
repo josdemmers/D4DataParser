@@ -268,6 +268,44 @@ namespace D4DataParser.Parsers
                 });
             }
 
+            // Local function to add ItemType DungeonEscalation (Escalation Sigil)
+            void AddItemTypeDungeonEscalation(string type, string itemTypeLoc)
+            {
+                string name = $"{RemoveVariantIndicator(itemTypeLoc)}".Trim();
+
+                _itemTypeInfoList.Add(new ItemTypeInfo
+                {
+                    Name = name,
+                    Type = type
+                });
+            }
+
+            // Local function to combine ItemType Horadric Jewel with ItemRarity
+            void AddItemTypeHoradricJewel(string type, string itemTypeLoc)
+            {
+                string variant = itemTypeLoc.Contains("[") ? itemTypeLoc.Substring(0, itemTypeLoc.IndexOf("]") + 1) : string.Empty;
+                foreach (var rarity in rarities)
+                {
+                    if (!rarity.szLabel.Equals("Unique")) continue;
+
+                    // Extract variant from rarity that matches with the current type.
+                    string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
+                        rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+
+                    string name = $"{RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
+                    if (!string.IsNullOrWhiteSpace(rarityVariant) && (language.Equals("frFR")))
+                    {
+                        name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(rarityVariant)}".Trim();
+                    }
+
+                    _itemTypeInfoList.Add(new ItemTypeInfo
+                    {
+                        Name = name,
+                        Type = type
+                    });
+                }
+            }
+
             string RemoveVariantIndicator(string typeLoc)
             {
                 // Remove variant indicator from text.
@@ -521,16 +559,28 @@ namespace D4DataParser.Parsers
             AddItemTypeRunes(ItemTypeConstants.Rune, itemTypeLoc);
 
             // List type - Occult Gem (Season 7)
-            jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_SeasonalSocketable.stl.json");
-            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
-            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
-            AddItemTypeOccultGem(ItemTypeConstants.OccultGem, itemTypeLoc);
+            //jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_SeasonalSocketable.stl.json");
+            //localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            //itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            //AddItemTypeOccultGem(ItemTypeConstants.OccultGem, itemTypeLoc);
 
             // List type - Whispering Wood (Season 7 Sigil)
             jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\Item_S07_WitcherSigil.stl.json");
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemTypeWitcherSigil(ItemTypeConstants.WitcherSigil, itemTypeLoc);
+
+            // List type - Escalating Sigil (Season 9 Sigil)
+            jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_DungeonKey_DungeonEscalation.stl.json");
+            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemTypeDungeonEscalation(ItemTypeConstants.DungeonEscalation, itemTypeLoc);
+
+            // List type - Horadric Jewel (Season 9)
+            jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_SeasonalSocketable.stl.json");
+            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemTypeHoradricJewel(ItemTypeConstants.HoradricJewel, itemTypeLoc);
 
             // Save
             SaveItemTypes(language);
