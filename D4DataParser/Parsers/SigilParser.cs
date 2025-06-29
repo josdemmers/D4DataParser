@@ -333,6 +333,9 @@ namespace D4DataParser.Parsers
             foreach (var sigilInfo in _sigilInfoList)
             {
                 sigilInfo.Name = sigilInfo.Name.Replace("{c_bonus}", string.Empty);
+                sigilInfo.Name = sigilInfo.Name.Replace("{c_legendary}", string.Empty);
+                sigilInfo.Name = sigilInfo.Name.Replace("{c_magic}", string.Empty);
+                sigilInfo.Name = sigilInfo.Name.Replace("{c_rare}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{c_resource}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{/c}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{s1}", string.Empty);

@@ -273,6 +273,9 @@ namespace D4DataParser.Parsers
             {
                 string name = $"{RemoveVariantIndicator(itemTypeLoc)}".Trim();
 
+                // TODO: Temp fix because some languages haven't translated the Escalation Sigil and use Nightmare Sigil instead.
+                if (_itemTypeInfoList.Any(t => t.Name.Equals(name))) return;
+
                 _itemTypeInfoList.Add(new ItemTypeInfo
                 {
                     Name = name,
