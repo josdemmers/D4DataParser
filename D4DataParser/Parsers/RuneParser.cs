@@ -159,6 +159,9 @@ namespace D4DataParser.Parsers
                     if (localisationName != null)
                     {
                         runeInfo.Name = localisationName.szText;
+
+                        // Remove variant indicator from text.
+                        runeInfo.Name = runeInfo.Name.Contains("]") ? runeInfo.Name.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1] : runeInfo.Name;
                     }
 
                     if (localisationRuneDescription != null)
