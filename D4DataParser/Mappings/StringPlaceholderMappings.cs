@@ -22,6 +22,7 @@
             { "|4Second:Seconds;", "Seconds" },
             { "|4Shade Totem:Shade Totems;", "Shade Totems" },
             { "|4 shadow:shadows;", "shadows" },
+            { "|4stack:stacks;", "stacks"},
             { "|4Target:Targets;", "Targets" },
             { "|4Time:Times;", "Times" },
 
