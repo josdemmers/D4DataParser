@@ -128,6 +128,9 @@ namespace D4DataParser.Parsers
                 localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Mythic", StringComparison.OrdinalIgnoreCase)) ?? new()
             };
 
+            // Chaos localisation
+            ArString chaos = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Seasonal", StringComparison.OrdinalIgnoreCase)) ?? new();
+
             // Local function to combine ItemType with ItemQuality
             void AddItemType(string type, string typeLoc)
             {
@@ -198,6 +201,50 @@ namespace D4DataParser.Parsers
                         });
                     }
                 }
+
+                // Season 10 - Chaos items
+                AddChaosItemType(type, typeLoc);
+            }
+
+            // Local function to combine ItemType with ItemQuality - Season 10 only.
+            void AddChaosItemType(string type, string typeLoc)
+            {
+                // Skip Chaos items when localisation is missing.
+                if (string.IsNullOrWhiteSpace(chaos.szText)) return;
+                string chaosLoc = chaos.szText;
+
+                string variant = string.Empty;
+                if (typeLoc.Contains("["))
+                {
+                    variant = typeLoc.Substring(0, typeLoc.IndexOf("]") + 1);
+                }
+
+                // For uniques only
+                var rarity = rarities[4];
+
+                // Extract variant from rarity that matches with the current type.
+                string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
+                    rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+
+                string name = $"{RemoveVariantIndicator(chaosLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
+                if (language.Equals("esES") || language.Equals("ptBR") || language.Equals("esMX") || language.Equals("frFR") || language.Equals("itIT"))
+                {
+                    name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(chaosLoc)}".Trim();
+                }
+                else if (language.Equals("zhCN"))
+                {
+                    // Note: No spaces
+                    name = $"{RemoveVariantIndicator(chaosLoc)}{RemoveVariantIndicator(rarityVariant)}{RemoveVariantIndicator(typeLoc)}".Trim();
+                }
+
+                // Skip duplicates
+                if (_itemTypeInfoList.Any(t => t.Name.Equals(name))) return;
+
+                _itemTypeInfoList.Add(new ItemTypeInfo
+                {
+                    Name = name,
+                    Type = type
+                });
             }
 
             // Local function to combine ItemType Runes with ItemRarity
