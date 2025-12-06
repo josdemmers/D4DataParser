@@ -1,6 +1,7 @@
-﻿using D4DataParser.Entities.D4Data;
-using D4DataParser.Entities;
+﻿using D4DataParser.Entities;
+using D4DataParser.Entities.D4Data;
 using D4DataParser.Helpers;
+using D4DataParser.Mappings;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,10 +10,29 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using D4DataParser.Mappings;
 
 namespace D4DataParser.Parsers
 {
+    /// <summary>
+    /// Provides functionality for parsing and processing unique item data from game files.
+    /// </summary>
+    /// <remarks>
+    /// Parser loops through all items using _uniqueItemDictionary. That is based on CoreTOC.dat.json section 42. The list is filtered by only acception entries starting with Item_ and containing _Unique_.
+    ///
+    /// The item data for each entry is found using _itemMetaJsonList. That is based on the files available in \json\base\meta\Item\.
+    /// Entries from _uniqueItemDictionary and _itemMetaJsonList match when the value from _uniqueItemDictionary matches the __fileName__ property of _itemMetaJsonList.
+    ///
+    /// e.g.
+    /// Item_1HAxe_Unique_Generic_001
+    /// "__fileName__": "base/meta/Item/1HAxe_Unique_Generic_001.itm",
+    /// 
+    /// For each item the passive power(affix) is located using the arForcedAffixes property of _itemMetaJsonList.
+    /// 
+    /// Results are saved in uniqueInfoList of type UniqueInfo.
+    /// 
+    /// Localisation data:
+    /// Loops through each item in the uniqueInfoList. Looks for data in json\enUS_Text\meta\StringList\.
+    /// </remarks>
     public class UniqueParser
     {
         private string _d4dataPath = string.Empty;
@@ -182,7 +202,6 @@ namespace D4DataParser.Parsers
                 {
                     Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
                     ParseByLanguage(language);
-                    ValidateUniques(language);
                 }
                 else
                 {
@@ -238,21 +257,11 @@ namespace D4DataParser.Parsers
 
                     // Skip all normal affixes. Only need the aspect.
                     if (affixMeta.snoPassivePower == null && affixMeta.eMagicType == 0) continue;
-                    // Skip duplicates
-                    var duplicate = uniqueInfoList.FirstOrDefault(u => u.IdSno == idSno);
-                    if (duplicate != null)
-                    {
-                        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipped. Duplicate found.");
-                        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: - Existing: ({duplicate.IdSno}) {duplicate.IdName} {duplicate.IdNameItem}");
-                        Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: - New:      ({idSno}) {idName} {idNameItem}");
-                        continue;
-                    }
 
                     string idNameItemActor = itemMeta.snoActor.name;
-
                     uniqueInfoList.Add(new UniqueInfo
                     {
-                        IdSno = idSno,
+                        IdSno = idSno.ToString(),
                         IdName = idName,
                         IdNameItem = idNameItem,
                         IdNameItemActor = idNameItemActor,
@@ -289,7 +298,8 @@ namespace D4DataParser.Parsers
                     if (localisationName != null)
                     {
                         // Remove variants (no idea where to get the correct form, so using the first one for now)
-                        unique.Name = localisationName.szText.Contains("]") ? localisationName.szText.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries)[1] : localisationName.szText;
+                        var names = localisationName.szText.Contains("]") ? localisationName.szText.Split(new char[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries) : [];
+                        unique.Name = names.Count() > 1 ? names[1] : localisationName.szText;
                         unique.Name = unique.Name.Trim();
                     }
                 }
@@ -314,6 +324,7 @@ namespace D4DataParser.Parsers
             uniqueInfoList.RemoveAll(u => u.Localisation.Length < 20); // For most languages set as TBD.
             uniqueInfoList.RemoveAll(u => u.Name.StartsWith("PH"));
             uniqueInfoList.RemoveAll(u => u.Name.StartsWith("(PH)"));
+            uniqueInfoList.RemoveAll(u => u.Name.StartsWith("[PH]"));
             // Remove test items
             uniqueInfoList.RemoveAll(u =>
                 u.IdNameItem.Equals("Gloves_Unique_Barbarian_099") ||
@@ -326,10 +337,6 @@ namespace D4DataParser.Parsers
                 u.IdNameItem.Equals("Helm_Unique_Necro_98") ||
                 u.IdNameItem.Equals("Helm_Unique_Rogue_95") ||
                 u.IdNameItem.Equals("Pants_Unique_Barbarian_099")
-            );
-            // Remove duplicates
-            uniqueInfoList.RemoveAll(u =>
-                u.IdNameItem.Equals("Boots_Unique_Generic_125") // Boots_Unique_Generic_003
             );
 
             // Replace numeric value placeholders
@@ -344,6 +351,35 @@ namespace D4DataParser.Parsers
                 return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
             });
 
+            // Combine similar uniques - Create lists
+            foreach (var uniqueInfo in uniqueInfoList)
+            {
+                var uniqueInfoDuplicates = uniqueInfoList.FindAll(a => a.DescriptionClean.Equals(uniqueInfo.DescriptionClean));
+                foreach (var uniqueInfoDuplicate in uniqueInfoDuplicates)
+                {
+                    if (!uniqueInfo.IdSnoList.Any(u => u.Equals(uniqueInfoDuplicate.IdSno)))
+                    {
+                        uniqueInfo.IdSnoList.Add(uniqueInfoDuplicate.IdSno);
+                    }
+                    if (!uniqueInfo.IdNameList.Any(u => u.Equals(uniqueInfoDuplicate.IdName)))
+                    {
+                        uniqueInfo.IdNameList.Add(uniqueInfoDuplicate.IdName);
+                    }
+                    if (!uniqueInfo.IdNameItemList.Any(u => u.Equals(uniqueInfoDuplicate.IdNameItem)))
+                    {
+                        uniqueInfo.IdNameItemList.Add(uniqueInfoDuplicate.IdNameItem);
+                    }
+                }
+            }
+
+            // Combine similar affixes - Update sno/name
+            foreach (var uniqueInfo in uniqueInfoList)
+            {
+                uniqueInfo.IdSno = string.Join(";", uniqueInfo.IdSnoList);
+                uniqueInfo.IdName = string.Join(";", uniqueInfo.IdNameList);
+                uniqueInfo.IdNameItem = string.Join(";", uniqueInfo.IdNameItemList);
+            }
+
             // Save
             SaveUniques();
 
@@ -353,7 +389,15 @@ namespace D4DataParser.Parsers
 
         private void SaveUniques()
         {
+            // Create export list without any duplicates
             var uniqueInfoList = _uniqueInfoDictionary[_language];
+            var uniqueInfoListExport = new List<UniqueInfo>();
+            foreach (var uniqueInfo in uniqueInfoList)
+            {
+                if (uniqueInfoListExport.Any(a => a.DescriptionClean.Equals(uniqueInfo.DescriptionClean))) continue;
+
+                uniqueInfoListExport.Add(uniqueInfo);
+            }
 
             string fileName = $"Data/Uniques.{_language}.json";
             string path = Path.GetDirectoryName(fileName) ?? string.Empty;
@@ -362,7 +406,7 @@ namespace D4DataParser.Parsers
             using FileStream stream = File.Create(fileName);
             var options = new JsonSerializerOptions { WriteIndented = true };
             options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
-            JsonSerializer.Serialize(stream, uniqueInfoList, options);
+            JsonSerializer.Serialize(stream, uniqueInfoListExport, options);
         }
 
         private void ValidateUniques(string language)
