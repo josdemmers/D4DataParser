@@ -618,10 +618,10 @@ namespace D4DataParser.Parsers
             AddItemTypeWitcherSigil(ItemTypeConstants.WitcherSigil, itemTypeLoc);
 
             // List type - Escalating Sigil (Season 9 Sigil)
-            jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_DungeonKey_DungeonEscalation.stl.json");
-            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
-            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
-            AddItemTypeDungeonEscalation(ItemTypeConstants.DungeonEscalation, itemTypeLoc);
+            //jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_DungeonKey_DungeonEscalation.stl.json");
+            //localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            //itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            //AddItemTypeDungeonEscalation(ItemTypeConstants.DungeonEscalation, itemTypeLoc);
 
             // List type - Horadric Jewel (Season 9)
             jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_SeasonalSocketable.stl.json");

@@ -281,6 +281,13 @@ namespace D4DataParser.Parsers
                 string directory = $"{_d4dataPath}json\\{_language}_Text\\meta\\StringList\\";
                 string fileName = affixMeta.__fileName__;
                 string fileNameLocalisation = $"{directory}Affix_{Path.GetFileNameWithoutExtension(fileName)}.stl.json";
+                if (!File.Exists(fileNameLocalisation))
+                {
+                    // TODO: - RELEASE - Check log for missing localisation files
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipped. Missing localisation file: {fileNameLocalisation}");
+                    continue;
+                }
+
                 var jsonAsText = File.ReadAllText(fileNameLocalisation);
                 var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);
                 if (localisation != null)
