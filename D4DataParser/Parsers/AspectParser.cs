@@ -208,7 +208,7 @@ namespace D4DataParser.Parsers
 
             foreach (var language in _languages)
             {
-                if (Directory.Exists($"{_d4dataPath}json\\{language}_Text\\"))
+                if (Directory.Exists($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\"))
                 {
                     Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
                     ParseByLanguage(language);
@@ -329,7 +329,20 @@ namespace D4DataParser.Parsers
                 }
             }
 
-            // Combine similar affixes - Update sno/name
+            // Combine similar aspects - Sort. To keep output files consistent across versions.
+            foreach (var aspectInfo in aspectInfoList)
+            {
+                aspectInfo.IdSnoList.Sort((x, y) =>
+                {
+                    return string.Compare(x, y, StringComparison.Ordinal);
+                });
+                aspectInfo.IdNameList.Sort((x, y) =>
+                {
+                    return string.Compare(x, y, StringComparison.Ordinal);
+                });
+            }
+
+            // Combine similar aspects - Update sno/name
             foreach (var aspectInfo in aspectInfoList)
             {
                 aspectInfo.IdSno = string.Join(";", aspectInfo.IdSnoList);

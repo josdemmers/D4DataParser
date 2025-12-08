@@ -203,7 +203,7 @@ namespace D4DataParser.Parsers
 
             foreach (var language in _languages)
             {
-                if (Directory.Exists($"{_d4dataPath}json\\{language}_Text\\"))
+                if (Directory.Exists($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\"))
                 {
                     Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
                     ParseByLanguage(language);
@@ -823,6 +823,19 @@ namespace D4DataParser.Parsers
                 }
             }
 
+            // Combine similar affixes - Sort. To keep output files consistent across versions.
+            foreach (var affixInfo in affixInfoList)
+            {
+                affixInfo.IdSnoList.Sort((x, y) =>
+                {
+                    return string.Compare(x, y, StringComparison.Ordinal);
+                });
+                affixInfo.IdNameList.Sort((x, y) =>
+                {
+                    return string.Compare(x, y, StringComparison.Ordinal);
+                });
+            }
+
             // Combine similar affixes - Update AllowedForPlayerClass
             foreach (var affixInfo in affixInfoList)
             {
@@ -854,8 +867,6 @@ namespace D4DataParser.Parsers
             // Combine similar affixes - Update sno/name, tempered
             foreach (var affixInfo in affixInfoList)
             {
-                // TODO: - DEV - Comment to skip combining of affixes.
-
                 affixInfo.IdSno = string.Join(";", affixInfo.IdSnoList);
                 affixInfo.IdName = string.Join(";", affixInfo.IdNameList);
 

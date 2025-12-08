@@ -198,7 +198,7 @@ namespace D4DataParser.Parsers
 
             foreach (var language in _languages)
             {
-                if (Directory.Exists($"{_d4dataPath}json\\{language}_Text\\"))
+                if (Directory.Exists($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\"))
                 {
                     Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
                     ParseByLanguage(language);
@@ -372,7 +372,24 @@ namespace D4DataParser.Parsers
                 }
             }
 
-            // Combine similar affixes - Update sno/name
+            // Combine similar uniques - Sort. To keep output files consistent across versions.
+            foreach (var uniqueInfo in uniqueInfoList)
+            {
+                uniqueInfo.IdSnoList.Sort((x, y) =>
+                {
+                    return string.Compare(x, y, StringComparison.Ordinal);
+                });
+                uniqueInfo.IdNameList.Sort((x, y) =>
+                {
+                    return string.Compare(x, y, StringComparison.Ordinal);
+                });
+                uniqueInfo.IdNameItemList.Sort((x, y) =>
+                {
+                    return string.Compare(x, y, StringComparison.Ordinal);
+                });
+            }
+
+            // Combine similar uniques - Update sno/name
             foreach (var uniqueInfo in uniqueInfoList)
             {
                 uniqueInfo.IdSno = string.Join(";", uniqueInfo.IdSnoList);

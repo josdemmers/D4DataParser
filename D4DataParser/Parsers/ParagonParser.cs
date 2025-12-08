@@ -83,7 +83,7 @@ namespace D4DataParser.Parsers
 
             foreach (var language in _languages)
             {
-                if (Directory.Exists($"{_d4dataPath}json\\{language}_Text\\"))
+                if (Directory.Exists($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\"))
                 {
                     Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {language}");
                     ParseByLanguage(language);

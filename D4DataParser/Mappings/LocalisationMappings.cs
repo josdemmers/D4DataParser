@@ -71,6 +71,7 @@
         public static readonly Dictionary<uint, string> Resistance = new Dictionary<uint, string>
         {
             // .\d4data\json\enUS_Text\meta\StringList\AttributeDescriptions.stl.json
+            { 0, "Physical_Gem" },
             { 1, "Fire_Gem" },
             { 2, "Lightning_Gem" },
             { 3, "Cold_Gem" },
