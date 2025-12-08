@@ -106,7 +106,8 @@ namespace D4DataParser.Parsers
             _itemTypeInfoList.Clear();
 
             // ItemQuality - ".\d4data\json\enUS_Text\meta\StringList\ItemQuality.stl.json"
-            var jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemQuality.stl.json");
+            var fileLocation = $"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemQuality.stl.json";
+            var jsonAsText = File.ReadAllText(fileLocation);
             var localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
 
             // List quality
@@ -618,10 +619,14 @@ namespace D4DataParser.Parsers
             AddItemTypeWitcherSigil(ItemTypeConstants.WitcherSigil, itemTypeLoc);
 
             // List type - Escalating Sigil (Season 9 Sigil)
-            //jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_DungeonKey_DungeonEscalation.stl.json");
-            //localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
-            //itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
-            //AddItemTypeDungeonEscalation(ItemTypeConstants.DungeonEscalation, itemTypeLoc);
+            fileLocation = $"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_DungeonKey_DungeonEscalation.stl.json";
+            if (File.Exists(fileLocation))
+            {
+                jsonAsText = File.ReadAllText(fileLocation);
+                localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+                itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                AddItemTypeDungeonEscalation(ItemTypeConstants.DungeonEscalation, itemTypeLoc);
+            }
 
             // List type - Horadric Jewel (Season 9)
             jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_SeasonalSocketable.stl.json");
