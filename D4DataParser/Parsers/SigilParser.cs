@@ -295,7 +295,14 @@ namespace D4DataParser.Parsers
             // Add missing IdName
             foreach (var sigilInfo in _sigilInfoList)
             {
-                sigilInfo.IdName = sigilDictionary[sigilInfo.IdSno];
+                if(sigilDictionary.ContainsKey(sigilInfo.IdSno))
+                {
+                    sigilInfo.IdName = sigilDictionary[sigilInfo.IdSno];
+                }
+                else
+                {
+                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Missing IdName for Sigil with IdSno {sigilInfo.IdSno}");
+                }
             }
 
             // Local function for misc affixes, e.g. monster lvl, max resses.
@@ -346,6 +353,9 @@ namespace D4DataParser.Parsers
             {
                 return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
             });
+
+            // Remove sigils with no IdName
+            _sigilInfoList.RemoveAll(s => string.IsNullOrWhiteSpace(s.IdName));
 
             // Remove duplicates (will otherwise cause issues for OCR)
             _sigilInfoList.RemoveAll(s => s.IdName.Equals("DungeonAffix_Major_Boss_MegaDemon_Tier31", StringComparison.OrdinalIgnoreCase)); // use DungeonAffix_Major_Boss_MegaDemon_Tier96
