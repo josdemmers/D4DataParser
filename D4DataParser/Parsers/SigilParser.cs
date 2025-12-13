@@ -342,9 +342,11 @@ namespace D4DataParser.Parsers
                 sigilInfo.Name = sigilInfo.Name.Replace("{c_bonus}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{c_legendary}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{c_magic}", string.Empty);
+                sigilInfo.Name = sigilInfo.Name.Replace("{c_mythic}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{c_rare}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{c_resource}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{/c}", string.Empty);
+                sigilInfo.Name = sigilInfo.Name.Replace("{icon:Marker_Season_Green,2.5}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{s1}", string.Empty);
             }
 
