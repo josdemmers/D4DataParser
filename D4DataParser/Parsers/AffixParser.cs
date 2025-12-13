@@ -456,13 +456,13 @@ namespace D4DataParser.Parsers
                     // Bug - Fix sorc affixes
                     if (affixInfo.IdName.Contains("_Sorc_", StringComparison.OrdinalIgnoreCase))
                     {
-                        affixInfo.AllowedForPlayerClass = new List<int> { 1, 0, 0, 0, 0, 0 };
+                        affixInfo.AllowedForPlayerClass = new List<int> { 1, 0, 0, 0, 0, 0, 0 };
                     }
 
                     // Bug - Fix necro affixes
                     if (affixInfo.IdName.Contains("_Necro_", StringComparison.OrdinalIgnoreCase))
                     {
-                        affixInfo.AllowedForPlayerClass = new List<int> { 0, 0, 0, 0, 1, 0 };
+                        affixInfo.AllowedForPlayerClass = new List<int> { 0, 0, 0, 0, 1, 0, 0 };
                     }
 
                     var itemAffixAttributes = affixMeta.ptItemAffixAttributes ?? new List<PtItemAffixAttribute>();
@@ -694,6 +694,7 @@ namespace D4DataParser.Parsers
                         affixAttribute.LocalisationId.Equals("Bonus_Percent_Per_Power") || affixAttribute.LocalisationId.StartsWith("Bonus_Percent_Per_Power#") ||
                         affixAttribute.LocalisationId.Equals("Bonus_Percent_Per_Power_2") || affixAttribute.LocalisationId.StartsWith("Bonus_Percent_Per_Power_2#") ||
                         affixAttribute.LocalisationId.Equals("Bonus_Percent_Per_Power_3") || affixAttribute.LocalisationId.StartsWith("Bonus_Percent_Per_Power_3#") ||
+                        affixAttribute.LocalisationId.Equals("CC_Duration_Bonus_Percent_Per_Power") ||
                         affixAttribute.LocalisationId.Equals("Chance_For_Double_Damage_Per_Power") ||
                         affixAttribute.LocalisationId.Equals("Chance_To_Consume_No_Charges_Per_Power") ||
                         affixAttribute.LocalisationId.Equals("Chance_To_Hit_Twice_Per_Power") || affixAttribute.LocalisationId.StartsWith("Chance_To_Hit_Twice_Per_Power#") ||
@@ -701,6 +702,7 @@ namespace D4DataParser.Parsers
                         affixAttribute.LocalisationId.Equals("Combat_Effect_Chance_Bonus_Per_Skill") ||
                         affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_While_Affected_By_Power") || affixAttribute.LocalisationId.StartsWith("Damage_Percent_Bonus_While_Affected_By_Power#") ||
                         affixAttribute.LocalisationId.Equals("Movement_Speed_Bonus_Percent_Per_Power") || affixAttribute.LocalisationId.StartsWith("Movement_Speed_Bonus_Percent_Per_Power#") ||
+                        affixAttribute.LocalisationId.Equals("Paladin_Aura_Potency_Per_Skill") ||
                         affixAttribute.LocalisationId.Equals("Percent_Bonus_Projectiles_Per_Power") || affixAttribute.LocalisationId.StartsWith("Percent_Bonus_Projectiles_Per_Power#") ||
                         affixAttribute.LocalisationId.Equals("Power Bonus Attack Radius Percent") ||
                         affixAttribute.LocalisationId.Equals("Power_Cooldown_Reduction_Percent") || affixAttribute.LocalisationId.StartsWith("Power_Cooldown_Reduction_Percent#") ||
@@ -751,7 +753,8 @@ namespace D4DataParser.Parsers
                         affixAttribute.LocalisationId.Equals("DOT_DPS_Bonus_Percent_Per_Damage_Type") ||
                         affixAttribute.LocalisationId.Equals("Proc_Flat_Element_Damage_On_Hit") ||
                         affixAttribute.LocalisationId.Equals("Resistance") ||
-                        affixAttribute.LocalisationId.Equals("Resistance_Max_Bonus"))
+                        affixAttribute.LocalisationId.Equals("Resistance_Max_Bonus") ||
+                        affixAttribute.LocalisationId.Equals("Multiplicative_Damage_Type_Percent_Bonus"))
                     {
                         ReplaceDamageTypePlaceholders(affixInfo, i);
                     }
@@ -982,6 +985,14 @@ namespace D4DataParser.Parsers
 
                 affix.ClassRestriction = affix.ClassRestriction.Replace("{s1}", classParamLoc.szText);
             }
+            else if (classIndex == 6)
+            {
+                // Paladin workaround
+                var classParamLoc = _frontEnd.arStrings.FirstOrDefault(a => a.szLabel.Equals("PaladinTitle", StringComparison.OrdinalIgnoreCase));
+                if (classParamLoc == null) return;
+
+                affix.ClassRestriction = affix.ClassRestriction.Replace("{s1}", classParamLoc.szText);
+            }
         }
 
         private void SetCleanDescription(AffixInfo affix)
@@ -1047,11 +1058,15 @@ namespace D4DataParser.Parsers
                 affix.Description = affix.Description.Replace("{s1}", "#");
                 affix.Description = affix.Description.Replace("{s2}", "#");
 
+                affix.Description = affix.Description.Replace("{icon:bullet}", string.Empty);
                 affix.Description = affix.Description.Replace("{c_important}", string.Empty);
                 affix.Description = affix.Description.Replace("{c_label}", string.Empty);
+                affix.Description = affix.Description.Replace("{c_legendary}", string.Empty);
                 affix.Description = affix.Description.Replace("{c_number}", string.Empty);
                 affix.Description = affix.Description.Replace("{/c}", string.Empty);
                 affix.Description = affix.Description.Replace("{d}", " ");
+                affix.Description = affix.Description.Replace("{u}", string.Empty);
+                affix.Description = affix.Description.Replace("{/u}", string.Empty);
 
                 // Prefix found in frFR
                 affix.Description = affix.Description.Replace("|2", string.Empty);

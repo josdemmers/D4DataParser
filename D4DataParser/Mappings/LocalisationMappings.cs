@@ -10,7 +10,8 @@
             { 2, "Fury_Restriction" },
             { 3, "Energy_Restriction" },
             { 4, "Essence_Restriction" },
-            { 5, "ClassRestriction" }  // TODO: Update this for season 6. Vigor_Restriction?
+            { 5, "ClassRestriction" }, // Spiritborn
+            { 6, "ClassRestriction" } // Paladin
         };
 
         public static readonly Dictionary<uint, string> CrowdControlTypes = new Dictionary<uint, string>
@@ -47,7 +48,8 @@
             { 2, "DAMAGE_LIGHTNING" },
             { 3, "DAMAGE_COLD" },
             { 4, "DAMAGE_POISON" },
-            { 5, "DAMAGE_SHADOW" }
+            { 5, "DAMAGE_SHADOW" },
+            { 6, "DAMAGE_NONPHYSICAL" } // TODO: Check if DAMAGE_NONPHYSICAL is correct
         };
 
         public static readonly Dictionary<uint, string> DotTypes = new Dictionary<uint, string>
@@ -111,7 +113,8 @@
             { 3, "Search_ResourceEnergy_TagName" },
             { 5, "Search_ResourceSpirit_TagName" },
             { 6, "Search_ResourceEssence_TagName" },
-            { 7, "Search_ResourceVigor_TagName" }
+            { 7, "Search_ResourceVigor_TagName" },
+            { 9, "Search_ResourceFaith_TagName" }
         };
 
         public static readonly Dictionary<uint, string> ShapeshiftForms = new Dictionary<uint, string>

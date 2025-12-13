@@ -408,7 +408,7 @@ namespace D4DataParser.Parsers
         private string GetAspectCategory(AffixMeta affixMeta)
         {
             var arAffixSkillTags = affixMeta.arAffixSkillTags;
-            var arAffixSkillTag = arAffixSkillTags.FirstOrDefault(c => c.name.Contains("FILTER_Legendary_"));
+            var arAffixSkillTag = arAffixSkillTags.FirstOrDefault(c => c != null && c.name.Contains("FILTER_Legendary_"));
             return arAffixSkillTag?.name ?? string.Empty;
         }
 
