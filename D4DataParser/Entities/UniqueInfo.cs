@@ -41,7 +41,7 @@ namespace D4DataParser.Entities
         public int MagicType { get; set; }
 
         /// <summary>
-        /// Sorc, Druid, Barb, Rogue, Necro, Spiritborn
+        /// Sorc, Druid, Barb, Rogue, Necro, Spiritborn, Paladin
         /// </summary>
         public List<int> AllowedForPlayerClass { get; set; } = new List<int>();
         public List<int> AllowedItemLabels { get; set; } = new List<int>();
