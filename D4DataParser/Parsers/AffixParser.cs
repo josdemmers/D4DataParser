@@ -1063,10 +1063,13 @@ namespace D4DataParser.Parsers
                 affix.Description = affix.Description.Replace("{c_label}", string.Empty);
                 affix.Description = affix.Description.Replace("{c_legendary}", string.Empty);
                 affix.Description = affix.Description.Replace("{c_number}", string.Empty);
+                affix.Description = affix.Description.Replace("{c:FFf74444}", string.Empty);
                 affix.Description = affix.Description.Replace("{/c}", string.Empty);
                 affix.Description = affix.Description.Replace("{d}", " ");
                 affix.Description = affix.Description.Replace("{u}", string.Empty);
                 affix.Description = affix.Description.Replace("{/u}", string.Empty);
+                affix.Description = affix.Description.Replace("{i}", string.Empty);
+                affix.Description = affix.Description.Replace("{/i}", string.Empty);                
 
                 // Prefix found in frFR
                 affix.Description = affix.Description.Replace("|2", string.Empty);

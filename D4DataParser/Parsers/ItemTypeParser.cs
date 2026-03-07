@@ -114,7 +114,6 @@ namespace D4DataParser.Parsers
             List<ArString> qualities = new List<ArString>
             {
                 new(),
-                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Sacred", StringComparison.OrdinalIgnoreCase)) ?? new(),
                 localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Ancestral", StringComparison.OrdinalIgnoreCase)) ?? new()
             };
 
@@ -129,8 +128,11 @@ namespace D4DataParser.Parsers
                 localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Mythic", StringComparison.OrdinalIgnoreCase)) ?? new()
             };
 
-            // Chaos localisation
+            // Chaos localisation (Season 10)
             ArString chaos = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Seasonal", StringComparison.OrdinalIgnoreCase)) ?? new();
+
+            // Bloodied localisation (Season 12)
+            ArString bloodied = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Bloodied", StringComparison.OrdinalIgnoreCase)) ?? new();
 
             // Local function to combine ItemType with ItemQuality
             void AddItemType(string type, string typeLoc)
@@ -205,6 +207,9 @@ namespace D4DataParser.Parsers
 
                 // Season 10 - Chaos items
                 AddChaosItemType(type, typeLoc);
+
+                // Season 12 - Bloodied items
+                AddBloodiedItemType(type, typeLoc);
             }
 
             // Local function to combine ItemType with ItemQuality - Season 10 only.
@@ -246,6 +251,85 @@ namespace D4DataParser.Parsers
                     Name = name,
                     Type = type
                 });
+            }
+
+            // Local function to combine ItemType with ItemQuality - Season 12 only.
+            void AddBloodiedItemType(string type, string typeLoc)
+            {
+                // Skip Bloodied items when localisation is missing.
+                if (string.IsNullOrWhiteSpace(bloodied.szText)) return;
+                string bloodiedLoc = bloodied.szText;
+
+                string variant = string.Empty;
+                if (typeLoc.Contains("["))
+                {
+                    variant = typeLoc.Substring(0, typeLoc.IndexOf("]") + 1);
+                }
+
+                // For legendaries only
+                var rarity = rarities[3];
+
+                foreach (var quality in qualities)
+                {
+                    // Extract variant from quality and rarity that matches with the current type.
+                    string qualityVariant = string.IsNullOrWhiteSpace(quality.szText) ? string.Empty : string.IsNullOrWhiteSpace(variant) ? quality.szText :
+                        quality.szText.Substring(quality.szText.IndexOf(variant) + variant.Length, (quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length) == -1 ? quality.szText.Length : quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length)) - (quality.szText.IndexOf(variant) + variant.Length));
+
+                    string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
+                        rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+
+                    string name = string.IsNullOrWhiteSpace(qualityVariant) ?
+                        $"{RemoveVariantIndicator(bloodiedLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim() :
+                        $"{RemoveVariantIndicator(bloodiedLoc)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
+
+                    if (language.Equals("trTR"))
+                    {
+                        if (string.IsNullOrWhiteSpace(qualityVariant))
+                        {
+                            name = $"{RemoveVariantIndicator(bloodiedLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
+                        }
+                        else
+                        {
+                            name = $"{RemoveVariantIndicator(bloodiedLoc)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
+                        }
+                    }
+                    else if (language.Equals("esES") || language.Equals("ptBR"))
+                    {
+                        if (string.IsNullOrWhiteSpace(qualityVariant))
+                        {
+                            name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(bloodiedLoc)}".Trim();
+                        }
+                        else
+                        {
+                            name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(bloodiedLoc)}".Trim();
+                        }
+                    }
+                    else if (language.Equals("esMX") || language.Equals("frFR") || language.Equals("itIT"))
+                    {
+                        if (string.IsNullOrWhiteSpace(qualityVariant))
+                        {
+                            name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(bloodiedLoc)}".Trim();
+                        }
+                        else
+                        {
+                            name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(bloodiedLoc)}".Trim();
+                        }
+                    }
+                    else if (language.Equals("zhCN"))
+                    {
+                        // Note: No spaces
+                        name = $"{RemoveVariantIndicator(bloodiedLoc)}{RemoveVariantIndicator(qualityVariant)}{RemoveVariantIndicator(rarityVariant)}{RemoveVariantIndicator(typeLoc)}".Trim();
+                    }
+
+                    // Skip duplicates
+                    if (_itemTypeInfoList.Any(t => t.Name.Equals(name))) continue;
+
+                    _itemTypeInfoList.Add(new ItemTypeInfo
+                    {
+                        Name = name,
+                        Type = type
+                    });
+                }
             }
 
             // Local function to combine ItemType Runes with ItemRarity
@@ -304,7 +388,7 @@ namespace D4DataParser.Parsers
                 }
             }
 
-            // Local function to add ItemType WitcherSigil (Whispering Wood)
+            // Local function to add ItemType WitcherSigil (Whispering Wood) (Season 7)
             void AddItemTypeWitcherSigil(string type, string itemTypeLoc)
             {
                 string name = $"{RemoveVariantIndicator(itemTypeLoc)}".Trim();
@@ -352,6 +436,18 @@ namespace D4DataParser.Parsers
                         Type = type
                     });
                 }
+            }
+
+            // Local function to add ItemType BloodiedLair (Bloodied Lair Boss Sigil) (Season 12)
+            void AddItemTypeBloodiedLairSigil(string type, string itemTypeLoc)
+            {
+                string name = $"{RemoveVariantIndicator(itemTypeLoc)}".Trim();
+
+                _itemTypeInfoList.Add(new ItemTypeInfo
+                {
+                    Name = name,
+                    Type = type
+                });
             }
 
             string RemoveVariantIndicator(string typeLoc)
@@ -618,7 +714,7 @@ namespace D4DataParser.Parsers
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemTypeWitcherSigil(ItemTypeConstants.WitcherSigil, itemTypeLoc);
 
-            // List type - Escalating Sigil (Season 9 Sigil)
+            // List type - Escalating Sigil (Season 9+ Sigil)
             fileLocation = $"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_DungeonKey_DungeonEscalation.stl.json";
             if (File.Exists(fileLocation))
             {
@@ -633,6 +729,16 @@ namespace D4DataParser.Parsers
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             AddItemTypeHoradricJewel(ItemTypeConstants.HoradricJewel, itemTypeLoc);
+
+            // List type - BloodiedLair Sigil (Season 12 Sigil)
+            fileLocation = $"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_DungeonKey_BloodiedLair.stl.json";
+            if (File.Exists(fileLocation))
+            {
+                jsonAsText = File.ReadAllText(fileLocation);
+                localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+                itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                AddItemTypeBloodiedLairSigil(ItemTypeConstants.BloodiedLair, itemTypeLoc);
+            }
 
             // Save
             SaveItemTypes(language);

@@ -25,6 +25,7 @@
             { "|4stack:stacks;", "stacks"},
             { "|4Target:Targets;", "Targets" },
             { "|4Time:Times;", "Times" },
+            { "|4time:times;", "Times" },
 
             //
 
