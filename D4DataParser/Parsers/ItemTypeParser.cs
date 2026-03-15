@@ -207,7 +207,7 @@ namespace D4DataParser.Parsers
                 }
 
                 // Season 10 - Chaos items
-                AddChaosItemType(type, typeLoc);
+                //AddChaosItemType(type, typeLoc);
 
                 // Season 12 - Bloodied items
                 AddBloodiedItemType(type, typeLoc);
@@ -250,6 +250,7 @@ namespace D4DataParser.Parsers
                 _itemTypeInfoList.Add(new ItemTypeInfo
                 {
                     Name = name,
+                    Rarerity = rarity.szLabel,
                     Type = type
                 });
             }
@@ -328,6 +329,7 @@ namespace D4DataParser.Parsers
                     _itemTypeInfoList.Add(new ItemTypeInfo
                     {
                         Name = name,
+                        Rarerity = rarity.szLabel,
                         Type = type
                     });
                 }
