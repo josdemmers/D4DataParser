@@ -120,12 +120,12 @@ namespace D4DataParser.Parsers
             // List rarerity
             List<ArString> rarities = new List<ArString>
             {
-                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Normal", StringComparison.OrdinalIgnoreCase)) ?? new(),
-                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Magic", StringComparison.OrdinalIgnoreCase)) ?? new(),
-                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Rare", StringComparison.OrdinalIgnoreCase)) ?? new(),
-                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Legendary", StringComparison.OrdinalIgnoreCase)) ?? new(),
-                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Unique", StringComparison.OrdinalIgnoreCase)) ?? new(),
-                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Mythic", StringComparison.OrdinalIgnoreCase)) ?? new()
+                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals(ItemRarityConstants.Normal, StringComparison.OrdinalIgnoreCase)) ?? new(),
+                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals(ItemRarityConstants.Magic, StringComparison.OrdinalIgnoreCase)) ?? new(),
+                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals(ItemRarityConstants.Rare, StringComparison.OrdinalIgnoreCase)) ?? new(),
+                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals(ItemRarityConstants.Legendary, StringComparison.OrdinalIgnoreCase)) ?? new(),
+                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals(ItemRarityConstants.Unique, StringComparison.OrdinalIgnoreCase)) ?? new(),
+                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals(ItemRarityConstants.Mythic, StringComparison.OrdinalIgnoreCase)) ?? new()
             };
 
             // Chaos localisation (Season 10)
@@ -200,7 +200,8 @@ namespace D4DataParser.Parsers
                         _itemTypeInfoList.Add(new ItemTypeInfo
                         {
                             Name = name,
-                            Type = type
+                            Rarerity = rarity.szLabel,
+                            Type = type,
                         });
                     }
                 }
