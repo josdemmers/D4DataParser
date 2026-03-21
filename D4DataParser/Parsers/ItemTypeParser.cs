@@ -268,70 +268,70 @@ namespace D4DataParser.Parsers
                     variant = typeLoc.Substring(0, typeLoc.IndexOf("]") + 1);
                 }
 
-                // For legendaries only
-                var rarity = rarities[3];
-
                 foreach (var quality in qualities)
                 {
-                    // Extract variant from quality and rarity that matches with the current type.
-                    string qualityVariant = string.IsNullOrWhiteSpace(quality.szText) ? string.Empty : string.IsNullOrWhiteSpace(variant) ? quality.szText :
+                    foreach (var rarity in rarities)
+                    {
+                        // Extract variant from quality and rarity that matches with the current type.
+                        string qualityVariant = string.IsNullOrWhiteSpace(quality.szText) ? string.Empty : string.IsNullOrWhiteSpace(variant) ? quality.szText :
                         quality.szText.Substring(quality.szText.IndexOf(variant) + variant.Length, (quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length) == -1 ? quality.szText.Length : quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length)) - (quality.szText.IndexOf(variant) + variant.Length));
 
-                    string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
-                        rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+                        string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
+                            rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
 
-                    string name = string.IsNullOrWhiteSpace(qualityVariant) ?
-                        $"{RemoveVariantIndicator(bloodiedLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim() :
-                        $"{RemoveVariantIndicator(bloodiedLoc)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
+                        string name = string.IsNullOrWhiteSpace(qualityVariant) ?
+                            $"{RemoveVariantIndicator(bloodiedLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim() :
+                            $"{RemoveVariantIndicator(bloodiedLoc)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
 
-                    if (language.Equals("trTR"))
-                    {
-                        if (string.IsNullOrWhiteSpace(qualityVariant))
+                        if (language.Equals("trTR"))
                         {
-                            name = $"{RemoveVariantIndicator(bloodiedLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
+                            if (string.IsNullOrWhiteSpace(qualityVariant))
+                            {
+                                name = $"{RemoveVariantIndicator(bloodiedLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
+                            }
+                            else
+                            {
+                                name = $"{RemoveVariantIndicator(bloodiedLoc)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
+                            }
                         }
-                        else
+                        else if (language.Equals("esES") || language.Equals("ptBR"))
                         {
-                            name = $"{RemoveVariantIndicator(bloodiedLoc)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
+                            if (string.IsNullOrWhiteSpace(qualityVariant))
+                            {
+                                name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(bloodiedLoc)}".Trim();
+                            }
+                            else
+                            {
+                                name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(bloodiedLoc)}".Trim();
+                            }
                         }
-                    }
-                    else if (language.Equals("esES") || language.Equals("ptBR"))
-                    {
-                        if (string.IsNullOrWhiteSpace(qualityVariant))
+                        else if (language.Equals("esMX") || language.Equals("frFR") || language.Equals("itIT"))
                         {
-                            name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(bloodiedLoc)}".Trim();
+                            if (string.IsNullOrWhiteSpace(qualityVariant))
+                            {
+                                name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(bloodiedLoc)}".Trim();
+                            }
+                            else
+                            {
+                                name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(bloodiedLoc)}".Trim();
+                            }
                         }
-                        else
+                        else if (language.Equals("zhCN"))
                         {
-                            name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(bloodiedLoc)}".Trim();
+                            // Note: No spaces
+                            name = $"{RemoveVariantIndicator(bloodiedLoc)}{RemoveVariantIndicator(qualityVariant)}{RemoveVariantIndicator(rarityVariant)}{RemoveVariantIndicator(typeLoc)}".Trim();
                         }
-                    }
-                    else if (language.Equals("esMX") || language.Equals("frFR") || language.Equals("itIT"))
-                    {
-                        if (string.IsNullOrWhiteSpace(qualityVariant))
-                        {
-                            name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(bloodiedLoc)}".Trim();
-                        }
-                        else
-                        {
-                            name = $"{RemoveVariantIndicator(typeLoc)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(bloodiedLoc)}".Trim();
-                        }
-                    }
-                    else if (language.Equals("zhCN"))
-                    {
-                        // Note: No spaces
-                        name = $"{RemoveVariantIndicator(bloodiedLoc)}{RemoveVariantIndicator(qualityVariant)}{RemoveVariantIndicator(rarityVariant)}{RemoveVariantIndicator(typeLoc)}".Trim();
-                    }
 
-                    // Skip duplicates
-                    if (_itemTypeInfoList.Any(t => t.Name.Equals(name))) continue;
+                        // Skip duplicates
+                        if (_itemTypeInfoList.Any(t => t.Name.Equals(name))) continue;
 
-                    _itemTypeInfoList.Add(new ItemTypeInfo
-                    {
-                        Name = name,
-                        Rarerity = rarity.szLabel,
-                        Type = type
-                    });
+                        _itemTypeInfoList.Add(new ItemTypeInfo
+                        {
+                            Name = name,
+                            Rarerity = rarity.szLabel,
+                            Type = type
+                        });
+                    }
                 }
             }
 
