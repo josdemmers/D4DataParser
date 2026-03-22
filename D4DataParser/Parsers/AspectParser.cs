@@ -370,7 +370,11 @@ namespace D4DataParser.Parsers
             var aspectInfoListExport = new List<AspectInfo>();
             foreach (var aspectInfo in aspectInfoList)
             {
+                // Skip duplicates
                 if (aspectInfoListExport.Any(a => a.DescriptionClean.Equals(aspectInfo.DescriptionClean))) continue;
+                // Skip inactive aspects
+                if (aspectInfo.Name.Contains("(DNS)", StringComparison.OrdinalIgnoreCase)) continue;
+                if (aspectInfo.Name.Contains("(PH)", StringComparison.OrdinalIgnoreCase)) continue;
 
                 aspectInfoListExport.Add(aspectInfo);
             }
