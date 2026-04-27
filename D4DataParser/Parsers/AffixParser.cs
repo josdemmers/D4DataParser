@@ -456,13 +456,13 @@ namespace D4DataParser.Parsers
                     // Bug - Fix sorc affixes
                     if (affixInfo.IdName.Contains("_Sorc_", StringComparison.OrdinalIgnoreCase))
                     {
-                        affixInfo.AllowedForPlayerClass = new List<int> { 1, 0, 0, 0, 0, 0, 0 };
+                        affixInfo.AllowedForPlayerClass = new List<int> { 1, 0, 0, 0, 0, 0, 0, 0 };
                     }
 
                     // Bug - Fix necro affixes
                     if (affixInfo.IdName.Contains("_Necro_", StringComparison.OrdinalIgnoreCase))
                     {
-                        affixInfo.AllowedForPlayerClass = new List<int> { 0, 0, 0, 0, 1, 0, 0 };
+                        affixInfo.AllowedForPlayerClass = new List<int> { 0, 0, 0, 0, 1, 0, 0, 0 };
                     }
 
                     var itemAffixAttributes = affixMeta.ptItemAffixAttributes ?? new List<PtItemAffixAttribute>();
@@ -501,6 +501,11 @@ namespace D4DataParser.Parsers
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Current affix count: {affixInfoList.Count}");
             affixInfoList.RemoveAll(a => a.IdName.Contains("_Resistance_", StringComparison.OrdinalIgnoreCase) && a.IdName.Contains("_Dual_", StringComparison.OrdinalIgnoreCase));
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Current affix count: {affixInfoList.Count}");
+            
+            // S12_AprilFools negative intelligence affix.
+            affixInfoList.RemoveAll(a => a.IdName.Equals("2HStaff_Unique_AF_001_Int_Decrease", StringComparison.OrdinalIgnoreCase));
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Current affix count: {affixInfoList.Count}");
+            
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Cleanup AffixInfo): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;
 
@@ -989,6 +994,14 @@ namespace D4DataParser.Parsers
             {
                 // Paladin workaround
                 var classParamLoc = _frontEnd.arStrings.FirstOrDefault(a => a.szLabel.Equals("PaladinTitle", StringComparison.OrdinalIgnoreCase));
+                if (classParamLoc == null) return;
+
+                affix.ClassRestriction = affix.ClassRestriction.Replace("{s1}", classParamLoc.szText);
+            }
+            else if (classIndex == 7)
+            {
+                // Warlock workaround
+                var classParamLoc = _frontEnd.arStrings.FirstOrDefault(a => a.szLabel.Equals("WarlockTitle", StringComparison.OrdinalIgnoreCase));
                 if (classParamLoc == null) return;
 
                 affix.ClassRestriction = affix.ClassRestriction.Replace("{s1}", classParamLoc.szText);

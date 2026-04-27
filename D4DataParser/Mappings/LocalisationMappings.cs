@@ -11,7 +11,8 @@
             { 3, "Energy_Restriction" },
             { 4, "Essence_Restriction" },
             { 5, "ClassRestriction" }, // Spiritborn
-            { 6, "ClassRestriction" } // Paladin
+            { 6, "ClassRestriction" }, // Paladin
+            { 7, "ClassRestriction" } // Warlock
         };
 
         public static readonly Dictionary<uint, string> CrowdControlTypes = new Dictionary<uint, string>
