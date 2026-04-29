@@ -21,11 +21,15 @@
             { 0, "CC_Type_Slow" },
             { 1, "CC_Type_Immobilize" },
             { 2, "CC_Type_Stun" },
+            { 4, "CC_Type_Taunt" },
+            { 5, "CC_Type_Weakened" },
             { 7, "CC_Type_Disabled" }, // Daze
             { 9, "CC_Type_Chill" },
             { 10, "CC_Type_Frozen" },
             { 11, "CC_Type_Knockback" },
             { 13, "CC_Type_Fear" }
+            //CC_Type_Confused
+            //CC_Type_Knockdown
         };
 
         public static readonly Dictionary<uint, string> CrowdControlledTypes = new Dictionary<uint, string>
@@ -50,7 +54,7 @@
             { 3, "DAMAGE_COLD" },
             { 4, "DAMAGE_POISON" },
             { 5, "DAMAGE_SHADOW" },
-            { 6, "DAMAGE_NONPHYSICAL" } // TODO: Check if DAMAGE_NONPHYSICAL is correct
+            { 6, "DAMAGE_NONPHYSICAL" }
         };
 
         public static readonly Dictionary<uint, string> DotTypes = new Dictionary<uint, string>
@@ -115,7 +119,8 @@
             { 5, "Search_ResourceSpirit_TagName" },
             { 6, "Search_ResourceEssence_TagName" },
             { 7, "Search_ResourceVigor_TagName" },
-            { 9, "Search_ResourceFaith_TagName" }
+            { 9, "Search_ResourceFaith_TagName" },
+            { 10, "Search_ResourceWrath_TagName" },
         };
 
         public static readonly Dictionary<uint, string> ShapeshiftForms = new Dictionary<uint, string>

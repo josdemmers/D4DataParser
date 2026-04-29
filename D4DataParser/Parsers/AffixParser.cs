@@ -739,6 +739,7 @@ namespace D4DataParser.Parsers
                         affixAttribute.LocalisationId.Equals("Primary_Resource_On_Cast_Per_Skill_Tag") ||
                         affixAttribute.LocalisationId.Equals("Skill_Rank_Skill_Tag_Bonus") ||
                         affixAttribute.LocalisationId.Equals("Skill_Tag_Cooldown_Reduction_Percent") ||
+                        affixAttribute.LocalisationId.Equals("Skill_Tag_Resource_Cost_Reduction_Percent") ||
                         affixAttribute.LocalisationId.Equals("Resource_Gain_Bonus_Percent_Per_Skill_Tag"))
                     {
                         ReplaceSkillTagPlaceholders(affixInfo, i);
@@ -747,15 +748,18 @@ namespace D4DataParser.Parsers
                         affixAttribute.LocalisationId.Equals("Resource_Max_Bonus") ||
                         affixAttribute.LocalisationId.Equals("Resource_On_Hit") ||
                         affixAttribute.LocalisationId.Equals("Resource_On_Kill") ||
+                        affixAttribute.LocalisationId.Equals("Resource_On_Kill_Warlock") ||
                         affixAttribute.LocalisationId.Equals("Resource_Regen_Per_Second"))
                     {
                         ReplaceResourcePlaceholders(affixInfo, i);
                     }
-                    else if (affixAttribute.LocalisationId.Equals("Combat_Effect_Chance_Bonus_Per_Damage_Type") ||
+                    else if (affixAttribute.LocalisationId.Equals("Bucketed_Multiplicative_Damage_Type") ||
+                        affixAttribute.LocalisationId.Equals("Combat_Effect_Chance_Bonus_Per_Damage_Type") ||
                         affixAttribute.LocalisationId.Equals("Damage_Type_Crit_Damage_Percent_Bonus") ||
                         affixAttribute.LocalisationId.Equals("Damage_Type_Crit_Percent_Bonus_Vs_Elites") ||
                         affixAttribute.LocalisationId.Equals("Damage_Type_Percent_Bonus") ||
                         affixAttribute.LocalisationId.Equals("DOT_DPS_Bonus_Percent_Per_Damage_Type") ||
+                        affixAttribute.LocalisationId.Equals("Per_Damage_Type_Buff_Duration_Bonus_Percent") ||
                         affixAttribute.LocalisationId.Equals("Proc_Flat_Element_Damage_On_Hit") ||
                         affixAttribute.LocalisationId.Equals("Resistance") ||
                         affixAttribute.LocalisationId.Equals("Resistance_Max_Bonus") ||

@@ -254,7 +254,36 @@ namespace D4DataParser.Parsers
 
             // Cleanup aspects
             // - Disabled aspects
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("Legendary_Druid_118", StringComparison.OrdinalIgnoreCase)); // (REDESIGN) of Metamorphic Stone
             aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_034", StringComparison.OrdinalIgnoreCase)); // (PH) of Ensnaring Current (added by coreTOCAspects)
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_105", StringComparison.OrdinalIgnoreCase)); // Flamewalker's
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_119", StringComparison.OrdinalIgnoreCase)); // Gravitational
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("x1_legendary_druid_124", StringComparison.OrdinalIgnoreCase)); // of the Agile Wolf
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("x1_legendary_druid_126", StringComparison.OrdinalIgnoreCase)); // Stormcrow's
+
+            // Cleanup aspects
+            // - Old aspects (With same name but different description)
+            var idNameSet = new HashSet<string>(aspectInfoList.Select(aspect => aspect.IdName), StringComparer.OrdinalIgnoreCase);
+            aspectInfoList.RemoveAll(aspect => idNameSet.Contains(aspect.IdName + "_x2"));
+
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_barb_104", StringComparison.OrdinalIgnoreCase)); // Earthstriker's aspect from v0.8.0.39319
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_111", StringComparison.OrdinalIgnoreCase)); // Encased aspect from v0.8.0.39319
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_113", StringComparison.OrdinalIgnoreCase)); // of Biting Cold aspect from v0.8.0.39319
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_131", StringComparison.OrdinalIgnoreCase)); // Everliving aspect from v0.8.0.39319
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("Legendary_Sorc_133", StringComparison.OrdinalIgnoreCase)); // of Frozen Memories aspect from v0.8.0.39319
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_143", StringComparison.OrdinalIgnoreCase)); // of the Orange Herald aspect from v1.5.0.55146
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_145", StringComparison.OrdinalIgnoreCase)); // Lightning Rod aspect from v1.5.0.55146
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_spiritborn_010_x1", StringComparison.OrdinalIgnoreCase)); // of Falling Feathers aspect from v2.0.1.57456 --- legendary_spiritborn_010_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_spiritborn_013_x1", StringComparison.OrdinalIgnoreCase)); // Duelist's aspect from v2.0.1.57456
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_spiritborn_025_x1", StringComparison.OrdinalIgnoreCase)); // of Recalling Feathers aspect from v2.0.1.57456 --- legendary_spiritborn_025_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_rogue_019", StringComparison.OrdinalIgnoreCase)); // Trickster's aspect from v0.8.0.39319
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_rogue_133", StringComparison.OrdinalIgnoreCase)); // of Iron Rain aspect from v1.5.0.55146
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("x1_legendary_rogue_129", StringComparison.OrdinalIgnoreCase)); // of Poisonous Clouds aspect from v2.0.1.57456 --- legendary_rogue_129_x2
+
+            // TODO: Bugged aspects?
+            // legendary_rogue_100 (High Velocity) previous (of Branching Volleys)
+            // legendary_rogue_129 (High Velocity)
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_rogue_100", StringComparison.OrdinalIgnoreCase));
 
             // Update AspectInfo
             // - Allowed classes
