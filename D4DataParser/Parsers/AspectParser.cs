@@ -401,9 +401,10 @@ namespace D4DataParser.Parsers
             {
                 // Skip duplicates
                 if (aspectInfoListExport.Any(a => a.DescriptionClean.Equals(aspectInfo.DescriptionClean))) continue;
-                // Skip inactive aspects
+                // Skip inactive aspects                
                 if (aspectInfo.Name.Contains("(DNS)", StringComparison.OrdinalIgnoreCase)) continue;
-                if (aspectInfo.Name.Contains("(PH)", StringComparison.OrdinalIgnoreCase)) continue;
+                if (aspectInfo.Name.Contains("（DNS）", StringComparison.OrdinalIgnoreCase)) continue; // Variant of jaJP, zhCN
+                if (aspectInfo.Name.Contains("(PH)", StringComparison.OrdinalIgnoreCase)) continue;                
 
                 aspectInfoListExport.Add(aspectInfo);
             }
