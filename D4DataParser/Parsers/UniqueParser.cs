@@ -127,7 +127,8 @@ namespace D4DataParser.Parsers
                 !kvp.Value.StartsWith("Item_", StringComparison.InvariantCultureIgnoreCase) ||
                 !kvp.Value.Contains("_Unique_", StringComparison.InvariantCultureIgnoreCase) ||
                 kvp.Value.Contains("_TEST_", StringComparison.InvariantCultureIgnoreCase) ||
-                kvp.Value.Contains("_NoPowers", StringComparison.InvariantCultureIgnoreCase)).ToList())
+                kvp.Value.Contains("_NoPowers", StringComparison.InvariantCultureIgnoreCase) ||
+                kvp.Value.Contains("Item_S10", StringComparison.InvariantCultureIgnoreCase)).ToList()) // From season 10 unique feature where unique aspects could be found on other item slots.
             {
                 coreTOCUniques.Remove(item.Key);
             }
@@ -235,12 +236,6 @@ namespace D4DataParser.Parsers
                     continue;
                 }
 
-                // Validate ForcedAffixes
-                if (itemMeta.arForcedAffixes.Count < 5)
-                {
-                    Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Skipped. Invalid affix count: {idNameItem}.itm");
-                    continue;
-                }
 
                 // Find affix with a snoPassivePower
                 foreach (var forcedAffix in itemMeta.arForcedAffixes)
@@ -400,6 +395,8 @@ namespace D4DataParser.Parsers
             // Save
             SaveUniques();
 
+            ValidateUniques(language);
+
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
             watch.Stop();
         }
@@ -429,8 +426,15 @@ namespace D4DataParser.Parsers
         private void ValidateUniques(string language)
         {
             var uniqueInfoList = _uniqueInfoDictionary[language];
+            var uniqueInfoListExport = new List<UniqueInfo>();
+            foreach (var uniqueInfo in uniqueInfoList)
+            {
+                if (uniqueInfoListExport.Any(a => a.DescriptionClean.Equals(uniqueInfo.DescriptionClean))) continue;
 
-            var duplicates = uniqueInfoList.GroupBy(a => a.Description).Where(a => a.Count() > 1);
+                uniqueInfoListExport.Add(uniqueInfo);
+            }
+
+            var duplicates = uniqueInfoListExport.GroupBy(a => a.Name).Where(a => a.Count() > 1);
             if (duplicates.Any())
             {
                 Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Duplicates found!");
@@ -440,9 +444,13 @@ namespace D4DataParser.Parsers
                     Console.WriteLine("Key: {0}", group.Key);
                     foreach (var affixInfo in group)
                     {
-                        Debug.WriteLine($"{affixInfo.IdName}: {affixInfo.Description}");
+                        Debug.WriteLine($"{affixInfo.IdName}: {affixInfo.Name}");
                     }
                 }
+            }
+            else
+            {
+                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: No duplicates found!");
             }
         }
 
