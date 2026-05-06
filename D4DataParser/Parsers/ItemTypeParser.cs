@@ -210,7 +210,7 @@ namespace D4DataParser.Parsers
                 //AddChaosItemType(type, typeLoc);
 
                 // Season 12 - Bloodied items
-                AddBloodiedItemType(type, typeLoc);
+                //AddBloodiedItemType(type, typeLoc);
             }
 
             // Local function to combine ItemType with ItemQuality - Season 10 only.
@@ -513,6 +513,11 @@ namespace D4DataParser.Parsers
             //localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             //itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
             //AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
+
+            jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_Flail.stl.json");
+            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
 
             jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_Focus.stl.json");
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
