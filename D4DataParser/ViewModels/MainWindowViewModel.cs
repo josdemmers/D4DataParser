@@ -59,7 +59,7 @@ namespace D4DataParser.ViewModels
             ParseSigilDataCommand = new RelayCommand(ParseSigilDataExecute);
             ParseUniqueDataCommand = new RelayCommand(ParseUniqueDataExecute);
             ParseImplicitDataCommand = new RelayCommand(ParseImplicitDataExecute);
-            ParseAllDataCommand = new RelayCommand(ParseAllDataExecute);
+            ParseAllDataCommand = new AsyncRelayCommand(ParseAllDataExecute);
 
             // Init filter views
             CreateAffixInfoFilteredView();
@@ -312,9 +312,9 @@ namespace D4DataParser.ViewModels
             });
         }
 
-        private void ParseAllDataExecute()
+        private async Task ParseAllDataExecute()
         {
-            Task.Factory.StartNew(() =>
+            await Task.Factory.StartNew(() =>
             {
                 // Affixes
                 _affixParser.D4dataPath = _d4DataPath;

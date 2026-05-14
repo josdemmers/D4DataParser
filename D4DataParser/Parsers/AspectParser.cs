@@ -263,22 +263,66 @@ namespace D4DataParser.Parsers
 
             // Cleanup aspects
             // - Old aspects (With same name but different description)
-            var idNameSet = new HashSet<string>(aspectInfoList.Select(aspect => aspect.IdName), StringComparer.OrdinalIgnoreCase);
-            aspectInfoList.RemoveAll(aspect => idNameSet.Contains(aspect.IdName + "_x2"));
 
+            // Note: Filter logic x2 does not work for all cases.
+            //       For example: Aspect of Vocalized Empowerment: legendary_​barb_​007
+            //                    Raid Leader's Aspect: legendary_​barb_​007_​x2            
+            //var idNameSet = new HashSet<string>(aspectInfoList.Select(aspect => aspect.IdName), StringComparer.OrdinalIgnoreCase);
+            //aspectInfoList.RemoveAll(aspect => idNameSet.Contains(aspect.IdName + "_x2"));
+
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_barb_006", StringComparison.OrdinalIgnoreCase)); // Battle-Mad --- legendary_barb_058_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_barb_055", StringComparison.OrdinalIgnoreCase)); // Steadfast Berserker's --- legendary_barb_055_x2
             aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_barb_104", StringComparison.OrdinalIgnoreCase)); // Earthstriker's aspect from v0.8.0.39319
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_druid_010", StringComparison.OrdinalIgnoreCase)); // of the Calm Breeze --- legendary_druid_010_X2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_druid_028", StringComparison.OrdinalIgnoreCase)); // Overcharged --- legendary_druid_028_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_druid_106", StringComparison.OrdinalIgnoreCase)); // of the Wildrage --- legendary_druid_106_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_druid_122", StringComparison.OrdinalIgnoreCase)); // Raw Might --- legendary_druid_122_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_generic_038", StringComparison.OrdinalIgnoreCase)); // of Retribution --- legendary_generic_038_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_generic_123", StringComparison.OrdinalIgnoreCase)); // Blood Boiling --- legendary_generic_123_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_generic_126", StringComparison.OrdinalIgnoreCase)); // of Apogeic Furor --- legendary_generic_126_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_necro_003", StringComparison.OrdinalIgnoreCase)); // of Hewed Flesh --- legendary_necro_003_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_necro_022", StringComparison.OrdinalIgnoreCase)); // of Debilitating Darkness --- legendary_necro_022_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_necro_054", StringComparison.OrdinalIgnoreCase)); // of Shielding Bones --- legendary_necro_054_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_necro_120", StringComparison.OrdinalIgnoreCase)); // of the Embalmer: legendary_necro_120_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_paladin_008", StringComparison.OrdinalIgnoreCase)); // Bulwark's --- legendary_paladin_008_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_paladin_009", StringComparison.OrdinalIgnoreCase)); // Lord of Blood's --- legendary_paladin_009_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_paladin_053", StringComparison.OrdinalIgnoreCase)); // of Dominance --- legendary_paladin_053_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_paladin_059", StringComparison.OrdinalIgnoreCase)); // of the Disciple --- legendary_paladin_059_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_paladin_063", StringComparison.OrdinalIgnoreCase)); // of the Light's Mending --- legendary_paladin_063_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_paladin_076", StringComparison.OrdinalIgnoreCase)); // of Excellence --- legendary_paladin_076_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_rogue_019", StringComparison.OrdinalIgnoreCase)); // Trickster's aspect from v0.8.0.39319
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_rogue_024", StringComparison.OrdinalIgnoreCase)); // Icy Alchemist's --- legendary_rogue_024_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_rogue_101", StringComparison.OrdinalIgnoreCase)); // Blast-Trapper's --- legendary_rogue_101_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_rogue_102", StringComparison.OrdinalIgnoreCase)); // of Explosive Verve --- legendary_rogue_102_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_rogue_119", StringComparison.OrdinalIgnoreCase)); // of Synergy --- legendary_rogue_119_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_rogue_121", StringComparison.OrdinalIgnoreCase)); // of Elusive Menace --- legendary_rogue_121_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_rogue_133", StringComparison.OrdinalIgnoreCase)); // of Iron Rain aspect from v1.5.0.55146
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_012", StringComparison.OrdinalIgnoreCase)); // of Piercing Static --- legendary_sorc_012_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_043", StringComparison.OrdinalIgnoreCase)); // of Armageddon --- legendary_sorc_043_x2 
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_101", StringComparison.OrdinalIgnoreCase)); // of Ancient Flame --- legendary_sorc_101_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_108", StringComparison.OrdinalIgnoreCase)); // Snowveiled --- legendary_sorc_108_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_109", StringComparison.OrdinalIgnoreCase)); // of the Frozen Wake --- legendary_sorc_109_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_110", StringComparison.OrdinalIgnoreCase)); // of Piercing Cold --- legendary_sorc_110_x2
             aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_111", StringComparison.OrdinalIgnoreCase)); // Encased aspect from v0.8.0.39319
             aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_113", StringComparison.OrdinalIgnoreCase)); // of Biting Cold aspect from v0.8.0.39319
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_117", StringComparison.OrdinalIgnoreCase)); // of Overwhelming Currents --- legendary_sorc_117_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_118", StringComparison.OrdinalIgnoreCase)); // Recharging --- legendary_sorc_118_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_120", StringComparison.OrdinalIgnoreCase)); // Mage-Lord's --- legendary_sorc_120_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_121", StringComparison.OrdinalIgnoreCase)); // of Splintering Energy --- legendary_sorc_121_x2
             aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_131", StringComparison.OrdinalIgnoreCase)); // Everliving aspect from v0.8.0.39319
-            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("Legendary_Sorc_133", StringComparison.OrdinalIgnoreCase)); // of Frozen Memories aspect from v0.8.0.39319
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("Legendary_Sorc_135", StringComparison.OrdinalIgnoreCase)); // Shattered --- legendary_sorc_135_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_137", StringComparison.OrdinalIgnoreCase)); // Battle Caster's --- legendary_sorc_137_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_138", StringComparison.OrdinalIgnoreCase)); // of Shredding Blades --- legendary_sorc_138_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("Legendary_Sorc_133", StringComparison.OrdinalIgnoreCase)); // of Frozen Memories aspect from v0.8.0.39319           
             aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_143", StringComparison.OrdinalIgnoreCase)); // of the Orange Herald aspect from v1.5.0.55146
             aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_sorc_145", StringComparison.OrdinalIgnoreCase)); // Lightning Rod aspect from v1.5.0.55146
             aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_spiritborn_010_x1", StringComparison.OrdinalIgnoreCase)); // of Falling Feathers aspect from v2.0.1.57456 --- legendary_spiritborn_010_x2
             aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_spiritborn_013_x1", StringComparison.OrdinalIgnoreCase)); // Duelist's aspect from v2.0.1.57456
             aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_spiritborn_025_x1", StringComparison.OrdinalIgnoreCase)); // of Recalling Feathers aspect from v2.0.1.57456 --- legendary_spiritborn_025_x2
-            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_rogue_019", StringComparison.OrdinalIgnoreCase)); // Trickster's aspect from v0.8.0.39319
-            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_rogue_133", StringComparison.OrdinalIgnoreCase)); // of Iron Rain aspect from v1.5.0.55146
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("legendary_spiritborn_034_x1", StringComparison.OrdinalIgnoreCase)); // of Interdiction --- legendary_spiritborn_034_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("S05_BSK_Barbarian_001", StringComparison.OrdinalIgnoreCase)); // of Anger Management --- S05_BSK_Barbarian_001_x2
             aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("x1_legendary_rogue_129", StringComparison.OrdinalIgnoreCase)); // of Poisonous Clouds aspect from v2.0.1.57456 --- legendary_rogue_129_x2
+            aspectInfoList.RemoveAll(aspect => aspect.IdName.Equals("x1_legendary_sorc_141", StringComparison.OrdinalIgnoreCase)); // of Elemental Constellation --- x1_legendary_sorc_141_x2
 
             // TODO: Bugged aspects?
             // legendary_rogue_100 (High Velocity) previous (of Branching Volleys)
@@ -386,7 +430,6 @@ namespace D4DataParser.Parsers
             }
 
             SaveAspects(language);
-            ValidateAspects(language);
 
             watch.Stop();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
@@ -437,6 +480,22 @@ namespace D4DataParser.Parsers
             //        }
             //    }
             //}
+
+            var duplicates = aspectInfoList.GroupBy(a => a.Name).Where(a => a.Count() > 1);
+            //var duplicates = aspectInfoList.GroupBy(a => a.Name).Where(g => g.Select(x => x.DescriptionClean).Distinct().Count() > 1);
+            if (duplicates.Any())
+            {
+                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Duplicates found!");
+
+                foreach (var group in duplicates)
+                {
+                    Console.WriteLine("Key: {0}", group.Key);
+                    foreach (var affixInfo in group)
+                    {
+                        Debug.WriteLine($"{affixInfo.Name}: {affixInfo.IdName} --- {affixInfo.Description}");
+                    }
+                }
+            }
         }
 
         private string GetAspectCategory(AffixMeta affixMeta)
