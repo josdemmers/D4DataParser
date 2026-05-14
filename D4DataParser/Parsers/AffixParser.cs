@@ -727,6 +727,7 @@ namespace D4DataParser.Parsers
                         affixAttribute.LocalisationId.Equals("Attack_Speed_Percent_Bonus_Per_Skill_Tag") ||
                         affixAttribute.LocalisationId.Equals("Crit_Damage_Percent_Per_Skill_Tag") ||
                         affixAttribute.LocalisationId.Equals("Crit_Percent_Bonus_Per_Skill_Tag") ||
+                        affixAttribute.LocalisationId.Equals("Custom_Duration_Bonus_Per_Skill_Tag") ||
                         affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_Per_Skill_Tag") || affixAttribute.LocalisationId.StartsWith("Damage_Percent_Bonus_Per_Skill_Tag#") ||
                         affixAttribute.LocalisationId.Equals("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag") || affixAttribute.LocalisationId.StartsWith("Damage_Percent_Bonus_To_Targets_Affected_By_Skill_Tag#") ||
                         affixAttribute.LocalisationId.Equals("Damage_Percent_Reduction_From_Targets_With_Skill_Tag") ||
