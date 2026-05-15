@@ -45,16 +45,29 @@
             { 13, "Affected_By_CC_Type_Fear" }
         };
 
+        //public static readonly Dictionary<uint, string> DamageTypes = new Dictionary<uint, string>
+        //{
+        //    //  Note: Damage type mapping before the Diablo IV v3 update.
+        //    // .\d4data\json\enUS_Text\meta\StringList\SkillTagNames.stl.json
+        //    { 0, "DAMAGE_PHYSICAL" },
+        //    { 1, "DAMAGE_FIRE" },
+        //    { 2, "DAMAGE_LIGHTNING" },
+        //    { 3, "DAMAGE_COLD" },
+        //    { 4, "DAMAGE_POISON" },
+        //    { 5, "DAMAGE_SHADOW" },
+        //    { 6, "DAMAGE_NONPHYSICAL" } // Should be Holy --> Switching from SkillTagNames to UIToolTips instead for correct localisation.
+        //};
+
         public static readonly Dictionary<uint, string> DamageTypes = new Dictionary<uint, string>
         {
-            // .\d4data\json\enUS_Text\meta\StringList\SkillTagNames.stl.json
-            { 0, "DAMAGE_PHYSICAL" },
-            { 1, "DAMAGE_FIRE" },
-            { 2, "DAMAGE_LIGHTNING" },
-            { 3, "DAMAGE_COLD" },
-            { 4, "DAMAGE_POISON" },
-            { 5, "DAMAGE_SHADOW" },
-            { 6, "DAMAGE_NONPHYSICAL" }
+            // .\d4data\json\enUS_Text\meta\StringList\UIToolTips.stl.json
+            { 0, "Damage_Physical" },
+            { 1, "Damage_Fire" },
+            { 2, "Damage_Lightning" },
+            { 3, "Damage_Cold" },
+            { 4, "Damage_Poison" },
+            { 5, "Damage_Shadow" },
+            { 6, "Damage_Holy" }
         };
 
         public static readonly Dictionary<uint, string> DotTypes = new Dictionary<uint, string>

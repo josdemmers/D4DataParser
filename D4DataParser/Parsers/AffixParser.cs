@@ -1156,7 +1156,7 @@ namespace D4DataParser.Parsers
         {
             var affixAttribute = affix.AffixAttributes[index];
             string localisationParameterAsString = LocalisationMappings.DamageTypes[affixAttribute.LocalisationParameter];
-            var damageTypeInfo = _skillTagNames.arStrings.FirstOrDefault(l => l.szLabel.Equals(localisationParameterAsString));
+            var damageTypeInfo = _uiToolTips.arStrings.FirstOrDefault(l => l.szLabel.Equals(localisationParameterAsString));
             if (damageTypeInfo != null)
             {
                 string resource = damageTypeInfo.szText;
