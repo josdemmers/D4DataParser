@@ -125,6 +125,7 @@ namespace D4DataParser.Parsers
                 localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals(ItemRarityConstants.Rare, StringComparison.OrdinalIgnoreCase)) ?? new(),
                 localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals(ItemRarityConstants.Legendary, StringComparison.OrdinalIgnoreCase)) ?? new(),
                 localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals(ItemRarityConstants.Unique, StringComparison.OrdinalIgnoreCase)) ?? new(),
+                localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals(ItemRarityConstants.Set, StringComparison.OrdinalIgnoreCase)) ?? new(),
                 localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals(ItemRarityConstants.Mythic, StringComparison.OrdinalIgnoreCase)) ?? new()
             };
 
@@ -134,7 +135,7 @@ namespace D4DataParser.Parsers
             // Bloodied localisation (Season 12)
             ArString bloodied = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Bloodied", StringComparison.OrdinalIgnoreCase)) ?? new();
 
-            // Local function to combine ItemType with ItemQuality
+            // Local function to combine ItemType with ItemQuality, ItemRarity.
             void AddItemType(string type, string typeLoc)
             {
                 string variant = string.Empty;
@@ -147,6 +148,8 @@ namespace D4DataParser.Parsers
                 {
                     foreach (var rarity in rarities)
                     {
+                        if (rarity.szLabel.Equals("Set")) continue;
+
                         // Extract variant from quality and rarity that matches with the current type.
                         string qualityVariant = string.IsNullOrWhiteSpace(quality.szText) ? string.Empty : string.IsNullOrWhiteSpace(variant) ? quality.szText :
                             quality.szText.Substring(quality.szText.IndexOf(variant) + variant.Length, (quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length) == -1 ? quality.szText.Length : quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length)) - (quality.szText.IndexOf(variant) + variant.Length));
@@ -211,6 +214,148 @@ namespace D4DataParser.Parsers
 
                 // Season 12 - Bloodied items
                 //AddBloodiedItemType(type, typeLoc);
+            }
+
+            // Local function to combine ItemType Charms with ItemQuality, ItemRarity.
+            void AddItemTypeCharms(string type, string itemTypeLoc)
+            {
+                string variant = string.Empty;
+                if (itemTypeLoc.Contains("["))
+                {
+                    variant = itemTypeLoc.Substring(0, itemTypeLoc.IndexOf("]") + 1);
+                }
+
+                foreach (var quality in qualities)
+                {
+                    foreach (var rarity in rarities)
+                    {
+                        if (!rarity.szLabel.Equals("Magic") &&
+                            !rarity.szLabel.Equals("Rare") &&
+                            !rarity.szLabel.Equals("Legendary") &&
+                            !rarity.szLabel.Equals("Unique") &&
+                            !rarity.szLabel.Equals("Set")) continue;
+
+                        // Extract variant from quality and rarity that matches with the current type.
+                        string qualityVariant = string.IsNullOrWhiteSpace(quality.szText) ? string.Empty : string.IsNullOrWhiteSpace(variant) ? quality.szText :
+                            quality.szText.Substring(quality.szText.IndexOf(variant) + variant.Length, (quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length) == -1 ? quality.szText.Length : quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length)) - (quality.szText.IndexOf(variant) + variant.Length));
+
+                        // Use default rarity.szText when no alternative localisations available.
+                        string rarityVariant = rarity.szText;
+                        if (!string.IsNullOrWhiteSpace(variant) && rarity.szText.Contains(variant) && rarity.szText.Count(c => c == '[') > 1)
+                        {
+                            // Get the correct localisation
+                            rarityVariant = rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+                        }
+
+                        string name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
+                        if (language.Equals("trTR"))
+                        {
+                            if (string.IsNullOrWhiteSpace(qualityVariant))
+                            {
+                                name = $"{RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
+                            }
+                            else
+                            {
+                                name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
+                            }
+                        }
+                        else if (language.Equals("esES") || language.Equals("ptBR"))
+                        {
+                            if (string.IsNullOrWhiteSpace(qualityVariant))
+                            {
+                                name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(rarityVariant)}".Trim();
+                            }
+                            else
+                            {
+                                name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(qualityVariant)}".Trim();
+                            }
+                        }
+                        else if (language.Equals("esMX") || language.Equals("frFR") || language.Equals("itIT"))
+                        {
+                            if (string.IsNullOrWhiteSpace(qualityVariant))
+                            {
+                                name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(rarityVariant)}".Trim();
+                            }
+                            else
+                            {
+                                name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)}".Trim();
+                            }
+                        }
+                        else if (language.Equals("zhCN"))
+                        {
+                            // Note: No spaces
+                            name = $"{RemoveVariantIndicator(qualityVariant)}{RemoveVariantIndicator(rarityVariant)}{RemoveVariantIndicator(itemTypeLoc)}".Trim();
+                        }
+
+                        // Skip duplicates
+                        if (_itemTypeInfoList.Any(t => t.Name.Equals(name))) continue;
+
+                        _itemTypeInfoList.Add(new ItemTypeInfo
+                        {
+                            Name = name,
+                            Rarerity = rarity.szLabel,
+                            Type = type,
+                        });
+                    }
+                }
+            }
+
+            // Local function to combine ItemType Horadric Seal with ItemRarity
+            void AddItemTypeHoradricSeal(string type, string itemTypeLoc)
+            {
+                string variant = itemTypeLoc.Contains("[") ? itemTypeLoc.Substring(0, itemTypeLoc.IndexOf("]") + 1) : string.Empty;
+                foreach (var rarity in rarities)
+                {
+                    if (!rarity.szLabel.Equals("Magic") &&
+                        !rarity.szLabel.Equals("Rare") &&
+                        !rarity.szLabel.Equals("Legendary")) continue;
+
+                    // Extract variant from rarity that matches with the current type.
+                    string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
+                        rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+
+                    string name = $"{RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
+                    if (!string.IsNullOrWhiteSpace(rarityVariant) && (language.Equals("esES") || language.Equals("frFR")))
+                    {
+                        name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(rarityVariant)}".Trim();
+                    }
+
+                    _itemTypeInfoList.Add(new ItemTypeInfo
+                    {
+                        Name = name,
+                        Rarerity = rarity.szLabel,
+                        Type = type
+                    });
+                }
+            }
+
+            // Local function to combine ItemType Runes with ItemRarity
+            void AddItemTypeRunes(string type, string itemTypeLoc)
+            {
+                string variant = itemTypeLoc.Contains("[") ? itemTypeLoc.Substring(0, itemTypeLoc.IndexOf("]") + 1) : string.Empty;
+                foreach (var rarity in rarities)
+                {
+                    if (!rarity.szLabel.Equals("Magic") &&
+                        !rarity.szLabel.Equals("Rare") &&
+                        !rarity.szLabel.Equals("Legendary")) continue;
+
+                    // Extract variant from rarity that matches with the current type.
+                    string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
+                        rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+
+                    string name = $"{RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
+                    if (!string.IsNullOrWhiteSpace(rarityVariant) && (language.Equals("esES") || language.Equals("frFR")))
+                    {
+                        name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(rarityVariant)}".Trim();
+                    }
+
+                    _itemTypeInfoList.Add(new ItemTypeInfo
+                    {
+                        Name = name,
+                        Rarerity = rarity.szLabel,
+                        Type = type
+                    });
+                }
             }
 
             // Local function to combine ItemType with ItemQuality - Season 10 only.
@@ -333,35 +478,7 @@ namespace D4DataParser.Parsers
                         });
                     }
                 }
-            }
-
-            // Local function to combine ItemType Runes with ItemRarity
-            void AddItemTypeRunes(string type, string itemTypeLoc)
-            {
-                string variant = itemTypeLoc.Contains("[") ? itemTypeLoc.Substring(0, itemTypeLoc.IndexOf("]") + 1) : string.Empty;
-                foreach (var rarity in rarities)
-                {
-                    if (!rarity.szLabel.Equals("Magic") &&
-                        !rarity.szLabel.Equals("Rare") &&
-                        !rarity.szLabel.Equals("Legendary")) continue;
-
-                    // Extract variant from rarity that matches with the current type.
-                    string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
-                        rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
-
-                    string name = $"{RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(itemTypeLoc)}".Trim();
-                    if (!string.IsNullOrWhiteSpace(rarityVariant) && (language.Equals("esES") || language.Equals("frFR")))
-                    {
-                        name = $"{RemoveVariantIndicator(itemTypeLoc)} {RemoveVariantIndicator(rarityVariant)}".Trim();
-                    }
-
-                    _itemTypeInfoList.Add(new ItemTypeInfo
-                    {
-                        Name = name,
-                        Type = type
-                    });
-                }
-            }
+            }            
 
             // Local function to combine ItemType Occult Gem with ItemRarity
             void AddItemTypeOccultGem(string type, string itemTypeLoc)
@@ -637,7 +754,30 @@ namespace D4DataParser.Parsers
             jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_Wand.stl.json");
             localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
             itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
-            AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);
+            AddItemType(ItemTypeConstants.Weapon, itemTypeLoc);            
+
+            // List type - Charms
+            jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_Charm.stl.json");
+            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemTypeCharms(ItemTypeConstants.Charm, itemTypeLoc);
+
+            // List type - Horadric Seals
+            jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_HoradricSeal.stl.json");
+            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemTypeHoradricSeal(ItemTypeConstants.HoradricSeal, itemTypeLoc);
+
+            // List type - Runes
+            jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_ConditionRune.stl.json");
+            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemTypeRunes(ItemTypeConstants.Rune, itemTypeLoc);
+
+            jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_EffectRune.stl.json");
+            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
+            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+            AddItemTypeRunes(ItemTypeConstants.Rune, itemTypeLoc);
 
             // List type - Sigil
             jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_DungeonKey.stl.json");
@@ -698,17 +838,6 @@ namespace D4DataParser.Parsers
             //        Type = ItemTypeConstants.Temper
             //    });
             //}
-
-            // List type - Runes
-            jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_ConditionRune.stl.json");
-            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
-            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
-            AddItemTypeRunes(ItemTypeConstants.Rune, itemTypeLoc);
-
-            jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_EffectRune.stl.json");
-            localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
-            itemTypeLoc = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
-            AddItemTypeRunes(ItemTypeConstants.Rune, itemTypeLoc);
 
             // List type - Occult Gem (Season 7)
             //jsonAsText = File.ReadAllText($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\ItemType_SeasonalSocketable.stl.json");
