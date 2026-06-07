@@ -237,7 +237,10 @@ namespace D4DataParser.Parsers
             var affixFiles = Directory.EnumerateFiles($"{_d4dataPath}json\\{language}_Text\\meta\\StringList\\", "*.*", SearchOption.TopDirectoryOnly)
             .Where(s => s.Contains("DungeonAffix_Positive_", StringComparison.OrdinalIgnoreCase) ||
             s.Contains("DungeonAffix_Minor_", StringComparison.OrdinalIgnoreCase) ||
-            s.Contains("DungeonAffix_Major_", StringComparison.OrdinalIgnoreCase));
+            s.Contains("DungeonAffix_Major_", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            // Remove seasonal (S14)
+            affixFiles.RemoveAll(s => s.Contains("_DungeonAffix", StringComparison.OrdinalIgnoreCase));
 
             var affixes = new List<Localisation>();
             foreach (var affixFile in affixFiles) 

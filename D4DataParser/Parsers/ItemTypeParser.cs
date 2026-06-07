@@ -154,8 +154,16 @@ namespace D4DataParser.Parsers
                         string qualityVariant = string.IsNullOrWhiteSpace(quality.szText) ? string.Empty : string.IsNullOrWhiteSpace(variant) ? quality.szText :
                             quality.szText.Substring(quality.szText.IndexOf(variant) + variant.Length, (quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length) == -1 ? quality.szText.Length : quality.szText.IndexOf("[", quality.szText.IndexOf(variant) + variant.Length)) - (quality.szText.IndexOf(variant) + variant.Length));
 
-                        string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
-                            rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+                        //string rarityVariant = string.IsNullOrWhiteSpace(variant) ? rarity.szText :
+                        //    rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+
+                        // Use default rarity.szText when no alternative localisations available.
+                        string rarityVariant = rarity.szText;
+                        if (!string.IsNullOrWhiteSpace(variant) && rarity.szText.Contains(variant) && rarity.szText.Count(c => c == '[') > 1)
+                        {
+                            // Get the correct localisation
+                            rarityVariant = rarity.szText.Substring(rarity.szText.IndexOf(variant) + variant.Length, (rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length) == -1 ? rarity.szText.Length : rarity.szText.IndexOf("[", rarity.szText.IndexOf(variant) + variant.Length)) - (rarity.szText.IndexOf(variant) + variant.Length));
+                        }
 
                         string name = $"{RemoveVariantIndicator(qualityVariant)} {RemoveVariantIndicator(rarityVariant)} {RemoveVariantIndicator(typeLoc)}".Trim();
                         if (language.Equals("trTR"))
