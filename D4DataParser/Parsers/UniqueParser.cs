@@ -320,6 +320,7 @@ namespace D4DataParser.Parsers
             uniqueInfoList.RemoveAll(u => u.Name.StartsWith("PH"));
             uniqueInfoList.RemoveAll(u => u.Name.StartsWith("(PH)"));
             uniqueInfoList.RemoveAll(u => u.Name.StartsWith("[PH]"));
+            uniqueInfoList.RemoveAll(u => u.Name.StartsWith("[ph_"));
             // Remove test items
             uniqueInfoList.RemoveAll(u =>
                 u.IdNameItem.Equals("Gloves_Unique_Barbarian_099") ||

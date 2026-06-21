@@ -615,6 +615,8 @@ namespace D4DataParser.Parsers
 
                     if (affixAttributes.LocalisationId.Equals("On_Hit_Vulnerable_Proc_Chance")) affixAttributes.LocalisationId = "On_Hit_Vulnerable_Proc";
                     if (affixAttributes.LocalisationId.Equals("On_Hit_Vulnerable_Proc_Duration_Seconds")) affixAttributes.LocalisationId = "On_Hit_Vulnerable_Proc";
+                    if (affixAttributes.LocalisationId.Equals("On_Hit_Weakened_Proc_Chance")) affixAttributes.LocalisationId = "On_Hit_Weakened_Proc";
+                    if (affixAttributes.LocalisationId.Equals("On_Hit_Weakened_Proc_Duration_Seconds")) affixAttributes.LocalisationId = "On_Hit_Weakened_Proc";
                     if (affixAttributes.LocalisationId.Equals("Movement_Bonus_On_Elite_Kill")) affixAttributes.LocalisationId = "Movement_Speed_Bonus_On_Elite_Kill";
                     if (affixAttributes.LocalisationId.Equals("Movement_Bonus_On_Elite_Kill_Duration")) affixAttributes.LocalisationId = "Movement_Speed_Bonus_On_Elite_Kill";
                     if (affixAttributes.LocalisationId.Equals("Weapon_On_Hit_Percent_Bleed_Proc_Chance")) affixAttributes.LocalisationId = "Weapon_On_Hit_Percent_Bleed_Proc_Chance_Combined";
@@ -1080,6 +1082,7 @@ namespace D4DataParser.Parsers
                 affix.Description = affix.Description.Replace("{c_important}", string.Empty);
                 affix.Description = affix.Description.Replace("{c_label}", string.Empty);
                 affix.Description = affix.Description.Replace("{c_legendary}", string.Empty);
+                affix.Description = affix.Description.Replace("{c_mythic}", string.Empty);               
                 affix.Description = affix.Description.Replace("{c_number}", string.Empty);
                 affix.Description = affix.Description.Replace("{c:FFf74444}", string.Empty);
                 affix.Description = affix.Description.Replace("{/c}", string.Empty);

@@ -179,6 +179,8 @@ namespace D4DataParser.Parsers
                         return zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_SCOSGLEN", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
                     case var _ when idName.Contains("_Step_", StringComparison.OrdinalIgnoreCase):
                         return zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_DRY_STEPPES", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
+                    case var _ when idName.Contains("_Skov_", StringComparison.OrdinalIgnoreCase):
+                        return zoneMetaList.FirstOrDefault(z => z.szLabel.Equals("ZONE_SKOVOS", StringComparison.OrdinalIgnoreCase))?.szText ?? string.Empty;
                     default:
                         Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Zone not found for {idName}");
                         break;
