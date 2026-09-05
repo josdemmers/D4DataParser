@@ -115,8 +115,8 @@ namespace D4DataParser.Parsers
                 var jsonAsText = File.ReadAllText(fileName);
                 var localisation = System.Text.Json.JsonSerializer.Deserialize<Localisation>(jsonAsText) ?? new Localisation();
 
-                string name = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase)).szText;
-                string description = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Desc", StringComparison.OrdinalIgnoreCase)).szText;
+                string name = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase))?.szText ?? "missing name";
+                string description = localisation.arStrings.FirstOrDefault(s => s.szLabel.Equals("Desc", StringComparison.OrdinalIgnoreCase))?.szText ?? "missing description";
 
                 sigilInfo.IdSno = localisation.__snoID__;
                 sigilInfo.Name = name.Trim();
@@ -355,6 +355,10 @@ namespace D4DataParser.Parsers
                 sigilInfo.Name = sigilInfo.Name.Replace("{/c}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{icon:Marker_Season_Green,2.5}", string.Empty);
                 sigilInfo.Name = sigilInfo.Name.Replace("{s1}", string.Empty);
+
+                sigilInfo.Description = sigilInfo.Description.Replace("{c_rare}", string.Empty);
+                sigilInfo.Description = sigilInfo.Description.Replace("{c_unique}", string.Empty);
+                sigilInfo.Description = sigilInfo.Description.Replace("{/c}", string.Empty);
             }
 
             // Sort

@@ -148,8 +148,23 @@ namespace D4DataParser.Parsers
                 // Find localisation data
                 string directory = $"{_d4dataPath}json\\{_language}_Text\\meta\\StringList\\";
                 string fileNameLocalisation = $"{directory}{runeInfo.IdName}.stl.json";
-                var jsonAsText = File.ReadAllText(fileNameLocalisation);
-                var localisation = JsonSerializer.Deserialize<Localisation>(jsonAsText);
+
+                string jsonAsText = string.Empty;
+                if (!File.Exists(fileNameLocalisation))
+                {
+                    // Set default values if localisation file is missing.
+                    // Often happens during PTR when not all translations are available yet.
+                    runeInfo.Description = runeInfo.IdName;
+                    runeInfo.Name = runeInfo.IdName;
+                    runeInfo.RuneDescription = runeInfo.IdName;
+                    runeInfo.RuneOverflowBehavior = runeInfo.IdName;
+                }
+                else
+                {
+                    jsonAsText = File.ReadAllText(fileNameLocalisation);
+                }
+
+                var localisation = string.IsNullOrWhiteSpace(jsonAsText) ? null : JsonSerializer.Deserialize<Localisation>(jsonAsText);
                 if (localisation != null)
                 {
                     var localisationName = localisation.arStrings.FirstOrDefault(l => l.szLabel.Equals("Name", StringComparison.OrdinalIgnoreCase));

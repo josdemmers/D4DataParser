@@ -585,10 +585,25 @@ namespace D4DataParser.Parsers
                                 subLocalisationId = $"{affixAttributes.LocalisationId}#{subId}";
                             }
                         }
+                        else if (affixAttributes.LocalisationId.Equals("LuckyHit_DoT"))
+                        {
+                            string subId = GetLuckyHitDoT(subSno);
+                            if (!string.IsNullOrWhiteSpace(subId))
+                            {
+                                subLocalisationId = $"{affixAttributes.LocalisationId}#{subId}";
+                            }
+                        }
                         else
                         {
                             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Sub localisation data available but rules not set. ({affixAttributes.LocalisationId})");
                             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {affixInfo.IdName}: {affixAttributes.LocalisationParameter}");
+
+                            var subLocalisations = _attributeDescriptions.arStrings.FindAll(a => a.szLabel.StartsWith($"{affixAttributes.LocalisationId}#"));
+                            foreach (var subLocalisation in subLocalisations)
+                            {
+                                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: {subLocalisation.szLabel}");
+                            }
+
 
                             throw new NotImplementedException();
                         }
@@ -950,6 +965,33 @@ namespace D4DataParser.Parsers
                 case 5:
                     type = "Shadow";
                     break;
+            }
+            return type;
+        }
+
+        private string GetLuckyHitDoT(uint sno)
+        {
+            //LuckyHit_DoT
+            //LuckyHit_DoT#Fire
+            //LuckyHit_DoT#Physical
+            //LuckyHit_DoT#Poison - Currently Poison is the only one in use.
+            //LuckyHit_DoT#Shadow
+
+            string type = string.Empty;
+            switch (sno)
+            {               
+                case 0:
+                    type = "Physical";
+                    break;
+                case 1:
+                    type = "Fire";
+                    break;
+                case 4:
+                    type = "Poison";
+                    break;
+                case 5:
+                    type = "Shadow";
+                    break;                                    
             }
             return type;
         }

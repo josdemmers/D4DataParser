@@ -141,7 +141,7 @@ namespace D4DataParser.Parsers
                 string variant = string.Empty;
                 if (typeLoc.Contains("["))
                 {
-                    variant = typeLoc.Substring(0, typeLoc.IndexOf("]") + 1);
+                    variant = typeLoc.Substring(0, typeLoc.IndexOf("]") + 1).ToLower();
                 }
 
                 foreach (var quality in qualities)
