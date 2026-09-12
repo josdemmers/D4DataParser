@@ -26,7 +26,8 @@ namespace D4DataParser.Parsers
         // D4Data repo data
         private Dictionary<int, string> _affixDictionary = new Dictionary<int, string>();
         private List<AffixMeta> _affixMetaJsonList = new List<AffixMeta>();
-        List<PowerMeta> _powerMetaJsonList = new List<PowerMeta>();
+        private List<PowerMeta> _powerMetaJsonList = new List<PowerMeta>();
+        private List<RecipeMeta> _recipeMetaJsonList = new List<RecipeMeta>();        
         private Dictionary<uint, List<string>> _skillTagDictionary = new Dictionary<uint, List<string>>();
         private Dictionary<uint, string> _weaponTypeDictionary = new Dictionary<uint, string>();
         private Localisation _attributeDescriptions = new Localisation();
@@ -190,6 +191,36 @@ namespace D4DataParser.Parsers
                 }
             }
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Power folder): {watch.ElapsedMilliseconds - elapsedMs}");
+            elapsedMs = watch.ElapsedMilliseconds;
+
+            // Parse .\d4data\json\base\meta\Recipe\
+            _recipeMetaJsonList = new List<RecipeMeta>();
+            directory = $"{Path.GetDirectoryName(coreTOCPath)}\\meta\\Recipe\\";
+            if (Directory.Exists(directory))
+            {
+                var fileEntries = Directory.EnumerateFiles(directory).Where(file => file.EndsWith(".json", StringComparison.OrdinalIgnoreCase));
+                foreach (string fileName in fileEntries)
+                {
+                    using (FileStream? stream = File.OpenRead(fileName))
+                    {
+                        if (stream != null)
+                        {
+                            // create the options
+                            var options = new JsonSerializerOptions()
+                            {
+                                WriteIndented = true
+                            };
+                            // register the converter
+                            //options.Converters.Add(new BoolConverter());
+                            options.Converters.Add(new UIntConverter());
+
+                            var recipeMetaJson = JsonSerializer.Deserialize<RecipeMeta>(stream, options) ?? new RecipeMeta();
+                            _recipeMetaJsonList.Add(recipeMetaJson);
+                        }
+                    }
+                }
+            }
+            Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Recipe folder): {watch.ElapsedMilliseconds - elapsedMs}");
             elapsedMs = watch.ElapsedMilliseconds;
 
             // Parse ".\d4data\json\GBID.json"
@@ -903,12 +934,16 @@ namespace D4DataParser.Parsers
                 affixInfo.IsTemperingAvailable = affixInfo.IdName.Contains("tempered", StringComparison.OrdinalIgnoreCase);
             }
 
+            // Update AffixInfo
+            //  - Tuning prisms
+            UpdateAffixInfoWithTuningPrisms(affixInfoList);
+
             SaveAffixes(language);
             ValidateAffixes(language);
 
             watch.Stop();
             Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Elapsed time (Total): {watch.ElapsedMilliseconds}");
-        }
+        }        
 
         private string GetDamagePercentBonusAgainstDotType(uint sno)
         {
@@ -1367,6 +1402,242 @@ namespace D4DataParser.Parsers
             var options = new JsonSerializerOptions { WriteIndented = true };
             options.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
             JsonSerializer.Serialize(stream, affixInfoListExport, options);
+        }
+
+        private void UpdateAffixInfoWithTuningPrisms(List<AffixInfo> affixInfoList)
+        {
+            // Item_X2_HoradricCube_TuningStone_1.stl.json
+            // Aggressive Tuning Prism
+            // TemperAttribute_Offensive
+            var offensiveRecipes = _recipeMetaJsonList.Where(
+                r => r.FileName.Contains("Tempering_Barb_Offensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Druid_Offensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Generic_Offensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Necro_Offensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Paladin_Offensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Rogue_Offensive", StringComparison.OrdinalIgnoreCase) ||                
+                r.FileName.Contains("Tempering_Sorc_Offensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Spiritborn_Offensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_War_", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var offensiveAffixes = offensiveRecipes
+                .SelectMany(r => r.TemperingData.ARTemperedAffixes)
+                .Select(a => a.SnoAffix.name).ToList();
+
+            foreach (var affixInfo in affixInfoList)
+            {
+                foreach (var affix in offensiveAffixes)
+                {
+                    if (affixInfo.IdNameList.Contains(affix))
+                    {
+                        affixInfo.TuningPrisms.Add("TuningStone_1");
+                        break;
+                    }
+                }
+            }
+
+            // Item_X2_HoradricCube_TuningStone_2.stl.json
+            // Protector's Tuning Prism
+            // TemperAttribute_Defensive
+            var defensiveRecipes = _recipeMetaJsonList.Where(
+                r => r.FileName.Contains("Tempering_Barb_Defensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Druid_Defensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Generic_Defensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Necro_Defensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Paladin_Defensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Paladin_Defesnive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Rogue_Defensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Sorc_Defensive", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Spiritborn_Defensive", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var defensiveAffixes = defensiveRecipes
+                .SelectMany(r => r.TemperingData.ARTemperedAffixes)
+                .Select(a => a.SnoAffix.name).ToList();
+
+            foreach (var affixInfo in affixInfoList)
+            {
+                foreach (var affix in defensiveAffixes)
+                {
+                    if (affixInfo.IdNameList.Contains(affix))
+                    {
+                        affixInfo.TuningPrisms.Add("TuningStone_2");
+                        break;
+                    }
+                }
+            }
+
+            // Item_X2_HoradricCube_TuningStone_3.stl.json
+            // Resourceful Tuning Prism
+            // TemperAttribute_Resource
+            var resourceRecipes = _recipeMetaJsonList.Where(
+                r => r.FileName.Contains("Tempering_Barb_Resource", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Druid_Resource", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Generic_Resource", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Necro_Resource", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Paladin_Resource", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Rogue_Resource", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Sorc_Resource", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Spiritborn_Resource", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var resourceAffixes = resourceRecipes
+                .SelectMany(r => r.TemperingData.ARTemperedAffixes)
+                .Select(a => a.SnoAffix.name).ToList();
+
+            foreach (var affixInfo in affixInfoList)
+            {
+                foreach (var affix in resourceAffixes)
+                {
+                    if (affixInfo.IdNameList.Contains(affix))
+                    {
+                        affixInfo.TuningPrisms.Add("TuningStone_3");
+                        break;
+                    }
+                }
+            }
+
+            // Item_X2_HoradricCube_TuningStone_4.stl.json
+            // Pragmatic Tuning Prism
+            // TemperAttribute_Mobility
+            // TemperAttribute_Utility
+            var mobilityRecipes = _recipeMetaJsonList.Where(
+                r => r.FileName.Contains("Tempering_Barb_Mobility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Druid_Mobility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Generic_Mobility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Necro_Mobility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Paladin_Mobility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Rogue_Mobility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Sorc_Mobility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Spiritborn_Mobility", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var mobilityAffixes = mobilityRecipes
+                .SelectMany(r => r.TemperingData.ARTemperedAffixes)
+                .Select(a => a.SnoAffix.name).ToList();
+
+            foreach (var affixInfo in affixInfoList)
+            {
+                foreach (var affix in mobilityAffixes)
+                {
+                    if (affixInfo.IdNameList.Contains(affix))
+                    {
+                        affixInfo.TuningPrisms.Add("TuningStone_4");
+                        break;
+                    }
+                }
+            }
+
+            var utilityRecipes = _recipeMetaJsonList.Where(
+                r => r.FileName.Contains("Tempering_Barb_Utility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Druid_Utility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Generic_Utility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Necro_Utility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Paladin_Utility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Rogue_Utility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Sorc_Utility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Sorc_Fiery_Utility", StringComparison.OrdinalIgnoreCase) ||
+                r.FileName.Contains("Tempering_Spiritborn_Utility", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            var utilityAffixes = utilityRecipes
+                .SelectMany(r => r.TemperingData.ARTemperedAffixes)
+                .Select(a => a.SnoAffix.name).ToList();
+
+            foreach (var affixInfo in affixInfoList)
+            {
+                foreach (var affix in utilityAffixes)
+                {
+                    if (affixInfo.IdNameList.Contains(affix))
+                    {
+                        affixInfo.TuningPrisms.Add("TuningStone_4");
+                        break;
+                    }
+                }
+            }
+
+            // Item_X2_HoradricCube_TuningStone_5.stl.json
+            // Chromatic Tuning Prism
+            // Resistance
+            var resistanceLocalisationIds = new List<string>
+            {
+                "Resistance_All",
+                "Resistance#Cold_Gem",
+                "Resistance#Fire_Gem",
+                "Resistance#Lightning_Gem",
+                "Resistance#Physical_Gem",
+                "Resistance#Poison_Gem",
+                "Resistance#Shadow_Gem"                
+            };
+
+            foreach (var affixInfo in affixInfoList)
+            {
+                foreach (var resistanceLocalisationId in resistanceLocalisationIds)
+                {
+                    if (affixInfo.AffixAttributes.Any(attr => attr.LocalisationId.Contains(resistanceLocalisationId)))
+                    {
+                        affixInfo.TuningPrisms.Add("TuningStone_5");
+                        break;
+                    }
+                }
+            }
+
+            // Item_X2_HoradricCube_TuningStone_6.stl.json
+            // Adept's Tuning Prism
+            // Core Stat + Skill
+            var coreStatLocalisationIds = new List<string>
+            {
+                "Dexterity",
+                "Intelligence",
+                "Strength",
+                "Willpower"
+            };
+
+            foreach (var affixInfo in affixInfoList)
+            {
+                foreach (var coreStatLocalisationId in coreStatLocalisationIds)
+                {
+                    if (affixInfo.AffixAttributes.Any(attr => attr.LocalisationId.Equals(coreStatLocalisationId)))
+                    {
+                        affixInfo.TuningPrisms.Add("TuningStone_6");
+                        break;
+                    }
+                }
+            }
+
+            var skillLocalisationIds = new List<string>
+            {
+                "Skill_Rank_All_Bonus",
+                "Skill_Rank_Bonus",
+                "Skill_Rank_Skill_Tag_Bonus"
+            };
+
+            foreach (var affixInfo in affixInfoList)
+            {
+                foreach (var skillLocalisationId in skillLocalisationIds)
+                {
+                    if (affixInfo.AffixAttributes.Any(attr => attr.LocalisationId.Equals(skillLocalisationId)))
+                    {
+                        affixInfo.TuningPrisms.Add("TuningStone_6");
+                        break;
+                    }
+                }
+            }
+
+            // Item_X2_HoradricCube_TuningStone_7.stl.json
+            // Entropic Tuning Prism
+            // Transfiguration. Removes the riskiest, but also the most powerful outcomes.
+
+            // Item_X2_HoradricCube_TuningStone_8.stl.json
+            // Kullean Tuning Prism
+            // Amulets. Adds a random bonus Legendary Aspect.
+            // Allows the item to stay Modifiable after Transfiguration.
+
+            // Clean up
+            foreach (var affixInfo in affixInfoList)
+            {
+                affixInfo.TuningPrisms = affixInfo.TuningPrisms.Distinct().ToList();
+                affixInfo.TuningPrisms.Sort((x, y) =>
+                {
+                    return string.Compare(x, y, StringComparison.Ordinal);
+                });
+            }
         }
 
         private void ValidateAffixes(string language)
