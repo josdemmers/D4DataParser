@@ -1436,6 +1436,40 @@ namespace D4DataParser.Parsers
                 }
             }
 
+            var offensiveLocalisationIds = new List<string>
+            {
+                "Attack_Speed_Bonus_After_Dodge",
+                "Attack_Speed_Percent_Bonus",
+                "Attack_Speed_Percent_Bonus_For_Power",
+                "Attack_Speed_Percent_Bonus_Per_Skill_Tag",
+                "Barb_Berserking_AttackSpeed",
+                //"Druid_AnimaOfTheForest",
+                "Evade_Grants_AttackSpeed",
+                "Generic_AttackSpeed_After_Using_Defensive",
+                "Necro_ColdMage_AttackSpeed",
+                "Pet_Attack_Speed_Bonus_Percent",
+                "Rogue_Precision_AttackSpeedPer",
+                "Bucketed_Multiplicative_Crit_Damage",
+                "Bucketed_Multiplicative_Damage",
+                "Bucketed_Multiplicative_Damage_Type",
+                "Bucketed_Multiplicative_DoT_Damage",
+                "Bucketed_Multiplicative_Vulnerable_Health_Damage",
+                "Main_Hand_Damage_Percent_Bonus",
+                "Weapon_Damage_Min"
+            };
+
+            foreach (var affixInfo in affixInfoList)
+            {
+                foreach (var offensiveLocalisationId in offensiveLocalisationIds)
+                {
+                    if (affixInfo.AffixAttributes.Any(attr => attr.LocalisationId.Contains(offensiveLocalisationId)))
+                    {
+                        affixInfo.TuningPrisms.Add("TuningStone_1");
+                        break;
+                    }
+                }
+            }
+
             // Item_X2_HoradricCube_TuningStone_2.stl.json
             // Protector's Tuning Prism
             // TemperAttribute_Defensive
@@ -1466,6 +1500,28 @@ namespace D4DataParser.Parsers
                 }
             }
 
+            var defensiveLocalisationIds = new List<string>
+            {
+                "Dodge_Chance_Bonus",
+                "Dodge_Chance_Bonus_Melee",
+                "Dodge_Chance_Bonus_Ranged",
+                "Rogue_DoK_Dodge",
+                "Flat_Hitpoints_On_Kill_Unscaled_By_Player_Health",
+                "No_Damage_Taken_Flat_Hitpoints_Regen_Per_Second_Unscaled_By_Player_Health"
+            };
+
+            foreach (var affixInfo in affixInfoList)
+            {
+                foreach (var defensiveLocalisationId in defensiveLocalisationIds)
+                {
+                    if (affixInfo.AffixAttributes.Any(attr => attr.LocalisationId.Contains(defensiveLocalisationId)))
+                    {
+                        affixInfo.TuningPrisms.Add("TuningStone_2");
+                        break;
+                    }
+                }
+            }
+
             // Item_X2_HoradricCube_TuningStone_3.stl.json
             // Resourceful Tuning Prism
             // TemperAttribute_Resource
@@ -1488,6 +1544,25 @@ namespace D4DataParser.Parsers
                 foreach (var affix in resourceAffixes)
                 {
                     if (affixInfo.IdNameList.Contains(affix))
+                    {
+                        affixInfo.TuningPrisms.Add("TuningStone_3");
+                        break;
+                    }
+                }
+            }
+
+            var resourceLocalisationIds = new List<string>
+            {
+                "Resource_All_Primary_Max_Bonus",
+                "Resource_On_Kill",
+                "Resource_Regen_Per_Second"                
+            };
+
+            foreach (var affixInfo in affixInfoList)
+            {
+                foreach (var resourceLocalisationId in resourceLocalisationIds)
+                {
+                    if (affixInfo.AffixAttributes.Any(attr => attr.LocalisationId.Contains(resourceLocalisationId)))
                     {
                         affixInfo.TuningPrisms.Add("TuningStone_3");
                         break;
@@ -1545,6 +1620,24 @@ namespace D4DataParser.Parsers
                 foreach (var affix in utilityAffixes)
                 {
                     if (affixInfo.IdNameList.Contains(affix))
+                    {
+                        affixInfo.TuningPrisms.Add("TuningStone_4");
+                        break;
+                    }
+                }
+            }
+
+            var mobilityUtilityLocalisationIds = new List<string>
+            {
+                "Bonus_Healing_Received_Percent",
+                "Potion_Max_Doses_Bonus"
+            };
+
+            foreach (var affixInfo in affixInfoList)
+            {
+                foreach (var mobilityUtilityLocalisationId in mobilityUtilityLocalisationIds)
+                {
+                    if (affixInfo.AffixAttributes.Any(attr => attr.LocalisationId.Contains(mobilityUtilityLocalisationId)))
                     {
                         affixInfo.TuningPrisms.Add("TuningStone_4");
                         break;
