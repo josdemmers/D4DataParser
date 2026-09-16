@@ -616,12 +616,25 @@ namespace D4DataParser.Parsers
                                 subLocalisationId = $"{affixAttributes.LocalisationId}#{subId}";
                             }
                         }
-                        else if (affixAttributes.LocalisationId.Equals("LuckyHit_DoT"))
+                        else if (affixAttributes.LocalisationId.Equals("LuckyHit_DoT") ||
+                            affixAttributes.LocalisationId.Equals("Global_LuckyHit_DoT"))
                         {
                             string subId = GetLuckyHitDoT(subSno);
                             if (!string.IsNullOrWhiteSpace(subId))
                             {
                                 subLocalisationId = $"{affixAttributes.LocalisationId}#{subId}";
+                            }
+                        }
+                        else if (affixAttributes.LocalisationId.Equals("Global_Damage_to_Monster_Family"))
+                        {
+                            string subId = GetDamageToMonsterFamily(subSno);
+                            if (!string.IsNullOrWhiteSpace(subId))
+                            {
+                                subLocalisationId = $"{affixAttributes.LocalisationId}#{subId}";
+                            }
+                            else
+                            {
+                                Debug.WriteLine($"{MethodBase.GetCurrentMethod()?.Name}: Sub localisation data available but subSno unknown. ({affixAttributes.LocalisationId}: {subSno})");
                             }
                         }
                         else
@@ -811,6 +824,7 @@ namespace D4DataParser.Parsers
                         affixAttribute.LocalisationId.Equals("Per_Damage_Type_Buff_Duration_Bonus_Percent") ||
                         affixAttribute.LocalisationId.Equals("Proc_Flat_Element_Damage_On_Hit") ||
                         affixAttribute.LocalisationId.Equals("Resistance") ||
+                        affixAttribute.LocalisationId.Equals("Resistance_Bonus_Percent") ||
                         affixAttribute.LocalisationId.Equals("Resistance_Max_Bonus") ||
                         affixAttribute.LocalisationId.Equals("Multiplicative_Damage_Type_Percent_Bonus"))
                     {
@@ -993,6 +1007,30 @@ namespace D4DataParser.Parsers
                     break;
                 case 1:
                     type = "Fire";
+                    break;
+                case 4:
+                    type = "Poison";
+                    break;
+                case 5:
+                    type = "Shadow";
+                    break;
+            }
+            return type;
+        }
+
+        private string GetDamageToMonsterFamily(uint sno)
+        {
+            string type = string.Empty;
+            switch (sno)
+            {
+                case 0:
+                    type = "Physical";
+                    break;
+                case 1:
+                    type = "Fire";
+                    break;
+                case 3:
+                    type = "Cold";
                     break;
                 case 4:
                     type = "Poison";
@@ -1240,7 +1278,7 @@ namespace D4DataParser.Parsers
             if (damageTypeInfo != null)
             {
                 string resource = damageTypeInfo.szText;
-                affix.Description = affix.Description.Replace("{VALUE1}", resource);
+                affix.Description = affix.Description.Replace("{VALUE1}", resource, StringComparison.OrdinalIgnoreCase);
             }
             else
             {
@@ -1438,7 +1476,7 @@ namespace D4DataParser.Parsers
 
             var offensiveLocalisationIds = new List<string>
             {
-                "Attack_Speed_Bonus_After_Dodge",
+                "Attack_Speed_Bonus_After_Dodge", // Attack Speed
                 "Attack_Speed_Percent_Bonus",
                 "Attack_Speed_Percent_Bonus_For_Power",
                 "Attack_Speed_Percent_Bonus_Per_Skill_Tag",
@@ -1449,13 +1487,23 @@ namespace D4DataParser.Parsers
                 "Necro_ColdMage_AttackSpeed",
                 "Pet_Attack_Speed_Bonus_Percent",
                 "Rogue_Precision_AttackSpeedPer",
-                "Bucketed_Multiplicative_Crit_Damage",
+                "Bucketed_Multiplicative_Crit_Damage", // Damage Multiplier
                 "Bucketed_Multiplicative_Damage",
                 "Bucketed_Multiplicative_Damage_Type",
                 "Bucketed_Multiplicative_DoT_Damage",
                 "Bucketed_Multiplicative_Vulnerable_Health_Damage",
-                "Main_Hand_Damage_Percent_Bonus",
-                "Weapon_Damage_Min"
+                "Main_Hand_Damage_Percent_Bonus", // Weapon Damage
+                "Weapon_Damage_Min",
+                "Crit_Chance_Bonus_To_Near", // Crit
+                "Crit_Percent_Bonus",
+                "Crit_Percent_Bonus_Per_Skill_Tag",
+                "Crit_Percent_Bonus_To_Low_Health",
+                "Crit_Percent_Bonus_Vs_CC_Target",
+                "Crit_Percent_Bonus_Vs_CC_Target_Any",
+                "Damage_Type_Crit_Percent_Bonus_Vs_Elites",
+                "Power_Crit_Percent_Bonus",
+                "Rogue_RapidFire_EnhancedCritBonus",
+                "S12_KillStreak_Massacre_CriticalStrikeChance"
             };
 
             foreach (var affixInfo in affixInfoList)
@@ -1656,7 +1704,8 @@ namespace D4DataParser.Parsers
                 "Resistance#Lightning_Gem",
                 "Resistance#Physical_Gem",
                 "Resistance#Poison_Gem",
-                "Resistance#Shadow_Gem"                
+                "Resistance#Shadow_Gem",
+                "Resistance_Bonus_Percent"
             };
 
             foreach (var affixInfo in affixInfoList)
