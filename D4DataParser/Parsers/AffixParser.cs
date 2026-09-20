@@ -1550,12 +1550,13 @@ namespace D4DataParser.Parsers
 
             var defensiveLocalisationIds = new List<string>
             {
-                "Dodge_Chance_Bonus",
+                "Dodge_Chance_Bonus", // Dodge
                 "Dodge_Chance_Bonus_Melee",
                 "Dodge_Chance_Bonus_Ranged",
                 "Rogue_DoK_Dodge",
+                "Flat_Hitpoints_On_Kill", // Life On Kill
                 "Flat_Hitpoints_On_Kill_Unscaled_By_Player_Health",
-                "No_Damage_Taken_Flat_Hitpoints_Regen_Per_Second_Unscaled_By_Player_Health"
+                "No_Damage_Taken_Flat_Hitpoints_Regen_Per_Second_Unscaled_By_Player_Health" // Life Regeneration
             };
 
             foreach (var affixInfo in affixInfoList)
