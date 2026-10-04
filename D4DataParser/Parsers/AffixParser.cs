@@ -1550,6 +1550,23 @@ namespace D4DataParser.Parsers
 
             var defensiveLocalisationIds = new List<string>
             {
+                "Damage_Percent_Reduction_From_Dotted_Enemy", // Damage_Reduction
+                "Damage_Percent_Reduction_From_Dotted_Enemy#Shadow",
+                "Damage_Percent_Reduction_From_Elites",
+                "Damage_Percent_Reduction_From_Targets_With_Skill_Tag",
+                "Damage_Reduction",
+                "Damage_Reduction_At_High_Health",
+                "Damage_Reduction_At_Low_Health",                
+                "Damage_Reduction_From_Far",
+                "Damage_Reduction_From_Near",
+                "Damage_Reduction_While_Having_Shield",
+                "Damage_Reduction_While_Stationary",
+                "Fortified_Health_Damage_Reduction_Bonus",
+                "Generic_DamageReduction_WhileUnstoppable",
+                "Necro_BoneStorm_DamageReduction",
+                "Pet_Damage_Reduction_Percent",
+                "Sorc_BallLightning_Damage_Reduction_Per",
+                "Sorc_CracklingEnergy_DamageReductionPer",
                 "Dodge_Chance_Bonus", // Dodge
                 "Dodge_Chance_Bonus_Melee",
                 "Dodge_Chance_Bonus_Ranged",
@@ -1679,6 +1696,7 @@ namespace D4DataParser.Parsers
             var mobilityUtilityLocalisationIds = new List<string>
             {
                 "Bonus_Healing_Received_Percent",
+                "Evade_Max_Charges",
                 "Potion_Max_Doses_Bonus"
             };
 
