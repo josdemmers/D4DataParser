@@ -1697,6 +1697,7 @@ namespace D4DataParser.Parsers
             {
                 "Bonus_Healing_Received_Percent",
                 "Evade_Max_Charges",
+                "Evade_Movement_Speed_Combined",
                 "Potion_Max_Doses_Bonus"
             };
 
