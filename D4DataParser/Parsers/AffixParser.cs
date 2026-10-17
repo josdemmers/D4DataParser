@@ -478,7 +478,7 @@ namespace D4DataParser.Parsers
                     affixInfo.AffixType = affixMeta.eAffixType;
                     affixInfo.Category = affixMeta.eCategory;
                     affixInfo.Flags = affixMeta.dwFlags;
-                    affixInfo.IsTemperingAvailable = affixMeta.bIsTemperedAffix;
+                    affixInfo.IsTemperingAvailable = affixMeta.bIsTemperedAffix != 0;
                     affixInfo.MagicType = affixMeta.eMagicType;
 
                     affixInfo.AllowedForPlayerClass = affixMeta.fAllowedForPlayerClass ?? new List<int>();

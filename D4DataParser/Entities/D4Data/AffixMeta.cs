@@ -39,7 +39,7 @@ namespace D4DataParser.Entities.D4Data
         public List<ArSkillTagsToRemove> arSkillTagsToRemove { get; set; }
         //arConditionalSkillTags
         public GbidMalignantColor gbidMalignantColor { get; set; }
-        public bool bIsTemperedAffix { get; set; } = false;
+        public int bIsTemperedAffix { get; set; }
     }
 
     public class ArAffixSkillTag
@@ -110,8 +110,7 @@ namespace D4DataParser.Entities.D4Data
     {
         public string __type__ { get; set; }
         public long __typeHash__ { get; set; }
-        public bool bIgnoreLegendaryScaling { get; set; }
-        public bool unk_288eecd { get; set; }
+        public int bIgnoreLegendaryScaling { get; set; }
         public TAttribute tAttribute { get; set; }
     }
 
@@ -174,16 +173,9 @@ namespace D4DataParser.Entities.D4Data
         public uint nParam { get; set; } // Keep this at uint, need to automatic fix overflowed values.
         public SzAttributeFormula szAttributeFormula { get; set; }
         public GbidFormula gbidFormula { get; set; }
-        public UnkDffdf28 unk_dffdf28 { get; set; }
     }
 
     public class TCost
-    {
-        public string value { get; set; }
-        public string compiled { get; set; }
-    }
-
-    public class UnkDffdf28
     {
         public string value { get; set; }
         public string compiled { get; set; }
